@@ -1,0 +1,3 @@
+A Python 2.7 IRC bot based on the blackbox IRC module, which can be found here: https://github.com/proxypoke/blackbox_IRC-macros/
+
+Simply edit all the varibles in WhergBot.py and run with ./WhergBot.py
