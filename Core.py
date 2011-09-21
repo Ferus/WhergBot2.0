@@ -8,22 +8,17 @@ import Commands
 import Allowed
 
 class Bot():
-	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = False):
+	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
 		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
-		self.p = Parser.Parse()
-		self.command = Commands.Commands(sock=self.irc, nick=nickname)
+		self.p = Parser.Parse(sock=self.irc, nick=nickname)
+		self.command = Commands.Commands(sock=self.irc, parser=self.p, nick=nickname)
 		self._commands = self.command.cmds.keys()
 		
-#		self.allow = Allowed.Users()
-#		if owner:
-#			self.allow.addOwner(owner[0], owner[1])
-#		Disabled
-
-		self.allowed = {}
+		self.allowed = Allowed.Users()
 		if owner:
 			self.owner = owner
-			self.allowed[owner[0]] = [owner[1], owner[2]]
+			self.allowed.addOwner(self.owner[0], self.owner[1])
 		
 		
 		if nickname:
@@ -39,7 +34,6 @@ class Bot():
 		else:
 			self.ident = 'Wherg'
 
-		self.users = {} #Storage for Users of each channel. The Key is channel, users are a list.
 		
 	def Connect(self, server, port=6697):
 		'''Connect to the server, default the port to 6697 because SSL'''
@@ -91,57 +85,44 @@ class Bot():
 				self.text = self.msg[4]
 				self.cmd = self.msg[5]
 			except:
-				try:	
-					if 'PART' == self.msg.split()[1]:
-						self.msg = self.p.Parted(self.msg)
-						self.users[self.msg[3]].remove(self.msg[0])
-				
-					if 'JOIN' == self.msg.split()[1]:
-						self.msg = self.p.Joined(self.msg)
-						self.users[self.msg[3]].append(self.msg[0])
-					
-				except:
-					pass
-
-#			if ' 353 '+self.nickname in self.msg: ### ADD TO PARSER
-#				try:
-#					channel, names = self.msg.split(" = ")[1].split(" \r\n")[0].split(" :")
-#					names = names.replace('~','').replace('&','').replace('@','').replace('%','').replace('+','').split(' ')
-#					self.users[channel] = names
-#				except:
-#					pass
+				pass
 
 			try:
 				cmdVar = '$'
-				'''Testing shit now.'''				
+				'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''				
 				if self.cmd.startswith(cmdVar) and self.cmd[1:] in self._commands:
-					if self.allowed[self.nick][1] <= self.command.cmds[self.cmd[1:]][1] and self.host == self.allowed[self.nick][0]:
+					check = self.allowed.levelCheck(self.nick)[1]
+					if self.host == check[0] and check[1] <= self.command.cmds[self.cmd[1:]][1]:
 						(self.command.cmds[self.cmd[1:]])[0](self.msg)
 					
 				if self.cmd == '$access':
-					if self.allowed[self.nick][1] == 0: #Check if person is owner.
+					if self.allowed.db[self.nick][1] == 0: #Check if person is owner.
 						try:
+							levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
 							tmp = self.text.split()[1:]
+							
 							if tmp[0] == 'add':
-								self.allowed[tmp[1]] = [ tmp[2], int(tmp[3]) ]
+								if int(tmp[3]) in levels.keys():
+									levels[int(tmp[3])](tmp[1], tmp[2])								
+								else:
+									self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
+									
 								self.SendMsg(self.location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
-								
+									
 							elif tmp[0] == 'del':
-								if tmp[1] in self.allowed.keys():
+								if self.allowed.levelCheck(tmp[1]):
 									if tmp[1] != self.owner[0]:
-										del self.allowed[tmp[1]]
+										del self.allowed.db[tmp[1]]
 										self.SendMsg(self.location, "Deleted access for {0}".format(tmp[1]))
-									else:
-										pass
+								else:
+									self.SendMsg(self.location, "No access level found for {0}".format(tmp[1]))
 							
 							elif tmp[0] == 'show':
-								print self.allowed
-								self.SendNotice(self.nick, str(self.allowed))
+								self.SendNotice(self.nick, str(self.allowed.db))
 							
 						except Exception, e:
 							self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
-							print("Error: {0}".format(str(e)))
-				
+							print("Error: {0}".format(str(e)))				
 							
 				if self.cmd == '$join':
 					self.Join(self.text.split()[1])

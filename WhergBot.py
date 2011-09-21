@@ -18,8 +18,8 @@ if __name__ == '__main__':
 		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
 		WhergBot.Join("hacking")
 		while WhergBot.irc._isConnected:
-			msg = WhergBot.Parse(WhergBot.irc.recv(bufferlen=1024))
-			print(msg)
+			msg = WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
+#			print(msg) #Added to parser.
 			
 	except KeyboardInterrupt:
 		print("\nInterrupt Caught; Quitting!")

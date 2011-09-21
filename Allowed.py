@@ -13,9 +13,13 @@ class Users():
 	def addAdmin(self, nick, host):
 		self.db[nick] = [host, 1]
 		
+	def addOther(self, nick, host, level):
+		'''This is only temporary...'''
+		self.db[nick] = [host, int(level)]
+		
 	def levelCheck(self, nick):
 		if nick in self.db.keys():
-			return self.db[nick]
+			return nick, self.db[nick]
 		else:
 			return None
 		
