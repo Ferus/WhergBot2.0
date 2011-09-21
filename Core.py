@@ -1,11 +1,19 @@
 #Global Imports
 from blackbox import blackbox_core
 import time
+from threading import Thread
 
 #Local Imports
 import Parser
 import Commands
 import Allowed
+
+## Notes (lol)
+#Temporary printing in parser module until i define an action for every event, then i can return to printing in the main file.
+#Move allowed over to shelve and fix the parser, seeing as permissions will stay
+#plugins!
+#move $access to parser since the allowed object is passed into it
+#thread all commands
 
 class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
@@ -22,9 +30,7 @@ class Bot():
 		self.command = Commands.Commands(sock=self.irc, parser=self.p, nick=nickname)
 		self._commands = self.command.cmds.keys()
 		
-
-		
-		
+				
 		if nickname:
 			self.nickname = nickname
 		else:
@@ -63,7 +69,6 @@ class Bot():
 	def SendNotice(self, location, msg):
 		self.SendRaw("NOTICE {0} :{1}".format(location, msg))
 		
-	
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')
 		#self.raw = self.msg
@@ -99,11 +104,17 @@ class Bot():
 					if check[1] <= self.command.cmds[self.cmd[1:]][1]:
 						if self.command.cmds[self.cmd[1:]][2]:
 							if self.host == check[0]:
-								(self.command.cmds[self.cmd[1:]])[0](self.msg)
+								#(self.command.cmds[self.cmd[1:]])[0](self.msg)
+								t = Thread(target=(self.command.cmds[self.cmd[1:]])[0](self.msg))
+								t.daemon = True
+								t.start()
 							else:
 								self.SendNotice(self.nick, "You do not have the required authority to use this command.")
 						else:
-							(self.command.cmds[self.cmd[1:]])[0](self.msg)
+							#(self.command.cmds[self.cmd[1:]])[0](self.msg)
+							t = Thread(target=(self.command.cmds[self.cmd[1:]])[0](self.msg))
+							t.daemon = True
+							t.start()
 					
 				if self.cmd == '$access':
 					if self.allowed.db[self.nick][1] == 0: #Check if person is owner.
@@ -131,14 +142,16 @@ class Bot():
 									self.SendMsg(self.location, "No access level found for {0}".format(tmp[1]))
 							
 							elif tmp[0] == 'show':
-								self.SendNotice(self.nick, str(self.allowed.db))
+								try:								
+									self.SendMsg(self.location, str(self.allowed.db[tmp[1]]))
+								except Exception, e:
+									print(e)
+									
 							
 						except Exception, e:
 							self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
-							print("Error: {0}".format(str(e)))				
-							
-				if self.cmd == '$join':
-					self.Join(self.text.split()[1])
+							print("* [Access] Error\n{0}".format(str(e)))				
+
 			except:
 				pass
 

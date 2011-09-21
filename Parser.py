@@ -59,14 +59,28 @@ class Parse():
 			
 
 					if msg[1] == 'JOIN':
-						self.users[msg[2].strip(":")].append(msg[0].split("!")[0].strip(":"))
+						person = msg[0].split("!")[0].strip(":")
+						if person not in self.allowed.db.keys(): #Temp level 5 access until i port allowed.py to shelve
+							self.allowed.db[person] = [None, 5]
+						self.users[msg[2].strip(":")].append(person)
 					if msg[1] == 'PART':
-						self.users[msg[2]].remove(msg[0].split("!")[0].strip(":"))
+						person = msg[0].split("!")[0].strip(":")
+						#if person in self.allowed.db.keys():
+						#	del self.allowed.db[person]
+						self.users[msg[2]].remove(person)
 					if msg[1] == 'QUIT':
-						person = msg[0].split("!")[0]
+						person = msg[0].split("!")[0].strip(":")
+						#if person in self.allowed.db.keys():
+						#	del self.allowed.db[person]
 						for chan in self.users.keys():
 							if person in self.users[chan]:
 								self.users[chan].remove(person)
+								
+					if msg[1] == 'INVITE':
+						'''Join an invited channel if the person's hostname is defined in allowed.'''
+						person, host = msg[0].split(":")[1].split("!")
+						if self.allowed.db[person][0] == host:
+							self.sock.join(msg[3][1:])
 					
 					else:
 						return msg
