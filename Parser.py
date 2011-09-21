@@ -1,10 +1,13 @@
 #!/usr/bin/python2
 
 class Parse():
-	def __init__(self, sock=None, nick=''):
+	def __init__(self, sock=None, allowed=None, nick=''):
 		if sock:
 			self.sock = sock
-		
+			
+		if allowed:
+			self.allowed = allowed
+			
 		if nick:
 			self.nickname = nick
 		
@@ -25,6 +28,10 @@ class Parse():
 						for x in msg[5:]:
 							x = x.replace(":","").replace("~","").replace("&","").replace("@","").replace("%","").replace("+","")
 							nameslist.append(x)
+							
+							if x not in self.allowed.db.keys():
+								self.allowed.db[x] = [None, 5]
+							
 						self.users[msg[4]] = nameslist					
 				except:
 					pass

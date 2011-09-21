@@ -14,11 +14,12 @@ class Commands():
 			self.parser = parser
 			
 		self.cmds = {
-			'echo': [self.Echo, 4],
-			'raw': [self.Raw, 0],
-			'names': [self.Names, 5],
-			'join': [self.Join, 3],
-			'part': [self.Part, 3],
+			# Command name to be called : Block of code to execute, Access level, Hostcheck
+			'echo': [self.Echo, 4, False],
+			'raw': [self.Raw, 0, True],
+			'names': [self.Names, 5, False],
+			'join': [self.Join, 3, True],
+			'part': [self.Part, 3, True],
 					}
 	
 	def Echo(self, msg):
@@ -38,7 +39,9 @@ class Commands():
 	def Names(self, msg):
 		try:
 			#self.sock.say(msg[3], str(self.parser.users))
-			print self.parser.users
+			#print(self.parser.users)
+			for key in self.parser.users.keys():
+				print(key, self.parser.users[key])
 		except Exception, e:
 			print("* [Names] Error")
 			print(e)

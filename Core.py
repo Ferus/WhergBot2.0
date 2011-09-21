@@ -11,14 +11,18 @@ class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
 		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
-		self.p = Parser.Parse(sock=self.irc, nick=nickname)
-		self.command = Commands.Commands(sock=self.irc, parser=self.p, nick=nickname)
-		self._commands = self.command.cmds.keys()
 		
 		self.allowed = Allowed.Users()
 		if owner:
 			self.owner = owner
 			self.allowed.addOwner(self.owner[0], self.owner[1])
+			
+			
+		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
+		self.command = Commands.Commands(sock=self.irc, parser=self.p, nick=nickname)
+		self._commands = self.command.cmds.keys()
+		
+
 		
 		
 		if nickname:
@@ -92,8 +96,14 @@ class Bot():
 				'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''				
 				if self.cmd.startswith(cmdVar) and self.cmd[1:] in self._commands:
 					check = self.allowed.levelCheck(self.nick)[1]
-					if self.host == check[0] and check[1] <= self.command.cmds[self.cmd[1:]][1]:
-						(self.command.cmds[self.cmd[1:]])[0](self.msg)
+					if check[1] <= self.command.cmds[self.cmd[1:]][1]:
+						if self.command.cmds[self.cmd[1:]][2]:
+							if self.host == check[0]:
+								(self.command.cmds[self.cmd[1:]])[0](self.msg)
+							else:
+								self.SendNotice(self.nick, "You do not have the required authority to use this command.")
+						else:
+							(self.command.cmds[self.cmd[1:]])[0](self.msg)
 					
 				if self.cmd == '$access':
 					if self.allowed.db[self.nick][1] == 0: #Check if person is owner.
@@ -102,6 +112,9 @@ class Bot():
 							tmp = self.text.split()[1:]
 							
 							if tmp[0] == 'add':
+								if tmp[2] == 'None':
+									tmp[2] = None
+									
 								if int(tmp[3]) in levels.keys():
 									levels[int(tmp[3])](tmp[1], tmp[2])								
 								else:
