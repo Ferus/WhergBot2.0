@@ -134,20 +134,6 @@ class Parse():
 			return a
 		except:
 			return ''
-			
-	def Pinged(self, msg):
-		try:
-			p = msg.split()[1].strip(":")
-			return p
-		except:
-			return ''
-			
-	def Joined(self, msg):
-		msg = msg.split()
-		return [self.Nick(msg[0]), self.Host(msg[0]), msg[1], msg[2].strip(":")]
-	
-	def Parted(self, msg):
-		msg = msg.split()
-		return [self.Nick(msg[0]), self.Host(msg[0]), msg[1], msg[2]]
+
 
 			
