@@ -1,6 +1,4 @@
 #!/usr/bin/python2
-#import Allowed (better name?)
-#I need an allowed.py that holds user levels in dictionaries. {'Person':['Host','Level',etc],}
 
 class Parse():
 	def __init__(self, sock=None, nick=''):
