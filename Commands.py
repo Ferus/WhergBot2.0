@@ -1,14 +1,17 @@
 #!/usr/bin/python2
 
 class Commands():
-	def __init__(self, sock=None):
+	def __init__(self, nick='', sock=None):
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
-		Each command receives the raw message in a list.'''
+		Each command receives the raw message in a list. Optional socket allows for sending messages.'''
+		
+		self.nick = nick
+		
 		if sock:
 			self.sock = sock
 		
 		self.cmds = {
-			'echo': [self.Echo, '5'],
+			'echo': [self.Echo, 4],
 					}
 	
 	def Echo(self, msg):
@@ -17,5 +20,6 @@ class Commands():
 		except Exception, e:
 			print("[Echo] Error")
 			print(e)
+			
 	
 	

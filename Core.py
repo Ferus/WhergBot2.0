@@ -8,19 +8,21 @@ import Commands
 import Allowed
 
 class Bot():
-	def __init__(self, nickname='', realname = '', ident = '', owner = []):
+	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = False):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
-		self.irc = blackbox_core.Core(logging=True)
+		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
 		self.p = Parser.Parse()
-		self.command = Commands.Commands(sock=self.irc)
+		self.command = Commands.Commands(sock=self.irc, nick=nickname)
 		self._commands = self.command.cmds.keys()
 		
 #		self.allow = Allowed.Users()
 #		if owner:
 #			self.allow.addOwner(owner[0], owner[1])
 #		Disabled
+
 		self.allowed = {}
 		if owner:
+			self.owner = owner
 			self.allowed[owner[0]] = [owner[1], owner[2]]
 		
 		
@@ -39,8 +41,8 @@ class Bot():
 
 		self.users = {} #Storage for Users of each channel. The Key is channel, users are a list.
 		
-	def Connect(self, server, port=6667):
-		'''Connect to the server'''
+	def Connect(self, server, port=6697):
+		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
 		print("Connecting to {0} on port {1}".format(server, port))
 		time.sleep(.3)
@@ -58,7 +60,11 @@ class Bot():
 		self.irc.send(msg)
 
 	def SendMsg(self, location, msg):
-		self.SendRaw("PRIVMSG {0} {1}".format(location, msg))
+		self.SendRaw("PRIVMSG {0} :{1}".format(location, msg))
+	
+	def SendNotice(self, location, msg):
+		self.SendRaw("NOTICE {0} :{1}".format(location, msg))
+		
 	
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')
@@ -106,16 +112,42 @@ class Bot():
 #					pass
 
 			try:
+				cmdVar = '$'
 				'''Testing shit now.'''				
-				if self.cmd[1:] in self._commands:
+				if self.cmd.startswith(cmdVar) and self.cmd[1:] in self._commands:
 					if self.allowed[self.nick][1] <= self.command.cmds[self.cmd[1:]][1] and self.host == self.allowed[self.nick][0]:
 						(self.command.cmds[self.cmd[1:]])[0](self.msg)
 					
-
+				if self.cmd == '$access':
+					if self.allowed[self.nick][1] == 0: #Check if person is owner.
+						try:
+							tmp = self.text.split()[1:]
+							if tmp[0] == 'add':
+								self.allowed[tmp[1]] = [ tmp[2], int(tmp[3]) ]
+								self.SendMsg(self.location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+								
+							elif tmp[0] == 'del':
+								if tmp[1] in self.allowed.keys():
+									if tmp[1] != self.owner[0]:
+										del self.allowed[tmp[1]]
+										self.SendMsg(self.location, "Deleted access for {0}".format(tmp[1]))
+									else:
+										pass
 							
-				if self.cmd == '[join':
+							elif tmp[0] == 'show':
+								print self.allowed
+								self.SendNotice(self.nick, str(self.allowed))
+							
+						except Exception, e:
+							self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
+							print("Error: {0}".format(str(e)))
+				
+							
+				if self.cmd == '$join':
 					self.Join(self.text.split()[1])
 			except:
 				pass
 
 			return self.msg
+			
+			
