@@ -16,15 +16,13 @@ if __name__ == '__main__':
 	try:
 		WhergBot = Core.Bot(nick, real, ident, owner, ssl)
 		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
-		WhergBot.Join("hacking")
+		WhergBot.irc.join("hacking")
 		while WhergBot.irc._isConnected:
-			msg = WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
+			WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
 			
 	except KeyboardInterrupt:
 		print("\nInterrupt Caught; Quitting!")
-		WhergBot.irc.quit("KeyboardInterrupt Caught!")
-		WhergBot.irc.close()
-		quit()
+		WhergBot.p.command.Quit("KeyboardInterrupt Caught!")
 		
 
 

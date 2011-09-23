@@ -1,11 +1,12 @@
 #!/usr/bin/python2
-
+import shelve
 
 class Users():
 	def __init__(self):
 		'''Permissions for our bot.'''
 		
-		self.db = {}
+		self.db = shelve.open("Allowed_Users")
+		self.keys = self.db.keys()
 		
 	def addOwner(self, nick, host):
 		self.db[nick] = [host, 0]
@@ -14,7 +15,7 @@ class Users():
 		self.db[nick] = [host, 1]
 		
 	def addOther(self, nick, host, level):
-		'''This is only temporary...'''
+		'''This is only temporary until I think of names for the others.'''
 		self.db[nick] = [host, int(level)]
 		
 	def levelCheck(self, nick):

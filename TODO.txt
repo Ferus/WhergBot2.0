@@ -1,0 +1,23 @@
+1: Change how the parser handles messages, and more options
+	- Return a message to print for each (This will remove the need for how printing is formatted now, and allow us to call one print())
+		- Print from each own block, and return each as a list? (Still undecided on this)
+	
+2: Add a plugins folder and add them to Commands.py
+	- Anything imported will need to be defined in __init__() (IE: meme.py)
+	
+3: Add flood control
+	- Im thinking appending the messages to a list and .pop()'ing them
+		-^If so, add a command to clear the list, It might not work because all threads are started when the command is recieved. I'd be better off doing the below.
+		-Find out how to cancel started threads, the current setup is a bit derp and I've no idea how it would work, unless I append all thread objects called to a list and loop through them
+			-It is better if you don't kill a thread. A way could be to introduce a "try" block into the thread's cycle and to throw an exception when you want to stop the thread (for example a break/return/... that stops your for/while/...). I've used this on my app and it works...
+			-I'd reccomend a thread.quit() function for your own convencience, say you have a socket in your thread, i'd reccomend creating a quit() function in your socket-handle class and terminate the socket then run a thread.Thread_stop() inside of your quit().
+			-TL;DR some sort of thread_object.stop() that will close anything needed in it
+			-(I could always port plugins to threading)
+			-thread_object.cancel()
+				-The thread would have to remove itself from the list after completion.
+
+4: Plugins!
+
+5: Move $access to parser since the allowed object is passed into it
+
+6: Handle /nick changes. Change DB for users of a channel 

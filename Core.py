@@ -5,15 +5,7 @@ from threading import Thread
 
 #Local Imports
 import Parser
-import Commands
 import Allowed
-
-## Notes (lol)
-#Temporary printing in parser module until i define an action for every event, then i can return to printing in the main file.
-#Move allowed over to shelve and fix the parser, seeing as permissions will stay
-#plugins!
-#move $access to parser since the allowed object is passed into it
-#thread all commands
 
 class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
@@ -21,15 +13,13 @@ class Bot():
 		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
 		
 		self.allowed = Allowed.Users()
+		
 		if owner:
 			self.owner = owner
-			self.allowed.addOwner(self.owner[0], self.owner[1])
+			if self.owner[0] not in self.allowed.keys:
+				self.allowed.addOwner(self.owner[0], self.owner[1])
 			
-			
-		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
-		self.command = Commands.Commands(sock=self.irc, parser=self.p, nick=nickname)
-		self._commands = self.command.cmds.keys()
-		
+		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)	
 				
 		if nickname:
 			self.nickname = nickname
@@ -56,18 +46,6 @@ class Bot():
 		self.irc.nickname(self.nickname)
 		print("Sending nickname: {0}".format(self.nickname))
 		time.sleep(.3)
-
-	def Join(self, channels):
-		self.irc.join(channels)
-	
-	def SendRaw(self, msg):
-		self.irc.send(msg)
-
-	def SendMsg(self, location, msg):
-		self.SendRaw("PRIVMSG {0} :{1}".format(location, msg))
-	
-	def SendNotice(self, location, msg):
-		self.SendRaw("NOTICE {0} :{1}".format(location, msg))
 		
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')
@@ -82,7 +60,6 @@ class Bot():
 		else:
 			try:
 				self.msg = self.p.Main(self.msg)
-				
 				# [ Name, Ident@Host, Action, Loc, Text, Cmd ]
 				self.nick = self.msg[0]
 				self.host = self.msg[1]
@@ -96,65 +73,47 @@ class Bot():
 			except:
 				pass
 
-			try:
-				cmdVar = '$'
-				'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''				
-				if self.cmd.startswith(cmdVar) and self.cmd[1:] in self._commands:
-					check = self.allowed.levelCheck(self.nick)[1]
-					if check[1] <= self.command.cmds[self.cmd[1:]][1]:
-						if self.command.cmds[self.cmd[1:]][2]:
-							if self.host == check[0]:
-								#(self.command.cmds[self.cmd[1:]])[0](self.msg)
-								t = Thread(target=(self.command.cmds[self.cmd[1:]])[0](self.msg))
-								t.daemon = True
-								t.start()
-							else:
-								self.SendNotice(self.nick, "You do not have the required authority to use this command.")
-						else:
-							#(self.command.cmds[self.cmd[1:]])[0](self.msg)
-							t = Thread(target=(self.command.cmds[self.cmd[1:]])[0](self.msg))
-							t.daemon = True
-							t.start()
+#			try:	#Gonna move this all to the Parser, Just commiting stuff now before I break it. xD						
+#				if self.cmd == '$print':
+#					print(str(self.allowed.db))
 					
-				if self.cmd == '$access':
-					if self.allowed.db[self.nick][1] == 0: #Check if person is owner.
-						try:
-							levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
-							tmp = self.text.split()[1:]
-							
-							if tmp[0] == 'add':
-								if tmp[2] == 'None':
-									tmp[2] = None
-									
-								if int(tmp[3]) in levels.keys():
-									levels[int(tmp[3])](tmp[1], tmp[2])								
-								else:
-									self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
-									
-								self.SendMsg(self.location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
-									
-							elif tmp[0] == 'del':
-								if self.allowed.levelCheck(tmp[1]):
-									if tmp[1] != self.owner[0]:
-										del self.allowed.db[tmp[1]]
-										self.SendMsg(self.location, "Deleted access for {0}".format(tmp[1]))
-								else:
-									self.SendMsg(self.location, "No access level found for {0}".format(tmp[1]))
-							
-							elif tmp[0] == 'show':
-								try:								
-									self.SendMsg(self.location, str(self.allowed.db[tmp[1]]))
-								except Exception, e:
-									print(e)
-									
-							
-						except Exception, e:
-							self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
-							print("* [Access] Error\n{0}".format(str(e)))				
-
-			except:
-				pass
-
-			return self.msg
+#				if self.cmd == '$access':
+#					if self.allowed.db[self.nick][1] == 0: #Check if person is owner.
+#						try:
+#							levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
+#							tmp = self.text.split()[1:]
+#							
+#							if tmp[0] == 'add':
+#								if tmp[2] == 'None':
+#									tmp[2] = None
+#									
+#								if int(tmp[3]) in levels.keys():
+#									levels[int(tmp[3])](tmp[1], tmp[2])								
+#								else:
+#									self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
+#									
+#								self.SendMsg(self.location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+#									
+#							elif tmp[0] == 'del':
+#								if self.allowed.levelCheck(tmp[1]):
+#									if tmp[1] != self.owner[0]:
+#										del self.allowed.db[tmp[1]]
+#										self.SendMsg(self.location, "Deleted access for {0}".format(tmp[1]))
+#								else:
+#									self.SendMsg(self.location, "No access level found for {0}".format(tmp[1]))
+#							
+#							elif tmp[0] == 'show':
+#								try:								
+#									self.SendMsg(self.location, str(self.allowed.db[tmp[1]]))
+#								except Exception, e:
+#									print(e)
+#									
+#							
+#						except Exception, e:
+#							self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
+#							print("* [Access] Error\n{0}".format(str(e)))				
+#
+#			except:
+#				pass
 			
 			
