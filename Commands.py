@@ -24,6 +24,7 @@ class Commands():
 			'join': [self.Join, 3, True],
 			'part': [self.Part, 3, True],
 			'quit': [self.Quit, 0, True],
+			'access': [self.Access, 0, True],
 					}
 	
 	def Echo(self, msg):
@@ -70,9 +71,12 @@ class Commands():
 			print(e)
 	
 	def Quit(self, msg):
-		msg = msg[4][6:]
-		if msg == '':
-			msg = "Quitting!"
+		if type(msg) == list:
+			msg = msg[4][6:]
+			if msg == '':
+				msg = "Quitting!"
+		elif type(msg) == str:
+			msg = msg
 			
 		self.sock.quit(msg)
 		print("* [IRC] Quitting with message '{0}'.".format(msg))
@@ -81,6 +85,48 @@ class Commands():
 		self.sock.close()
 		print("* [IRC] Closing Socket.")
 		quit()
-			
-			
+	
+	def Access(self, msg):
+		#['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$access show Ferus', '$access']
+		Nick = msg[0]
+		Host = msg[1]
+		Action = msg[2]
+		Location = msg[3]
+		Text = msg[4]
+	
+		if self.allowed.db[Nick][1] == 0: #Check if person is owner.
+			try:
+				levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
+				tmp = Text.split()[1:]
 
+				if tmp[0] == 'add':
+					if tmp[2] == 'None':
+						tmp[2] = None
+						
+					if int(tmp[3]) in levels.keys():
+						levels[int(tmp[3])](tmp[1], tmp[2])								
+					else:
+						self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
+						
+					self.sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+						
+				elif tmp[0] == 'del':
+					if self.allowed.levelCheck(tmp[1]):
+						if tmp[1] != self.owner[0]:
+							del self.allowed.db[tmp[1]]
+							self.sock.say(Location, "Deleted access for {0}".format(tmp[1]))
+					else:
+						self.sock.say(Location, "No access level found for {0}".format(tmp[1]))
+				
+				elif tmp[0] == 'show':
+					try:								
+						self.sock.say(Location, str(self.allowed.db[tmp[1]]))
+					except Exception, e:
+						print(e)
+						
+				
+			except Exception, e:
+				self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
+				print("* [Access] Error\n{0}".format(str(e)))
+							
+							

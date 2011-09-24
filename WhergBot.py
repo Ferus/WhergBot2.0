@@ -21,7 +21,7 @@ if __name__ == '__main__':
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
 			
 	except KeyboardInterrupt:
-		print("\nInterrupt Caught; Quitting!")
+		print("\n* [Core] Interrupt Caught; Quitting!")
 		WhergBot.p.command.Quit("KeyboardInterrupt Caught!")
 		
 
