@@ -1,6 +1,8 @@
 #!/usr/bin/python2
 #Global Imports
 from threading import Thread
+from datetime import datetime
+
 #Local Imports
 import Commands
 
@@ -15,17 +17,25 @@ class Parse():
 		self.command = Commands.Commands(sock=self.sock, parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
 		
+		self.cmdVar = '$'
+		
 	def Main(self, msg):
-		'''Main Parser, Here we take raw data, split at \r\n, and add it to a buffer.'''
+		'''Main Parser, Here we take raw data, and split at \r\n.'''
 		tmp = msg.splitlines()
 
 		if len(tmp) >1: #Somehow this handles the bunched up lists when connecting. Weird.
 			for msg in tmp:
 				msg = msg.split()
-				print(msg)
+				#print(msg) #Temporary printing here, until we define the rest of the parser.
 				
-				try:				
-					if msg[1] == '353' and msg[2] == self.nickname: # Move this? \( ._.)/
+				try:
+					if msg[1] == '332':
+						print("* [IRC] Topic for {0} set to {1}".format(msg[3] , " ".join(msg[4:])[1:]))
+				
+					if msg[1] == '333':
+						print(datetime.fromtimestamp(int(msg[5])).strftime("* [IRC] Topic for {0} set by {1} at %c".format(msg[3], msg[4])))
+				
+					if msg[1] == '353':
 						nameslist = []
 						for x in msg[5:]:
 							x = x.replace(":","").replace("~","").replace("&","").replace("@","").replace("%","").replace("+","")
@@ -34,7 +44,9 @@ class Parse():
 							if x not in self.allowed.db.keys():
 								self.allowed.db[x] = [None, 5]
 							
-						self.users[msg[4]] = nameslist					
+						self.users[msg[4]] = nameslist	
+						print("* [IRC] Users on {0}: {1}".format(msg[4], " ".join(nameslist)))
+						
 				except:
 					pass
 					
@@ -51,6 +63,8 @@ class Parse():
 					if msg[1] == 'KICK' and msg[3] == self.nickname:
 						'''Auto-rejoin if we are kicked.'''
 						self.sock.send("JOIN {0}".format(msg[2]))
+						print msg
+						print("* [IRC] Kicked from {0} by {1} ({2}). Autorejoining.".format(msg[2], msg[0].split("!")[0][1:], " ".join(msg[4:])[1:]))
 						
 					if msg[1] == 'PRIVMSG':
 						self.Privmsg(tmp)
@@ -69,6 +83,9 @@ class Parse():
 						
 					if msg[1] == 'QUIT':
 						self.Quitted(msg)
+						
+					if msg[1] == 'NICK':
+						self.Nickchange(msg)
 					
 					else:
 						pass #Havent finished defining everything.
@@ -87,11 +104,15 @@ class Parse():
 			Text = self.Text(msg)
 			Cmd = self.Cmd(msg)
 			Msg = [Nick, Host, Action, Location, Text, Cmd]
-			print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
 			
-			cmdVar = '$'
+			if Nick == Location:
+				'''self.Loc() already handles where PM's come from, but now we need to change how it shows.'''
+				Location = self.nickname
+				
+			print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))	
+			
 			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''				
-			if Cmd.startswith(cmdVar) and Cmd[1:] in self._commands:
+			if Cmd.startswith(self.cmdVar) and Cmd[1:] in self._commands:
 				check = self.allowed.levelCheck(Nick)[1]
 				if check[1] <= self.command.cmds[Cmd[1:]][1]:
 					if self.command.cmds[Cmd[1:]][2]:
@@ -152,9 +173,13 @@ class Parse():
 			return ''
 	
 	def Loc(self, msg):
-		'''Parses for the location from a PRIVMSG or NOTICE'''
+		'''Parses for the location from a PRIVMSG or NOTICE. If we are PM'd it returns the Nick of the person who PM'd us.'''
 		try:
-			l = msg.split()[2]
+			l = msg.split()
+			if l[2] == self.nickname:
+				l = l[0].split("!")[0][1:]
+			else:
+				l = l[2]
 			return l
 		except:
 			return ''
@@ -211,6 +236,20 @@ class Parse():
 			print("* [IRC] {0} ({1}) has quit.".format(person, host))
 		except:
 			pass
+			
+	def Nickchange(self, msg):
+		try:
+			person, host = msg[0].split(":")[1].split("!")
+			new = msg[2][1:]
+			for chan in self.users.keys():
+				if person in self.users[chan]:
+					self.users[chan].remove(person)
+					self.users[chan].append(new)
+			if person not in self.allowed.keys:
+				self.allowed.db[person] = [None, 5]
+			print("* [IRC] {0} has changed nick to {1}.".format(person, new))
+		except:
+			pass		
 						
 	def SendRaw(self, msg):
 		self.sock.send(msg)
@@ -220,3 +259,5 @@ class Parse():
 	
 	def SendNotice(self, location, msg):
 		self.SendRaw("NOTICE {0} :{1}".format(location, msg))
+		
+		
