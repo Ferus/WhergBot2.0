@@ -35,6 +35,7 @@ class Commands():
 			print(e)
 			
 	def Raw(self, msg):
+		'''Send a raw message to the IRC server.'''
 		try:
 			self.sock.send(msg[4][5:])
 		except Exception, e:
@@ -87,7 +88,6 @@ class Commands():
 		quit()
 	
 	def Access(self, msg):
-		#['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$access show Ferus', '$access']
 		Nick = msg[0]
 		Host = msg[1]
 		Action = msg[2]
@@ -109,12 +109,14 @@ class Commands():
 						self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
 						
 					self.sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+					print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
 						
 				elif tmp[0] == 'del':
 					if self.allowed.levelCheck(tmp[1]):
 						if tmp[1] != self.owner[0]:
 							del self.allowed.db[tmp[1]]
 							self.sock.say(Location, "Deleted access for {0}".format(tmp[1]))
+							print("* [Access] Deleted access for {0}.".format(tmp[1]))
 					else:
 						self.sock.say(Location, "No access level found for {0}".format(tmp[1]))
 				
