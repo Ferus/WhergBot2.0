@@ -2,6 +2,7 @@
 #Global Imports
 from threading import Thread
 from datetime import datetime
+import time
 
 #Local Imports
 import Commands
@@ -18,6 +19,11 @@ class Parse():
 		self._commands = self.command.cmds.keys()
 		
 		self.cmdVar = '$'
+		self.ctcpReplies = {"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
+							"\x01TIME\x01" : "The local time here is {0}",
+							"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
+							}
+							
 		
 	def Main(self, msg):
 		'''Main Parser, Here we take raw data, and split at \r\n.'''
@@ -58,8 +64,6 @@ class Parse():
 
 				try:
 					# Parts, Joins, Kicks, All IRC actions
-					# CTCP: '\x01TIME\x01' ['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', 'WhergBot2', '\x01TIME\x01', '\x01TIME\x01']
-
 					if msg[1] == 'KICK' and msg[3] == self.nickname:
 						'''Auto-rejoin if we are kicked.'''
 						self.sock.send("JOIN {0}".format(msg[2]))
@@ -126,6 +130,15 @@ class Parse():
 						t = Thread(target=(self.command.cmds[Cmd[1:]])[0](Msg))
 						t.daemon = True
 						t.start()
+						
+			if Cmd.startswith("\x01") and Cmd.endswith("\x01"):
+				'''The message received was a CTCP. I wonder if this would be easy to fake in a pm.'''
+				if Cmd in self.ctcpReplies.keys():
+					if Cmd.strip("\x01") == 'TIME':
+						ti = time.strftime("%c", time.localtime())
+					t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd].format(ti))) #This is a HUGE hack, it assumes there are no
+					t.daemon = True																			#strings to be subbed for any other CTCP reply.
+					t.start()
 
 		except Exception, e:
 			print("* [Privmsg] Error")
@@ -249,7 +262,13 @@ class Parse():
 				self.allowed.db[person] = [None, 5]
 			print("* [IRC] {0} has changed nick to {1}.".format(person, new))
 		except:
-			pass		
+			pass
+
+		
+	def CTCP(self, ctcp, location, message):
+		'''CTCP'd. Lets respond.'''
+		self.sock.send("NOTICE {0} :{1}".format(location, message))
+		print("* [CTCP {0} from {1}] Replying with: '{2}'".format(ctcp, location, message))
 						
 	def SendRaw(self, msg):
 		self.sock.send(msg)

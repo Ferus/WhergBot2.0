@@ -28,6 +28,7 @@ class Commands():
 					}
 	
 	def Echo(self, msg):
+		'''Echos a message back'''
 		try:
 			self.sock.say(msg[3], msg[4][6:])
 		except Exception, e:
@@ -94,7 +95,7 @@ class Commands():
 		Location = msg[3]
 		Text = msg[4]
 	
-		if self.allowed.db[Nick][1] == 0: #Check if person is owner.
+		if self.allowed.db[Nick][1] == 0:
 			try:
 				levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
 				tmp = Text.split()[1:]
@@ -130,5 +131,3 @@ class Commands():
 			except Exception, e:
 				self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
 				print("* [Access] Error\n{0}".format(str(e)))
-							
-							
