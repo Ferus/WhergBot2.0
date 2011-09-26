@@ -35,12 +35,36 @@ class Parse():
 				#print(msg) #Temporary printing here, until we define the rest of the parser.
 				
 				try:
+					if msg[1] == '331':
+						print("* [IRC] There is no topic set for {0}".format(msg[3]))
 					if msg[1] == '332':
 						print("* [IRC] Topic for {0} set to {1}".format(msg[3] , " ".join(msg[4:])[1:]))
 				
 					if msg[1] == '333':
 						print(datetime.fromtimestamp(int(msg[5])).strftime("* [IRC] Topic for {0} set by {1} at %c".format(msg[3], msg[4])))
-				
+					
+					if msg[1] == '352':						
+						'''<channel> <user> <host> <server> <nick> <H|G>[*][@|+] :<hopcount> <real name>
+						[':opsimathia.datnode.net', '352', 'WhergBot2', '#hacking', 'anonymous', 'the.interwebs', 'opsimathia.datnode.net', 'Ferus', 'Hr*', ':0', 'Matt']'''
+						person, host = msg[7], msg[4]+"@"+msg[5]
+						
+						print("* [IRC] {0} has Ident/Host of '{1}' and Realname of '{2}'.".format(person, host, " ".join(msg[10:])))
+						
+						if "*" in msg[8]:
+							print("* [IRC] {0} is an IRC Operator on {1}.".format(person, msg[6]))
+						if 'H' in msg[8]:
+							print("* [IRC] {0} is currently available.".format(person))
+						if 'G' in msg[8]:
+							print("* [IRC] {0} is currently away.".format(person))
+							
+					if msg[7] == 'KILL':
+						print("* [IRC] {0} killed by oper {1}. Reason: {2}".format(msg[10], msg[12], " ".join(msg[15:])))
+					
+					if msg[1] == 'QUIT':
+						'''This was probably from a kill.'''
+						self.Quitted(msg)							
+						
+					
 					if msg[1] == '353':
 						nameslist = []
 						for x in msg[5:]:
@@ -67,7 +91,6 @@ class Parse():
 					if msg[1] == 'KICK' and msg[3] == self.nickname:
 						'''Auto-rejoin if we are kicked.'''
 						self.sock.send("JOIN {0}".format(msg[2]))
-						print msg
 						print("* [IRC] Kicked from {0} by {1} ({2}). Autorejoining.".format(msg[2], msg[0].split("!")[0][1:], " ".join(msg[4:])[1:]))
 						
 					if msg[1] == 'PRIVMSG':
@@ -90,6 +113,9 @@ class Parse():
 						
 					if msg[1] == 'NICK':
 						self.Nickchange(msg)
+						
+					if msg[1] == 'MODE':
+						self.Modechange(msg)
 					
 					else:
 						pass #Havent finished defining everything.
@@ -115,7 +141,8 @@ class Parse():
 				
 			print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))	
 			
-			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''				
+			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''
+								
 			if Cmd.startswith(self.cmdVar) and Cmd[1:] in self._commands:
 				check = self.allowed.levelCheck(Nick)[1]
 				if check[1] <= self.command.cmds[Cmd[1:]][1]:
@@ -139,7 +166,11 @@ class Parse():
 					t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd].format(ti))) #This is a HUGE hack, it assumes there are no
 					t.daemon = True																			#strings to be subbed for any other CTCP reply.
 					t.start()
-
+					
+			if Cmd == 'DCC':
+				'''I probably won't add dcc support.'''
+				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to ignore this.".format(Text.split()[1], Nick))
+				
 		except Exception, e:
 			print("* [Privmsg] Error")
 			print(str(e))
@@ -261,6 +292,16 @@ class Parse():
 			if person not in self.allowed.keys:
 				self.allowed.db[person] = [None, 5]
 			print("* [IRC] {0} has changed nick to {1}.".format(person, new))
+		except:
+			pass
+			
+	def Modechange(self, msg):
+		try:
+			person, host = msg[0].split(":")[1].split("!")
+			if len(msg[3]) > 2: #Multiple modes set
+				print("* [IRC] {0} ({1}) set modes {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
+			else:
+				print("* [IRC] {0} ({1}) set mode {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
 		except:
 			pass
 
