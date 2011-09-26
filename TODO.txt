@@ -4,6 +4,7 @@
 	
 2: Add a plugins folder and add them to Commands.py
 	- Anything imported will need to be defined in __init__() (IE: meme.py)
+		- Meme.py added, probably going to re-write some older plugins before adding them.
 	
 3: Add flood control
 	- Im thinking appending the messages to a list and .pop()'ing them
@@ -19,3 +20,9 @@
 4: NickServ auth options.
 
 5: Move everything to a config file?
+
+6: Ability to toggle PM commands on/off?
+
+7: CTCP replies
+
+8: Access level 6 will be for ignoring a user

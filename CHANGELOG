@@ -1,0 +1,14 @@
+=== Sep 26 ===
+- Added message printing (Parser) for /who and /kill
+- Added message printing (Parser) for MODE changes
+	- Fixed a bug with status modes (+-qaohv)
+- Added printing for DCC
+- Fixed a bug for the owner of the bot. Access could be changed with no way to revert it back.
+	- Access is now reset on every start to the nick/hostmask as defined in WhergBot.py
+	- Added a variable in Allowed.py that also holds the owner list
+- A simple ignore system that was already 'implemented' without realising it.
+- Added Meme.py in Plugins
+=== Sep 25 ===
+- Decided to start a CHANGELOG
+- Added three CTCP replies, with a small hack to make TIME work.
+- Starting to add more to the parser.
