@@ -7,14 +7,14 @@ import re
 def request(word):
 	h = cached(word)
 	if h:
-		print '[UrbanDict] => Sending cached word.'
+		print('* [UrbanDict] => Sending cached word.')
 		return "\x02[UrbanDict]\x02 {0}: {1}".format(word, h)
 	else:
-		url = "http://www.urbandictionary.com/tooltip.php?term="+word
+		url = "http://www.urbandictionary.com/tooltip.php?term="+word.replace(" ","%20")
 		try:
 			html = requests.get(url).content
 		except:
-			print("[UrbanDictionary] Error => Failed to connect.")
+			print("* [UrbanDict] Error => Failed to connect.")
 			return "Failed to connect to Urban Dictionary."
 
 		content = re.compile("<div><b>(.*?)<\/b><\/div><div>(.*?)<\/div>")
@@ -31,7 +31,7 @@ def request(word):
 			return "\x02[UrbanDict]\x02 {0}: {1}".format(word, result)
 
 def cached(word):
-	with open('./plugins/UrbanDict_Cache.txt','r') as c:
+	with open('./Plugins/UrbanDict_Cache.txt','r') as c:
 		cache = c.read().split('\n')
 		for line in cache:
 			if word.lower() == line.split(" : ")[0]:
@@ -40,7 +40,7 @@ def cached(word):
 			return False
 				
 def add_cache(word, definition=''):
-	with open('./plugins/UrbanDict_Cache.txt','a') as c:
-		print('[UrbanDictionary] Cache => Adding word {0}'.format(word))
+	with open('./Plugins/UrbanDict_Cache.txt','a') as c:
+		print('* [UrbanDict] Cache => Adding word {0}'.format(word))
 		c.write("{0} : {1}\n".format(word, definition))
 
