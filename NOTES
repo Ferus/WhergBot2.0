@@ -4,28 +4,16 @@ In Commands.py, the number in self.cmds is the access level needed to use the co
 	
 
 Plugins and Commands from the original WhergBot:
-Meme
-Stream
-IRCQuotes / Rules / Laws
-MpdScript
-UrbanDictionary
-SloganMaker
+IRCQuotes
+Rules / Laws
 DuckDuckGo
 
 Kick, Ban, Unban, Kban, (Maybe put this into a general Op plugin for all +o commands?)
-Act
-
 Ident (Services plugin?)
-
 (Misc.py ?)
-Bacon
-NO U
-;-; / ;_;
-Next
 Size
 Guess
 Slap
-Oven
 
 mod.php shit
 

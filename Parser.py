@@ -165,7 +165,7 @@ class Parse():
 						ti = time.strftime("%c", time.localtime())
 					t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd].format(ti))) #This is a HUGE hack, it assumes there are no
 					t.daemon = True																			#strings to be subbed for any other CTCP reply.
-					t.start()
+					t.start()																				#and places in the current time.
 					
 			if Cmd == 'DCC':
 				'''I probably won't add dcc support.'''

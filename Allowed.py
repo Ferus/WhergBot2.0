@@ -3,10 +3,14 @@ import shelve
 
 class Users():
 	def __init__(self):
-		'''Permissions for our bot.'''
+		'''Permissions for our bot.
+		Dictionary holds user names as keys, 
+		and a list containing the host and access level
+		'''
 		
 		self.db = shelve.open("Allowed_Users")
 		self.keys = self.db.keys()
+		self.owner = None
 		
 	def addOwner(self, nick, host):
 		self.db[nick] = [host, 0]

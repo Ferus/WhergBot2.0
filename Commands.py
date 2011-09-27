@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-from Plugins import Meme, SloganMaker, UrbanDictionary, MpdScript
+from Plugins import Meme, SloganMaker, UrbanDictionary, MpdScript, Misc, Stream
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -20,6 +20,8 @@ class Commands():
 		
 		### PLUGIN OBJECTS
 		self.M = Meme.meme()
+		self.misc = Misc.misc(sock=self.sock)
+		self.stream = Stream.Stream()
 			
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
@@ -31,10 +33,16 @@ class Commands():
 			'part': [self.Part, 3, True],
 			'quit': [self.Quit, 0, True],
 			'access': [self.Access, 0, True],
+			'act': [self.Act, 5, False],
+			
 			'meme': [self.Meme, 5, False],
 			'slogan': [self.Slogan, 5, False],
 			'ud': [self.UD, 5, False],
 			'mpd': [self.Music, 1, True],
+			'oven': [self.Oven, 5, False],
+			'next': [self.Next, 5, False],
+			'bacon': [self.Bacon, 5, False],
+			'stream': [self.Stream, 5, False],
 					}
 	
 	def Echo(self, msg):
@@ -149,7 +157,13 @@ class Commands():
 				self.sock.send("NOTICE {0} :{1}".format(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`"))
 				print("* [Access] Error:\n* [Access] {0}".format(str(e)))
 				
-			
+	def Act(self, msg):
+		try:
+			self.sock.send("PRIVMSG {0} :\x01ACTION {1}\x01".format(msg[3], " ".join(msg[4].split()[1:])))
+		except Exception, e:
+			print("* [Act] Error:\n* [Act] {0}".format(str(e)))
+	
+	
 	### PLUGINS
 	def Meme(self, msg):
 		try:
@@ -183,6 +197,48 @@ class Commands():
 			elif Text[0] == "prev":
 				self.sock.say(msg[3], MpdScript.mpdprev_cb())
 		except Exception, e:
-			print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))			
+			print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))
+	
+	def Oven(self, msg):
+		try:
+			ovenee = " ".join(msg[4].split()[1:])
+			self.misc.Oven(msg[3], ovenee)
+		except Exception, e:
+			print("* [Oven] Error:\n* [Oven] {0}".format(str(e)))
+		
+	def Next(self, msg):
+		try:
+			self.misc.Next(msg[3])
+		except Exception, e:
+			print("* [Next] Error:\n* [Next] {0}".format(str(e)))
+			
+	def Bacon(self, msg):
+		try:
+			person = " ".join(msg[4].split()[1:])
+			self.misc.Bacon(msg[3], person)
+		except Exception, e:
+			print("* [Bacon] Error:\n* [Bacon] {0}".format(str(e)))
+	
+	def Stream(self, msg):
+		try:
+			if msg[4].split()[1:]:
+				Text = msg[4].split()[1:]
+			else:
+				Text = []
+			
+			if Text[0] == 'np' or Text[0].lower() == 'now' and Text[1].lower() == 'playing':
+				self.sock.say(msg[3], self.stream.now_playing())
+			
+			elif Text[0] == 'url':
+				self.sock.say(msg[3], self.stream.send_url())
+				
+			elif Text[0] == 'status':
+				self.sock.say(msg[3], self.stream.status())
+				
+			elif Text[0] == 'title':
+				self.sock.say(msg[3], self.stream.title())
+				
+		except Exception, e:
+			print("* [Stream] Error:\n* [Stream] {0}".format(str(e)))
 
 

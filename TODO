@@ -22,7 +22,3 @@
 5: Move everything to a config file?
 
 6: Ability to toggle PM commands on/off?
-
-7: CTCP replies
-
-8: Access level 6 (or higher than whats listed in self.cmds in Commands.py) will be for ignoring a user

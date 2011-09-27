@@ -10,6 +10,8 @@
 - Added Meme.py in Plugins
 - Added SloganMaker.py in Plugins
 - Added UrbanDictionary in Plugins
+- Added MPD, Oven, Next, Bacon, Stream, and Act commands.
+- Added Misc.py in Plugins
 === Sep 25 ===
 - Decided to start a CHANGELOG
 - Added three CTCP replies, with a small hack to make TIME work.

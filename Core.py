@@ -16,8 +16,9 @@ class Bot():
 		
 		if owner:
 			self.owner = owner
-			if self.owner[0] not in self.allowed.keys:
-				self.allowed.addOwner(self.owner[0], self.owner[1])
+			self.allowed.owner = self.owner
+			self.allowed.db[self.owner[0]] = [self.owner[1], self.owner[2]] #Reset the owner. Just in case the config changed.
+			print("* [Access] Setting owner to {0}, with hostmask {1}".format(self.owner[0], self.owner[1]))
 			
 		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)	
 				
@@ -38,13 +39,13 @@ class Bot():
 	def Connect(self, server, port=6697):
 		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
-		print("Connecting to {0} on port {1}".format(server, port))
+		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
 		time.sleep(.3)
 		self.irc.username(self.ident, self.realname)
-		print("Sending username: {0} and realname: {1}".format(self.ident, self.realname))
+		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
 		time.sleep(.3)
 		self.irc.nickname(self.nickname)
-		print("Sending nickname: {0}".format(self.nickname))
+		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		time.sleep(.3)
 		
 	def Parse(self, msg):
