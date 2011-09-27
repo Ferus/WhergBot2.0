@@ -1,5 +1,7 @@
 #!/usr/bin/python2
 
+from Plugins import Meme, SloganMaker, UrbanDictionary
+
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
@@ -15,6 +17,9 @@ class Commands():
 		self.sock = sock
 		self.parser = parser
 		self.allowed = allowed
+		
+		### PLUGIN OBJECTS
+		self.M = Meme.meme()
 			
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
@@ -25,6 +30,9 @@ class Commands():
 			'part': [self.Part, 3, True],
 			'quit': [self.Quit, 0, True],
 			'access': [self.Access, 0, True],
+			'meme': [self.Meme, 5, False],
+			'slogan': [self.Slogan, 5, False],
+			'ud': [self.UD, 5, False],
 					}
 	
 	def Echo(self, msg):
@@ -103,6 +111,11 @@ class Commands():
 				if tmp[0] == 'add':
 					if tmp[2] == 'None':
 						tmp[2] = None
+					
+					if tmp[1] == self.allowed.owner[0]:
+						self.sock.say(Location, "You cannot change your access.")
+						print("* [Access] Denied changing owners access.")
+						return None
 						
 					if int(tmp[3]) in levels.keys():
 						levels[int(tmp[3])](tmp[1], tmp[2])								
@@ -114,10 +127,12 @@ class Commands():
 						
 				elif tmp[0] == 'del':
 					if self.allowed.levelCheck(tmp[1]):
-						if tmp[1] != self.owner[0]:
+						if tmp[1] != self.allowed.owner[0]:
 							del self.allowed.db[tmp[1]]
 							self.sock.say(Location, "Deleted access for {0}".format(tmp[1]))
 							print("* [Access] Deleted access for {0}.".format(tmp[1]))
+						else:
+							self.sock.say(Location, "Access for {0} cannot be deleted.".format(tmp[1]))
 					else:
 						self.sock.say(Location, "No access level found for {0}".format(tmp[1]))
 				
@@ -129,5 +144,27 @@ class Commands():
 						
 				
 			except Exception, e:
-				self.SendNotice(self.nick, "Format for {0} is: {0} add/del Nick Ident@host Level".format(self.cmd))
-				print("* [Access] Error\n{0}".format(str(e)))
+				self.sock.send("NOTICE {0} :{1}".format(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`"))
+				print("* [Access] Error:\n* [Access] {0}".format(str(e)))
+				
+			
+	### PLUGINS
+	def Meme(self, msg):
+		try:
+			self.sock.say(msg[3], next(self.M))
+		except Exception, e:
+			print("* [AutoMeme] Error:\n* [AutoMeme] {0}".format(str(e)))
+			
+	def Slogan(self, msg):
+		try:
+			self.sock.say(msg[3], SloganMaker.get_slogan(" ".join(msg[4].split()[1:])))
+		except Exception, e:
+			print("* [SloganMaker] Error:\n* [SloganMaker] {0}".format(str(e)))
+			
+	def UD(self, msg):
+		try:
+			self.sock.say(msg[3], UrbanDictionary.request(" ".join(msg[4].split()[1:])))
+		except Exception, e:
+			print("* [UrbanDict] Error:\n* [UrbanDict] {0}".format(str(e)))
+
+
