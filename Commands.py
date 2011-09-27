@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-from Plugins import Meme, SloganMaker, UrbanDictionary
+from Plugins import Meme, SloganMaker, UrbanDictionary, MpdScript
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -23,6 +23,7 @@ class Commands():
 			
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
+			# If you want to disable a command, just comment out the line for it.
 			'echo': [self.Echo, 4, False],
 			'raw': [self.Raw, 0, True],
 			'names': [self.Names, 0, False],
@@ -33,6 +34,7 @@ class Commands():
 			'meme': [self.Meme, 5, False],
 			'slogan': [self.Slogan, 5, False],
 			'ud': [self.UD, 5, False],
+			'mpd': [self.Music, 1, True],
 					}
 	
 	def Echo(self, msg):
@@ -166,5 +168,21 @@ class Commands():
 			self.sock.say(msg[3], UrbanDictionary.request(" ".join(msg[4].split()[1:])))
 		except Exception, e:
 			print("* [UrbanDict] Error:\n* [UrbanDict] {0}".format(str(e)))
+			
+	def Music(self, msg):
+		try:
+			if msg[4].split()[1:]:
+				Text = msg[4].split()[1:]
+			else:
+				Text = []
+				
+			if len(Text) < 1:
+				self.sock.say(msg[3], MpdScript.mpdshow_cb())
+			elif Text[0] == "next":
+				self.sock.say(msg[3], MpdScript.mpdnext_cb())
+			elif Text[0] == "prev":
+				self.sock.say(msg[3], MpdScript.mpdprev_cb())
+		except Exception, e:
+			print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))			
 
 
