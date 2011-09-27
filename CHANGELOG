@@ -8,6 +8,8 @@
 	- Added a variable in Allowed.py that also holds the owner list
 - A simple ignore system that was already 'implemented' without realising it.
 - Added Meme.py in Plugins
+- Added SloganMaker.py in Plugins
+- Added UrbanDictionary in Plugins
 === Sep 25 ===
 - Decided to start a CHANGELOG
 - Added three CTCP replies, with a small hack to make TIME work.
