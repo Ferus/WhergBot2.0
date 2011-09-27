@@ -1,0 +1,31 @@
+Currently, Level/Hostchecking seems to make the bot slower. I don't think threading that would work. But then again, Ive barely used threading.
+In Commands.py, the number in self.cmds is the access level needed to use the command, If someone has an access level higher than the highest number 
+	in there, they will be ignored for everything but CTCP/DCC
+	
+
+Plugins and Commands from the original WhergBot:
+Meme
+Stream
+IRCQuotes / Rules / Laws
+MpdScript
+UrbanDictionary
+SloganMaker
+DuckDuckGo
+
+Kick, Ban, Unban, Kban, (Maybe put this into a general Op plugin for all +o commands?)
+Act
+
+Ident (Services plugin?)
+
+(Misc.py ?)
+Bacon
+NO U
+;-; / ;_;
+Next
+Size
+Guess
+Slap
+Oven
+
+mod.php shit
+

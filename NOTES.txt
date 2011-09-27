@@ -1,2 +1,0 @@
-Currently, Level/Hostchecking seems to make the bot slower. I don't think threading that would work. But then again, Ive barely used threading.
-
