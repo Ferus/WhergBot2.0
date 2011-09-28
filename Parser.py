@@ -138,8 +138,6 @@ class Parse():
 			if Nick == Location:
 				'''self.Loc() already handles where PM's come from, but now we need to change how it shows.'''
 				Location = self.nickname
-				
-			print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))	
 			
 			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''
 								
@@ -158,18 +156,32 @@ class Parse():
 						t.daemon = True
 						t.start()
 						
-			if Cmd.startswith("\x01") and Cmd.endswith("\x01"):
-				'''The message received was a CTCP. I wonder if this would be easy to fake in a pm.'''
+			if Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
+					'''The message received was a CTCP'''
 					if Cmd.strip("\x01") == 'TIME':
-						ti = time.strftime("%c", time.localtime())
-					t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd].format(ti))) #This is a HUGE hack, it assumes there are no
-					t.daemon = True																			#strings to be subbed for any other CTCP reply.
-					t.start()																				#and places in the current time.
+						ti = self.ctcpReplies[Cmd].format(time.strftime("%c", time.localtime()))
+						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, ti))
+						t.daemon = True																			
+						t.start()						
+						
+					else:
+						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd]))
+						t.daemon = True																			
+						t.start()
+				else:
+					if Cmd.strip("\x01") == 'ACTION':
+						act = " ".join(Text.strip("\x01").split()[1:])
+						print("* [Privmsg] [{0}] * {1} {2}".format(Location, Nick, act))
+						
+			else:
+				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))															
 					
 			if Cmd == 'DCC':
 				'''I probably won't add dcc support.'''
 				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to ignore this.".format(Text.split()[1], Nick))
+				
+
 				
 		except Exception, e:
 			print("* [Privmsg] Error")
