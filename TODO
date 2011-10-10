@@ -22,3 +22,53 @@
 5: Move everything to a config file?
 
 6: Ability to toggle PM commands on/off?
+
+7: Add showing when you cannot join a channel because lolbanned
+
+8: Fix error with Plugins/UrbanDictionary.py where it derps if there is no Cache file
+
+9: Investigate why I cant add a : when using $raw privmsg
+
+10: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
+	try/except to pass plugins like MpdScript that require another module
+	a blank dictionary/list/something that holds the names of all the loaded modules
+
+11: String parsing " : " when adding quotes. everything past that isnt added.
+
+12: Allow non-commandvar commands.
+
+>>> next(m)
+* [AutoMeme] Getting moar memes!
+* [AutoMeme] Error requesting new memes.
+Traceback (most recent call last):
+  File "<input>", line 1, in <module>
+  File "Plugins/Meme.py", line 26, in meme
+    meme_db = get_meme()
+  File "Plugins/Meme.py", line 15, in get_meme
+    for meme in memes:
+UnboundLocalError: local variable 'memes' referenced before assignment
+
+#### PLUGINS ####
+
+1: Youtube URL reporter
+	- Reports likes/dislikes and other video stats based on a link
+
+2: FuckMyLife
+	- Name says it all.
+	
+3: IRCQuotes
+IRCQuotes class:  
+	Search
+	  - Search for a quote by quote num
+	  - Search for a quote by regex?
+IRCRules class:
+	Search
+	  - Search for a rule
+	  
+	
+def hook(obj=None):
+	if not obj:
+		quit()
+	else:
+		obj.cmds[commandname] = [function/object, level, hostcheck]
+		#Repeat as needed for every part.

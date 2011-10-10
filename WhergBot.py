@@ -2,7 +2,7 @@
 
 import Core
 
-nick = 'WhergBot2' #Bots Nickname
+nick = 'WhergBot' #Bots Nickname
 real = 'WhergBot [Ferus]' #Bots realname
 ident = 'Wherg' #Bots Ident
 owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
@@ -20,6 +20,10 @@ if __name__ == '__main__':
 		WhergBot.irc.join("hacking")
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
+		
+		else:
+			WhergBot.irc.close()
+			quit()
 			
 	except KeyboardInterrupt:
 		print("\n* [Core] Interrupt Caught; Quitting!")

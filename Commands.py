@@ -1,6 +1,6 @@
 #!/usr/bin/python2
 
-from Plugins import Meme, SloganMaker, UrbanDictionary, MpdScript, Misc, Stream
+from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -22,6 +22,8 @@ class Commands():
 		self.M = Meme.meme()
 		self.misc = Misc.misc(sock=self.sock)
 		self.stream = Stream.Stream()
+		self.IRCq = Quotes.IRCQuotes("Pickle_Quotes.pkl")
+			
 			
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
@@ -43,8 +45,16 @@ class Commands():
 			'next': [self.Next, 5, False],
 			'bacon': [self.Bacon, 5, False],
 			'stream': [self.Stream, 5, False],
+			'quote': [self.Quote, 5, False],
+			'q': [self.Quote, 5, False],
+			'qsearch': [self.QuoteSearch, 5, False],
+			'qfind': [self.QuoteSearch, 5, False],
+			'qcount': [self.QuoteCount, 5, False],
+			'qadd': [self.QuoteAdd, 0, True],
+			'qdel': [self.QuoteDel, 0, True],
+			'qbackup': [self.QuoteBackup, 0, True],
 					}
-	
+
 	def Echo(self, msg):
 		'''Echos a message back'''
 		try:
@@ -240,5 +250,50 @@ class Commands():
 				
 		except Exception, e:
 			print("* [Stream] Error:\n* [Stream] {0}".format(str(e)))
-
+			
+	def Quote(self, msg): #self.IRCq
+		'''
+		The main quote command. We check for any other data in the msg sent.
+		If its a number, we assume they are searching for a specific quote.
+		'''
+		try:
+			if msg[4].split()[1:]:
+				Text = msg[4].split()[1:][0]
+			else:
+				Text = None
+			self.sock.say(msg[3], self.IRCq.Number(QuoteNum=Text))
+		except:
+			pass
+	
+	def QuoteSearch(self, msg):
+		if msg[4].split()[1:]:
+			Text = " ".join(msg[4].split()[1:])
+		else:
+			Text = ''
+		self.sock.say(msg[3], self.IRCq.Search(msg=Text))
+		
+	def QuoteCount(self, msg):
+		self.sock.say(msg[3], self.IRCq.Count())
+	
+	def QuoteAdd(self, msg):
+		try:
+			if msg[4].split()[1:]:
+				q = " ".join(msg[4].split()[1:])
+			self.sock.say(msg[3], self.IRCq.Add(QuoteString=q))
+		except:
+			pass
+				
+	def QuoteDel(self, msg):
+		try:
+			Text = int(msg[4].split()[1:][0])
+		except:
+			Text = None
+		self.sock.say(msg[3], self.IRCq.Del(QuoteNum=Text))
+		
+	def QuoteBackup(self, msg):
+		try:
+			Text = msg[4].split()[1:][0]
+		except:
+			Text = None
+		self.sock.say(msg[3], self.IRCq.Backup(BackupFile=Text))
 

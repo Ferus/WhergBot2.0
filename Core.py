@@ -19,8 +19,8 @@ class Bot():
 			self.allowed.owner = self.owner
 			self.allowed.db[self.owner[0]] = [self.owner[1], self.owner[2]] #Reset the owner. Just in case the config changed.
 			print("* [Access] Setting owner to {0}, with hostmask {1}".format(self.owner[0], self.owner[1]))
-			
-		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)	
+		
+		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
 				
 		if nickname:
 			self.nickname = nickname

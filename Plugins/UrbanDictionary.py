@@ -43,4 +43,3 @@ def add_cache(word, definition=''):
 	with open('./Plugins/UrbanDict_Cache.txt','a') as c:
 		print('* [UrbanDict] Cache => Adding word {0}'.format(word))
 		c.write("{0} : {1}\n".format(word, definition))
-

@@ -1,9 +1,10 @@
 #!/usr/bin/python2
 import requests
-
-'''Poll automeme.net for a 'meme'.
-Usage: import Meme, m = Meme.meme(), next(m)'''
-
+'''
+Poll automeme.net for a 'meme'.
+Usage: import Meme, m = Meme.meme(), next(m)
+'''
+		
 def get_meme():
 	'''Creates a generator to store memes in a list.'''
 	meme_db = []
@@ -16,7 +17,7 @@ def get_meme():
 		meme_db.append(meme)
 	meme_db.pop()
 	return meme_db
-
+	
 def meme():
 	'''Returns a meme from the list'''
 	meme_db = []
@@ -27,3 +28,17 @@ def meme():
 		memestr = meme_db[0]
 		del meme_db[0]
 		yield "\x02[AutoMeme]\x02 {0}".format(memestr)
+
+MemeGen = meme()
+def MString(args=None):
+	'''Return it.'''
+	return next(MemeGen)
+		
+def Hook():
+	'''Hook into WhergBot'''
+	return [MString, 5, False]
+	
+	
+	
+	
+	

@@ -1,3 +1,6 @@
+=== Oct 09 ===
+- Started to work on a new Quotes module.
+- Added more features to quotes module.
 === Sep 26 ===
 - Added message printing (Parser) for /who and /kill
 - Added message printing (Parser) for MODE changes
