@@ -15,6 +15,8 @@ class IRCQuotes(object):
 			
 			try:
 				_QuoteF = open(self.QuoteFile, "rb")
+				with _QuoteF: # And now we load the pickle.
+					self.QuoteP = pickle.load(_QuoteF)
 			except:
 				if os.access(self.QuoteFile, os.F_OK): # Exists, why cant we open?
 					if not os.access(self.QuoteFile, 4):
@@ -27,9 +29,8 @@ class IRCQuotes(object):
 					
 					_QuoteF = open(self.QuoteFile, "rb")
 					
-			with _QuoteF: # And now we finally load the file.
-				self.QuoteP = pickle.load(_QuoteF)
-					
+					with _QuoteF: # And now we load the pickle.
+						self.QuoteP = pickle.load(_QuoteF)					
 				
 			self.QuoteCount = len(self.QuoteP)
 			print("* [Quotes] Loading Quote File: {0}".format(str(self.QuoteFile)))
