@@ -5,27 +5,35 @@ import os, re
 
 class IRCQuotes(object):
 	def __init__(self, QuoteFile=None):
-		'''IRCQuotes class, takes the QuoteFile arg of a filename to load. The file must be pickled.'''
+		'''
+		IRCQuotes class, takes the QuoteFile arg of a filename to load. The file must be pickled.
+		Quote counting will start at '1', so it makes sense to other humans. this means that we have 
+		to adapt our list to it seeing as lists start at '0'.
+		'''
 		if QuoteFile:
+			self.QuoteFile = QuoteFile
+			
 			try:
-				self.QuoteFile = QuoteFile
-				
-				try:
-					_QuoteF = open(self.QuoteFile, "rb")
-				except:
-					pass
-					#The file cant be opened, does it exist? if not, make it.
-					#We have to dump an empty list to the file and pickle it
-				else:
-					with _QuoteF:
-						self.QuoteP = pickle.load(_QuoteF)
+				_QuoteF = open(self.QuoteFile, "rb")
+			except:
+				if os.access(self.QuoteFile, os.F_OK): # Exists, why cant we open?
+					if not os.access(self.QuoteFile, 4):
+						print("* [Quotes] Cannot read quotes file {0}".format(str(self.QuoteFile)))
 						
+				else: # Doesnt exist. Make it and pickle it.
+					_qP = pickle.load(open(self.QuoteFile, "wb"))
+					_qP = [] #We have to dump an empty list to the file and pickle it
+					pickle.dump(_qP, open(self.QuoteFile, "wb"))
 					
-				self.QuoteCount = len(self.QuoteP)
-				print("* [Quotes] Loading Quote File: {0}".format(str(self.QuoteFile)))
+					_QuoteF = open(self.QuoteFile, "rb")
+					
+			with _QuoteF: # And now we finally load the file.
+				self.QuoteP = pickle.load(_QuoteF)
+					
 				
-			except Exception, e:
-				print("* [Quotes] Error: {0}".format(repr(e)))
+			self.QuoteCount = len(self.QuoteP)
+			print("* [Quotes] Loading Quote File: {0}".format(str(self.QuoteFile)))
+				
 		else:
 			print("* [Quotes] Error: No Quote File specified.")
 			
@@ -93,7 +101,7 @@ class IRCQuotes(object):
 			
 		_quotenums = []
 		for num, quote in enumerate(self.QuoteP):
-			if re.search(msg, quote):
+			if re.search(msg, quote, re.IGNORECASE):
 				_quotenums.append(str(num+1))
 				
 		if len(_quotenums) == 1:
