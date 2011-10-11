@@ -3,17 +3,5 @@ In Commands.py, the number in self.cmds is the access level needed to use the co
 	in there, they will be ignored for everything but CTCP/DCC
 	
 UrbanDictionary.py assumes there is a file called UrbanDict_Cache.txt in the plugins folder.
-Quotes.py assumes there is already a pickled dump file that contains a list.
-The above two will be fixed. (I hope)
+The above will be fixed. (I hope)
 
-Plugins and Commands from the original WhergBot:
-IRCQuotes
-Rules / Laws
-DuckDuckGo
-
-Kick, Ban, Unban, Kban, (Maybe put this into a general Op plugin for all +o commands?)
-Ident (Services plugin?)
-(Misc.py ?)
-Size
-Guess
-Slap

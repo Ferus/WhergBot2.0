@@ -1,6 +1,4 @@
 1: Change how the parser handles messages, and more options
-	- Return a message to print for each (This will remove the need for how printing is formatted now, and allow us to call one print())
-		- Print from each own block, and return each as a list? (Still undecided on this)
 	
 2: Add a plugins folder and add them to Commands.py
 	- Anything imported will need to be defined in __init__() (IE: meme.py)
@@ -57,10 +55,6 @@ UnboundLocalError: local variable 'memes' referenced before assignment
 	- Name says it all.
 	
 3: IRCQuotes
-IRCQuotes class:  
-	Search
-	  - Search for a quote by quote num
-	  - Search for a quote by regex?
 IRCRules class:
 	Search
 	  - Search for a rule
@@ -72,3 +66,15 @@ def hook(obj=None):
 	else:
 		obj.cmds[commandname] = [function/object, level, hostcheck]
 		#Repeat as needed for every part.
+		
+		
+		
+Plugins and Commands from the original WhergBot:
+Rules / Laws
+DuckDuckGo
+
+Kick, Ban, Unban, Kban, (Maybe put this into a general Op plugin for all +o commands?)
+(Misc.py ?)
+Size
+Guess
+Slap
