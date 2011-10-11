@@ -3,3 +3,5 @@
 *.txt
 Allowed_Users
 Pickle_Quotes.pkl
+Loader.py
+*.py.*
