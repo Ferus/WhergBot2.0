@@ -4,12 +4,12 @@ import cPickle as pickle
 import os, re
 
 class IRCQuotes(object):
+	'''
+	IRCQuotes class, takes the QuoteFile arg of a filename to load. The file must be pickled.
+	Quote counting will start at '1', so it makes sense to other humans. this means that we have 
+	to adapt our list to it seeing as lists start at '0'.
+	'''
 	def __init__(self, QuoteFile=None):
-		'''
-		IRCQuotes class, takes the QuoteFile arg of a filename to load. The file must be pickled.
-		Quote counting will start at '1', so it makes sense to other humans. this means that we have 
-		to adapt our list to it seeing as lists start at '0'.
-		'''
 		if QuoteFile:
 			self.QuoteFile = QuoteFile
 			
@@ -23,7 +23,6 @@ class IRCQuotes(object):
 						print("* [Quotes] Cannot read quotes file {0}".format(str(self.QuoteFile)))
 						
 				else: # Doesnt exist. Make it and pickle it.
-					_qP = pickle.load(open(self.QuoteFile, "wb"))
 					_qP = [] #We have to dump an empty list to the file and pickle it
 					pickle.dump(_qP, open(self.QuoteFile, "wb"))
 					
@@ -36,7 +35,7 @@ class IRCQuotes(object):
 			print("* [Quotes] Loading Quote File: {0}".format(str(self.QuoteFile)))
 				
 		else:
-			print("* [Quotes] Error: No Quote File specified.")
+			print("* [Quotes] Error: No QuoteFile specified.")
 			
 	def Save(self):
 		try:
@@ -85,13 +84,15 @@ class IRCQuotes(object):
 					else:
 						return "I'm sorry, but I don't have that quote in my database."
 				else:
-					print("* [Quotes] Sending random Quote.")
-					return choice(self.QuoteP)
+					return self.Random()
 			else:
-				print("* [Quotes] Sending random Quote.")
-				return choice(self.QuoteP)			
+				return self.Random()
 		except:
 			pass
+			
+	def Random(self):
+		print("* [Quotes] Sending random Quote.")
+		return choice(self.QuoteP)
 			
 	def Count(self):
 		return "I currently hold {0} quotes in my database.".format(self.QuoteCount)
@@ -139,5 +140,41 @@ class IRCQuotes(object):
 				open(BackupFile, "wb").close()
 				self.Backup(BackupFile=BackupFile)
 				
-
+class IRCRules(object):
+	'''
+	IRCRules class, defines functions to return an IRC 'rule'.
+	The provided Rules file was created on irc.n0v4.com by Anon7, 
+	Anonynom, and Proxy, with some future additions, all for the lulz.
+	The rules will be stored in plaintext and loaded into a dict.
+	'''
+	def __init__(self, RuleFile=None):
+		if RuleFile:
+			self.RuleFile = RuleFile
+			
+			self.Rules = {}
+			try:
+				with open(self.RuleFile) as _RF:
+					x = 1
+					for Rule in _RF.readlines():
+						self.Rules[x] = Rule
+						x += 1
+				self.RuleCount = len(self.Rules)
+				print("* [Rules] Created DB with '{0}' rules.".format(str(self.RuleCount)))
+			except Exception, e:
+				print("* [Rules] Error:\n* [Rules] {0}".format(repr(e)))
+				
+		else:
+			print("* [Rules] Error: No RuleFile specified.")
+			
+	def Random(self):
+		'''Return a random rule.'''
+		return self.Rules[choice(self.Rules.keys())]
+	
+	def Rule(self, Num=None):
+		'''Returns a rule, based by number. Num must be of int type'''
+		if not Num or type(Num) != int:
+			return self.Random()
+		else:
+			return self.Rules[Num]
+			
 		

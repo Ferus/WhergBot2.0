@@ -23,6 +23,7 @@ class Commands():
 		self.misc = Misc.misc(sock=self.sock)
 		self.stream = Stream.Stream()
 		self.IRCq = Quotes.IRCQuotes("Pickle_Quotes.pkl")
+		self.IRCr = Quotes.IRCRules("IRCRules")
 			
 			
 		self.cmds = {
@@ -53,6 +54,9 @@ class Commands():
 			'qadd': [self.QuoteAdd, 0, True],
 			'qdel': [self.QuoteDel, 0, True],
 			'qbackup': [self.QuoteBackup, 0, True],
+			'r': [self.Rule, 5, False],
+			'rule': [self.Rule, 5, False],
+			'rrand': [self.RandRule, 5, False],
 					}
 
 	def Echo(self, msg):
@@ -266,6 +270,7 @@ class Commands():
 			pass
 	
 	def QuoteSearch(self, msg):
+		'''Call the Search function of Quotes.py which uses re to find a quote'''	
 		if msg[4].split()[1:]:
 			Text = " ".join(msg[4].split()[1:])
 		else:
@@ -273,9 +278,11 @@ class Commands():
 		self.sock.say(msg[3], self.IRCq.Search(msg=Text))
 		
 	def QuoteCount(self, msg):
+		'''Returns the count of total quotes'''
 		self.sock.say(msg[3], self.IRCq.Count())
 	
 	def QuoteAdd(self, msg):
+		'''Calls the add function to add a quote'''
 		try:
 			if msg[4].split()[1:]:
 				q = " ".join(msg[4].split()[1:])
@@ -284,6 +291,7 @@ class Commands():
 			pass
 				
 	def QuoteDel(self, msg):
+		'''Calls the del function to remove a quote'''
 		try:
 			Text = int(msg[4].split()[1:][0])
 		except:
@@ -291,9 +299,23 @@ class Commands():
 		self.sock.say(msg[3], self.IRCq.Del(QuoteNum=Text))
 		
 	def QuoteBackup(self, msg):
+		'''Calls the backup function to backup the pickled quotes file in plaintext'''
 		try:
 			Text = msg[4].split()[1:][0]
 		except:
 			Text = None
 		self.sock.say(msg[3], self.IRCq.Backup(BackupFile=Text))
+		
+	def Rule(self, msg):
+		'''Calls Rule function of the IRCRules object'''
+		try:
+			Num = int(msg[4].split()[1:][0])
+		except:
+			Num = None
+		self.sock.say(msg[3], self.IRCr.Rule(Num=Num))
+		
+	def RandRule(self, msg):
+		'''Calls the Random fucntion of the IRCRules object'''
+		self.sock.say(msg[3], self.IRCr.Random())
+	
 
