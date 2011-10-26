@@ -1,6 +1,24 @@
+=== __        ___                    ____        _    ===
+=== \ \      / / |__   ___ _ __ __ _| __ )  ___ | |_  ===
+===  \ \ /\ / /| '_ \ / _ \ '__/ _` |  _ \ / _ \| __| ===
+===   \ V  V / | | | |  __/ | | (_| | |_) | (_) | |_  ===
+===    \_/\_/  |_| |_|\___|_|  \__, |____/ \___/ \__| ===
+===                            |___/                  ===
 A Python 2.7 IRC bot based on the blackbox IRC module, which can be found here: https://github.com/proxypoke/blackbox_IRC-macros/
 
 
 Simply edit all the varibles in WhergBot.py and run with ./WhergBot.py
 Don't forget to change the owner variable to include your Nick, and Ident@Hostname
+Help can be found on irc.datnode.net (Ports 6667 (text) and 6697 (ssl)) on the channel #hacking
 
+=== Required Modules (That aren't built in)===
+It is highly recommended to use the latest source for each of these.
+
+BlackBox (Develop Branch) - https://github.com/proxypoke/blackbox_IRC-macros/
+BlackBox is a great module that's built over the IRC protocol. It's used here to manage connections to an IRC server.
+
+Requests - https://github.com/kennethreitz/requests
+Requests is a very nice frontend to urllib2 and is used widely in many WhergBot Plugins.
+
+Python-Mpd - http://pypi.python.org/pypi/python-mpd/
+This module is used in Plugins/MpdScript.py and allows WhergBot to show the current song playing in MPD.
