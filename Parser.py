@@ -18,11 +18,11 @@ class Parse():
 		self.command = Commands.Commands(sock=self.sock, parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
 		
-		self.cmdVar = '$'
+		self.cmdVar = self.command.cmdVar
 		self.ctcpReplies = {"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
-							"\x01TIME\x01" : "The local time here is {0}",
-							"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
-							}
+						"\x01TIME\x01" : "The local time here is {0}",
+						"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
+						}
 							
 		
 	def Main(self, msg):
@@ -142,6 +142,7 @@ class Parse():
 			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''
 								
 			if Cmd.startswith(self.cmdVar) and Cmd[1:] in self._commands:
+				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
 				check = self.allowed.levelCheck(Nick)[1]
 				if check[1] <= self.command.cmds[Cmd[1:]][1]:
 					if self.command.cmds[Cmd[1:]][2]:
@@ -156,7 +157,7 @@ class Parse():
 						t.daemon = True
 						t.start()
 						
-			if Text.startswith("\x01"):
+			elif Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
 					if Cmd.strip("\x01") == 'TIME':
@@ -173,6 +174,10 @@ class Parse():
 					if Cmd.strip("\x01") == 'ACTION':
 						act = " ".join(Text.strip("\x01").split()[1:])
 						print("* [Privmsg] [{0}] * {1} {2}".format(Location, Nick, act))
+			
+			# Currently we parse for commands that start with a command variable.
+			# What if we just want to parse the message for something specific?
+			# Thats what im going to put here. :3
 						
 			else:
 				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))															
@@ -188,6 +193,7 @@ class Parse():
 			print(str(e))
 			
 	def Notice(self, msg):
+		print msg
 		Nick = self.Nick(msg)
 		Host = self.Host(msg)
 		Action = self.Action(msg)

@@ -21,6 +21,7 @@ class IRCQuotes(object):
 				if os.access(self.QuoteFile, os.F_OK): # Exists, why cant we open?
 					if not os.access(self.QuoteFile, 4):
 						print("* [Quotes] Cannot read quotes file {0}".format(str(self.QuoteFile)))
+						quit()
 						
 				else: # Doesnt exist. Make it and pickle it.
 					_qP = [] #We have to dump an empty list to the file and pickle it
@@ -118,7 +119,7 @@ class IRCQuotes(object):
 	def Backup(self, BackupFile=None):
 		'''Backup the quotes file to a .txt just in case.'''
 		if BackupFile == None:
-			BackupFile = "IRCQuotes.txt"
+			BackupFile = "./Plugins/IRCQuotes.txt"
 		
 		if os.access(BackupFile, 6): # Test if we have read and write access to the file, rather than assuming.
 			try:

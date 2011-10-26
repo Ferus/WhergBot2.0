@@ -3,37 +3,25 @@
 2: Add a plugins folder and add them to Commands.py
 	- Anything imported will need to be defined in __init__() (IE: meme.py)
 	- Finish others
-	
-3: Add flood control
-	- Im thinking appending the messages to a list and .pop()'ing them
-		-^If so, add a command to clear the list, It might not work because all threads are started when the command is recieved. I'd be better off doing the below.
-		-Find out how to cancel started threads, the current setup is a bit derp and I've no idea how it would work, unless I append all thread objects called to a list and loop through them
-			-"It is better if you don't kill a thread. A way could be to introduce a "try" block into the thread's cycle and to throw an exception when you want to stop the thread (for example a break/return/... that stops your for/while/...). I've used this on my app and it works..."
-			-"I'd reccomend a thread.quit() function for your own convencience, say you have a socket in your thread, i'd reccomend creating a quit() function in your socket-handle class and terminate the socket then run a thread.Thread_stop() inside of your quit()."
-			-TL;DR some sort of thread_object.stop() that will close anything needed in it
-			-thread_object.cancel()
-				-The thread would have to remove itself from the list after completion.
-					-To be honest, atm I have no idea how I would do this.
 					
-4: NickServ auth options.
+3: NickServ auth options.
 
-5: Move everything to a config file?
+4: Move everything to a config file?
 
-6: Ability to toggle PM commands on/off?
+5: Ability to toggle PM commands on/off?
 
-7: Add showing when you cannot join a channel because lolbanned
+6: Add showing when you cannot join a channel because lolbanned
 
-8: Fix error with Plugins/UrbanDictionary.py where it derps if there is no Cache file
+7: Fix error with Plugins/UrbanDictionary.py where it derps if there is no Cache file
 
-9: Investigate why I cant add a : when using $raw privmsg
-
-10: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
+8: Investigate why I cant add a : when using $raw privmsg
+	- String parsing " : " when adding quotes. everything past that isnt added.
+	
+9: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
 	try/except to pass plugins like MpdScript that require another module
 	a blank dictionary/list/something that holds the names of all the loaded modules
 
-11: String parsing " : " when adding quotes. everything past that isnt added.
-
-12: Allow non-commandvar commands.
+10: Allow non-commandvar commands.
 
 >>> next(m)
 * [AutoMeme] Getting moar memes!
@@ -54,27 +42,34 @@ UnboundLocalError: local variable 'memes' referenced before assignment
 2: FuckMyLife
 	- Name says it all.
 	
-3: IRCQuotes
-IRCRules class:
-	Search
-	  - Search for a rule
-	  
+3: IRCLaws
 	
+4: DuckDuckGo
+
+5: Services
+	- Nickserv
+	- Any other service that might be wanted
+	- Kick, Ban, Unban, Kban, etc. (Need to update blackbox for this)
+
+6: Guess
+
+7: Slap
+	- Now that i have a working dict that holds users of a channel ;D
+
+8: 4chon
+	- On 4chon link:
+		-  Posters_Name (Post_Count, Image_Count) posted: OPs_Text - Link to thread (If mod.php?/ remove it)
+
+###
 def hook(obj=None):
 	if not obj:
 		quit()
 	else:
 		obj.cmds[commandname] = [function/object, level, hostcheck]
-		#Repeat as needed for every part.
-		
-		
-		
+		#Repeat as needed for every part.	
+###
+	
 Plugins and Commands from the original WhergBot:
-Rules / Laws
-DuckDuckGo
-
-Kick, Ban, Unban, Kban, (Maybe put this into a general Op plugin for all +o commands?)
 (Misc.py ?)
 Size
-Guess
-Slap
+

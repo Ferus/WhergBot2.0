@@ -1,3 +1,8 @@
+=== Oct 26 ===
+- Removed 'bug' with Access.py and leaving the dict open
+- Moved cmdVar to Commands.py
+- Added message printing when one uses a command
+- Moved some quote/rule files into Plugins
 === Oct 12 ===
 - Finished Quotes module, adding onto it with other things too.
 === Oct 09 ===

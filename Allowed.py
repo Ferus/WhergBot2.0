@@ -8,7 +8,10 @@ class Users():
 		and a list containing the host and access level
 		'''
 		
-		self.db = shelve.open("Allowed_Users")
+		_db = shelve.open("Allowed_Users")
+		self.db = self.dump(_db)
+		_db.close()
+			
 		self.keys = self.db.keys()
 		self.owner = None
 		
@@ -27,4 +30,18 @@ class Users():
 			return nick, self.db[nick]
 		else:
 			return None
+			
+	def dump(self, db):
+		x = {}
+		for key in db.keys():
+			x[key] = db[key]
+		return x
 		
+	def save(self):
+		try:
+			_db = shelve.open("Allowed_Users")
+			_db = self.db
+			_db.close()
+			return True
+		except:
+			return False

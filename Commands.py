@@ -11,7 +11,7 @@ class Commands():
 		['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$quit Some quit message.', '$quit']
 		msg[4][6:] == "Some quit message."
 		'''
-		
+		self.cmdVar = "@"
 		self.nick = nick
 		
 		self.sock = sock
@@ -22,8 +22,8 @@ class Commands():
 		self.M = Meme.meme()
 		self.misc = Misc.misc(sock=self.sock)
 		self.stream = Stream.Stream()
-		self.IRCq = Quotes.IRCQuotes("Pickle_Quotes.pkl")
-		self.IRCr = Quotes.IRCRules("IRCRules")
+		self.IRCq = Quotes.IRCQuotes("./Plugins/Pickle_Quotes.pkl")
+		self.IRCr = Quotes.IRCRules("./Plugins/IRCRules.txt")
 			
 			
 		self.cmds = {
@@ -114,8 +114,8 @@ class Commands():
 			
 		self.sock.quit(msg)
 		print("* [IRC] Quitting with message '{0}'.".format(msg))
-		self.allowed.db.close()
-		print("* [Allowed] Closing database.")
+		self.allowed.save()
+		print("* [Allowed] Saving database.")
 		self.sock.close()
 		print("* [IRC] Closing Socket.")
 		quit()
@@ -255,7 +255,7 @@ class Commands():
 		except Exception, e:
 			print("* [Stream] Error:\n* [Stream] {0}".format(str(e)))
 			
-	def Quote(self, msg): #self.IRCq
+	def Quote(self, msg):
 		'''
 		The main quote command. We check for any other data in the msg sent.
 		If its a number, we assume they are searching for a specific quote.
