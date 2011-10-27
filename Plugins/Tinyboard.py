@@ -42,9 +42,12 @@ class Tinyboard(object):
 		else:
 			postText = "1 reply"
 		
-		if link.find("#"):
-			postnum = link.split("#")[1]
-			Post_html = html.split("<div class=\"post reply\" id=\"reply_{0}\">".format(postnum))[1].split("</div>")[0]
+		if re.search("#", link):
+			threadnum, postnum = link.split("/")[-1].split(".html#")
+			if not threadnum == postnum:
+				Post_html = html.split("<div class=\"post reply\" id=\"reply_{0}\">".format(postnum))[1].split("</div>")[0]
+			else:
+				Post_html = html.split("<div class=\"post op\">")[1].split("</div>")[0]
 		else:
 			Post_html = html.split("<div class=\"post op\">")[1].split("</div>")[0]
 			
@@ -65,8 +68,9 @@ class Tinyboard(object):
 			
 		try:
 			Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
-			Post_Text = Post_Text.replace("<br/>"," ").replace("&#8220;", "\"").replace("\'","'")
-			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "").replace("</span>","")
+			Post_Text = Post_Text.replace("<br/>"," ").replace("&#8220;", "\"").replace("&quot;","\"").replace("\'","'")
+			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "")
+			Post_Text = Post_Text.replace("<span class=\"quote\">&gt;",">").replace("</span>","")
 			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","").replace("<em>","").replace("</em>","")
 			Post_Text = self.smart_truncate(Post_Text)
 		except:
