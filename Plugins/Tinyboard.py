@@ -5,6 +5,12 @@ import re
 import requests
 
 class Tinyboard(object):
+	'''
+	A simple module that returns stats of a thread.	Post count, Image count, and the OP's text.
+	If the link contains a hash (#) at the end (A direct link to a specific post), 
+	it will return that posts text rather than the OP.
+	'''
+
 	def GetHtml(self, link):
 		if not link:
 			return None
@@ -36,37 +42,42 @@ class Tinyboard(object):
 		else:
 			postText = "1 reply"
 		
-		OP_html = html.split("<div class=\"post op\">")[1].split("</div>")[0]
-		try:
-			OP_Name = OP_html.split("<span class=\"name\">")[1].split("</span>")[0].strip(" ")
-		except:
-			OP_Name = "Anonymous"
-			
-		try:
-			OP_Trip = OP_html.split("<span class=\"trip\">")[1].split("</span>")[0].strip(" ")
-		except:
-			OP_Trip = None
-			
-		try:
-			OP_CapCode = OP_html.split("<a class=\"capcode\">")[1].split("</a>")[0].strip(" ")
-		except:
-			OP_CapCode = None
-			
-		try:
-			OP_Post = OP_html.split("<p class=\"body\">")[1].split("</p>")[0]
-			OP_Post = OP_Post.replace("<br/>"," ").replace("&#8220;", "\"").replace("\'","'")
-			OP_Post = OP_Post.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "").replace("</span>","")
-			OP_Post = OP_Post.replace("<strong>","").replace("</strong>","").replace("<em>","").replace("</em>","")
-			OP_Post = self.smart_truncate(OP_Post)
-		except:
-			OP_Post = "Couldn't parse OP's post."
-			
-		if OP_Trip:
-			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(OP_Name, OP_Trip, postText, imageText, OP_Post, link)
-		elif OP_CapCode:
-			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(OP_Name, OP_CapCode, postText, imageText, OP_Post, link)
+		if link.find("#"):
+			postnum = link.split("#")[1]
+			Post_html = html.split("<div class=\"post reply\" id=\"reply_{0}\">".format(postnum))[1].split("</div>")[0]
 		else:
-			return "{0} ({1}, {2}) posted: {3} - {4}".format(OP_Name, postText, imageText, OP_Post, link)
+			Post_html = html.split("<div class=\"post op\">")[1].split("</div>")[0]
+			
+		try:
+			Post_Name = Post_html.split("<span class=\"name\">")[1].split("</span>")[0].strip(" ")
+		except:
+			Post_Name = "Anonymous"
+			
+		try:
+			Post_Trip = Post_html.split("<span class=\"trip\">")[1].split("</span>")[0].strip(" ")
+		except:
+			Post_Trip = None
+			
+		try:
+			Post_CapCode = Post_html.split("<a class=\"capcode\">")[1].split("</a>")[0].strip(" ")
+		except:
+			Post_CapCode = None
+			
+		try:
+			Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
+			Post_Text = Post_Text.replace("<br/>"," ").replace("&#8220;", "\"").replace("\'","'")
+			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "").replace("</span>","")
+			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","").replace("<em>","").replace("</em>","")
+			Post_Text = self.smart_truncate(Post_Text)
+		except:
+			Post_Text = "Couldn't parse OP's post."
+			
+		if Post_Trip:
+			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
+		elif Post_CapCode:
+			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_CapCode, postText, imageText, Post_Text, link)
+		else:
+			return "{0} ({1}, {2}) posted: {3} - {4}".format(Post_Name, postText, imageText, Post_Text, link)
 	
 	def smart_truncate(self, content, length=300, suffix='...'):
 		'''Borrowed from stackoverflow, Credits to 'Adam'. :) '''
