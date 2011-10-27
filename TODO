@@ -12,17 +12,18 @@
 
 6: Add showing when you cannot join a channel because lolbanned
 
-7: Fix error with Plugins/UrbanDictionary.py where it derps if there is no Cache file
-
-8: Investigate why I cant add a : when using $raw privmsg
+7: Investigate why I cant add a : when using $raw privmsg
 	- String parsing " : " when adding quotes. everything past that isnt added.
 	
-9: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
+8: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
 	try/except to pass plugins like MpdScript that require another module
 	a blank dictionary/list/something that holds the names of all the loaded modules
 
-10: Allow non-commandvar commands.
+9: Allow non-commandvar commands.
 
+10: Dont import plugins that require modules that are not installed.
+	- Mainly mpdscript.py
+	
 >>> next(m)
 * [AutoMeme] Getting moar memes!
 * [AutoMeme] Error requesting new memes.

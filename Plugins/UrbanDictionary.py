@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 
 import requests
-import re
+import os, re
 # http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
 
 def request(word):
@@ -31,15 +31,24 @@ def request(word):
 			return "\x02[UrbanDict]\x02 {0}: {1}".format(word, result)
 
 def cached(word):
-	with open('./Plugins/UrbanDict_Cache.txt','r') as c:
-		cache = c.read().split('\n')
-		for line in cache:
-			if word.lower() == line.split(" : ")[0]:
-				return line.split(" : ")[1]
-		else:
-			return False
+	try:
+		with open('./Plugins/UrbanDict_Cache.txt','r') as c:
+			cache = c.read().split('\n')
+			for line in cache:
+				if word.lower() == line.split(" : ")[0]:
+					return line.split(" : ")[1]
+			else:
+				return False
+	except:
+		return False
 				
 def add_cache(word, definition=''):
-	with open('./Plugins/UrbanDict_Cache.txt','a') as c:
-		print('* [UrbanDict] Cache => Adding word {0}'.format(word))
-		c.write("{0} : {1}\n".format(word, definition))
+	if os.access('./Plugins/UrbanDict_Cache.txt', 6):
+		with open('./Plugins/UrbanDict_Cache.txt','a') as c:
+			print('* [UrbanDict] Cache => Adding word {0}'.format(word))
+			c.write("{0} : {1}\n".format(word, definition))
+	else:
+		with open('./Plugins/UrbanDict_Cache.txt','w') as c:
+			print('* [UrbanDict] Cache => Creating Cache')
+			print('* [UrbanDict] Cache => Adding word {0}'.format(word))
+			c.write("{0} : {1}\n".format(word, definition))
