@@ -4,7 +4,7 @@
 import re
 import requests
 
-class TinyBoard(object):
+class Tinyboard(object):
 	def GetHtml(self, link):
 		if not link:
 			return None

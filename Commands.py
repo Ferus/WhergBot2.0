@@ -27,7 +27,7 @@ class Commands():
 		self.IRCq = Quotes.IRCQuotes("./Plugins/Pickle_Quotes.pkl")
 		self.IRCr = Quotes.IRCRules("./Plugins/IRCRules.txt")
 		self.tolds = Told.Told("./Plugins/Told.txt", self.sock)
-		self.chon = Tinyboard.TinyBoard()
+		self.chon = Tinyboard.Tinyboard()
 			
 			
 		self.cmds = {
