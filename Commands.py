@@ -1,6 +1,8 @@
 #!/usr/bin/python2
 
-from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes
+import re
+
+from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -24,6 +26,8 @@ class Commands():
 		self.stream = Stream.Stream()
 		self.IRCq = Quotes.IRCQuotes("./Plugins/Pickle_Quotes.pkl")
 		self.IRCr = Quotes.IRCRules("./Plugins/IRCRules.txt")
+		self.tolds = Told.Told("./Plugins/Told.txt", self.sock)
+		self.chon = Tinyboard.TinyBoard()
 			
 			
 		self.cmds = {
@@ -57,6 +61,14 @@ class Commands():
 			'r': [self.Rule, 5, False],
 			'rule': [self.Rule, 5, False],
 			'rrand': [self.RandRule, 5, False],
+			'told': [self.tolds.ReturnTold, 5, False],
+					}
+					
+		self.noVar_cmds = {
+			'4chon.net': [self.TinyboardLink, 5, False],
+			'gattsuchan.tk': [self.TinyboardLink, 5, False],
+			';_;': [self.Hug, 5, False],
+			';-;': [self.Hug, 5, False],
 					}
 
 	def Echo(self, msg):
@@ -317,5 +329,16 @@ class Commands():
 	def RandRule(self, msg):
 		'''Calls the Random fucntion of the IRCRules object'''
 		self.sock.say(msg[3], self.IRCr.Random())
-	
 
+
+		# Non-CommandVar Commands:
+	def Hug(self, msg):
+		check = self.allowed.levelCheck(msg[0])[1]
+		if check[1] <= 4:
+			self.sock.say(msg[3], "\x01ACTION hugs {0}.\x01".format(msg[0]))
+		else:
+			self.sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man\x01".format(msg[0]))
+	
+	def TinyboardLink(self, msg):
+		link = "http"+msg[4].split("http")[1].split(" ")[0]		
+		self.sock.say(msg[3], self.chon.Main(link))
