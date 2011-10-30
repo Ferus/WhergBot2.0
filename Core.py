@@ -1,7 +1,6 @@
 #Global Imports
 from blackbox import blackbox_core
 import time
-from threading import Thread
 
 #Local Imports
 import Parser

@@ -8,22 +8,47 @@
 
 4: Move everything to a config file?
 
-5: Ability to toggle PM commands on/off?
+5: Add showing when you cannot join a channel because lolbanned
 
-6: Add showing when you cannot join a channel because lolbanned
-
-7: Investigate why I cant add a : when using $raw privmsg
+6: Investigate why I cant add a : when using $raw privmsg
 	- String parsing " : " when adding quotes. everything past that isnt added.
 	
-8: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
+7: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
 	try/except to pass plugins like MpdScript that require another module
 	a blank dictionary/list/something that holds the names of all the loaded modules
 
-9: Allow non-commandvar commands.
-
-10: Dont import plugins that require modules that are not installed.
+8: Dont import plugins that require modules that are not installed.
 	- Mainly mpdscript.py
 	
+
+#### PLUGINS ####
+
+1: Youtube URL reporter
+	- Reports likes/dislikes and other video stats based on a link
+
+2: FuckMyLife
+	- Name says it all.
+	
+3: DuckDuckGo
+
+4: Services
+	- Nickserv
+	- Any other service that might be wanted
+	- Kick, Ban, Unban, Kban, etc. (Need to update blackbox for this)
+
+5: Guess
+
+6: Slap
+	- Now that i have a working dict that holds users of a channel ;D
+7: http://www.insultgenerator.org/
+###
+def hook(obj=None):
+	if not obj:
+		quit()
+	else:
+		obj.cmds[commandname] = [function/object, level, hostcheck]
+		#Repeat as needed for every part.	
+###
 >>> next(m)
 * [AutoMeme] Getting moar memes!
 * [AutoMeme] Error requesting new memes.
@@ -34,43 +59,3 @@ Traceback (most recent call last):
   File "Plugins/Meme.py", line 15, in get_meme
     for meme in memes:
 UnboundLocalError: local variable 'memes' referenced before assignment
-
-#### PLUGINS ####
-
-1: Youtube URL reporter
-	- Reports likes/dislikes and other video stats based on a link
-
-2: FuckMyLife
-	- Name says it all.
-	
-3: IRCLaws
-	
-4: DuckDuckGo
-
-5: Services
-	- Nickserv
-	- Any other service that might be wanted
-	- Kick, Ban, Unban, Kban, etc. (Need to update blackbox for this)
-
-6: Guess
-
-7: Slap
-	- Now that i have a working dict that holds users of a channel ;D
-
-8: 4chon
-	- On 4chon link:
-		-  Posters_Name (Post_Count, Image_Count) posted: OPs_Text - Link to thread (If mod.php?/ remove it)
-
-###
-def hook(obj=None):
-	if not obj:
-		quit()
-	else:
-		obj.cmds[commandname] = [function/object, level, hostcheck]
-		#Repeat as needed for every part.	
-###
-	
-Plugins and Commands from the original WhergBot:
-(Misc.py ?)
-Size
-

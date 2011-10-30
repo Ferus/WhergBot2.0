@@ -43,6 +43,7 @@ class Tinyboard(object):
 			postText = "1 reply"
 		
 		if re.search("#", link):
+			link = link.replace("#q","#")
 			threadnum, postnum = link.split("/")[-1].split(".html#")
 			if not threadnum == postnum:
 				Post_html = html.split("<div class=\"post reply\" id=\"reply_{0}\">".format(postnum))[1].split("</div>")[0]
@@ -70,8 +71,16 @@ class Tinyboard(object):
 			Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
 			Post_Text = Post_Text.replace("<br/>"," ").replace("&#8220;", "\"").replace("&quot;","\"").replace("\'","'")
 			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "")
-			Post_Text = Post_Text.replace("<span class=\"quote\">&gt;",">").replace("</span>","")
+			Post_Text = Post_Text.replace("<span class=\"quote\">&gt;",">").replace("&amp;","&").replace("</span>","")
 			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","").replace("<em>","").replace("</em>","")
+			#>>> cont = re.compile("<a .*?&gt;&gt;(.*?)<.*>")
+			#>>> result = cont.search(x)
+			#>>> result.groups()[0]
+			#'169'	
+			if re.search("<a onclick=.* href=.*>&gt;&gt;.*</a>", Post_Text): 
+				Link_Num = ">>"+re.findall("&gt;[0-9]{1,}<", Post_Text)[0][:-1][4:]
+				Post_Text = re.sub("<a onclick=\"highlightReply.*;\" href=.*>&gt;&gt;.*</a>", Link_Num, Post_Text)
+			
 			Post_Text = self.smart_truncate(Post_Text)
 		except:
 			Post_Text = "Couldn't parse OP's post."

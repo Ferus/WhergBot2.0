@@ -2,7 +2,7 @@
 #Global Imports
 from threading import Thread
 from datetime import datetime
-import time
+import time, re
 
 #Local Imports
 import Commands
@@ -17,6 +17,7 @@ class Parse():
 		
 		self.command = Commands.Commands(sock=self.sock, parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
+		self._noVar_commands = self.command.noVar_cmds.keys()
 		
 		self.cmdVar = self.command.cmdVar
 		self.ctcpReplies = {"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
@@ -160,6 +161,7 @@ class Parse():
 			elif Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
+					print
 					if Cmd.strip("\x01") == 'TIME':
 						ti = self.ctcpReplies[Cmd].format(time.strftime("%c", time.localtime()))
 						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, ti))
@@ -174,23 +176,40 @@ class Parse():
 					if Cmd.strip("\x01") == 'ACTION':
 						act = " ".join(Text.strip("\x01").split()[1:])
 						print("* [Privmsg] [{0}] * {1} {2}".format(Location, Nick, act))
-			
+						
+			elif Cmd == 'DCC':
+				'''I probably won't add dcc support.'''
+				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to ignore this.".format(Text.split()[1], Nick))
+
 			# Currently we parse for commands that start with a command variable.
 			# What if we just want to parse the message for something specific?
 			# Thats what im going to put here. :3
 						
 			else:
-				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))															
+				'''Non-commandvariable commands.'''
+				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
+				for comm in self._noVar_commands: #Loop through every one.
+					if re.search(comm, Text): #If we match a command
+						check = self.allowed.levelCheck(Nick)[1] #Start an access check
+						if check[1] <= self.command.noVar_cmds[comm][1]: #Check access level
+							if self.command.noVar_cmds[comm][2]: #Is a hostcheck needed?
+								if Host == check[0]: #Hostcheck
+									t = Thread(target=(self.command.noVar_cmds[comm])[0](Msg))
+									t.daemon = True
+									t.start()
+								else: #Failed the hostcheck
+									self.SendNotice(Nick, "You do not have the required authority to use this command.")
+							else: #Passes access, but no hostcheck needed
+								t = Thread(target=(self.command.noVar_cmds[comm])[0](Msg))
+								t.daemon = True
+								t.start()
+						else: #Doesnt pass access.
+							pass				
+																							
 					
-			if Cmd == 'DCC':
-				'''I probably won't add dcc support.'''
-				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to ignore this.".format(Text.split()[1], Nick))
-				
-
-				
 		except Exception, e:
 			print("* [Privmsg] Error")
-			print(str(e))
+			print(repr(e))
 			
 	def Notice(self, msg):
 		print msg

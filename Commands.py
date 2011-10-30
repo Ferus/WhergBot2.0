@@ -2,7 +2,7 @@
 
 import re
 
-from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard
+from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard, InsultGenerator, YouTube
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -28,6 +28,7 @@ class Commands():
 		self.IRCr = Quotes.IRCRules("./Plugins/IRCRules.txt")
 		self.tolds = Told.Told("./Plugins/Told.txt", self.sock)
 		self.chon = Tinyboard.Tinyboard()
+		self.youtube = YouTube.YT()
 			
 			
 		self.cmds = {
@@ -62,13 +63,16 @@ class Commands():
 			'rule': [self.Rule, 5, False],
 			'rrand': [self.RandRule, 5, False],
 			'told': [self.tolds.ReturnTold, 5, False],
+			'insult': [self.Insult, 5, False],
 					}
 					
-		self.noVar_cmds = {
+		self.noVar_cmds = { # Hurr durr have to escape ?'s
 			'4chon.net': [self.TinyboardLink, 5, False],
 			'gattsuchan.tk': [self.TinyboardLink, 5, False],
+			'negimachan.com': [self.TinyboardLink, 5, False],
 			';_;': [self.Hug, 5, False],
 			';-;': [self.Hug, 5, False],
+			'youtube.com/watch\?v=': [self.utube, 5, False],
 					}
 
 	def Echo(self, msg):
@@ -329,7 +333,11 @@ class Commands():
 	def RandRule(self, msg):
 		'''Calls the Random fucntion of the IRCRules object'''
 		self.sock.say(msg[3], self.IRCr.Random())
-
+		
+	def Insult(self, msg):
+		'''Insult a fgt. :)'''
+		insult = "{0}, {1}".format(msg[4].split()[1:][0], InsultGenerator.insult())
+		self.sock.say(msg[3], insult)
 
 		# Non-CommandVar Commands:
 	def Hug(self, msg):
@@ -340,5 +348,24 @@ class Commands():
 			self.sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man\x01".format(msg[0]))
 	
 	def TinyboardLink(self, msg):
-		link = "http"+msg[4].split("http")[1].split(" ")[0]		
-		self.sock.say(msg[3], self.chon.Main(link))
+		link = "http"+msg[4].split("http")[1].split(" ")[0]
+		x = self.chon.Main(link)
+		if x != None:
+			self.sock.say(msg[3], x)
+		else:
+			pass
+	
+	def utube(self, msg):
+		link = "http"+msg[4].split("http")[1].split("&feature=")[0]
+		x = self.youtube.Main(link)
+		if x != None:
+		# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
+			
+			head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02 seconds]".format(x['title'], x['author'], str(x['duration']))
+			middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(str(int(x['averagerating'])), str(x['maxrating']), str(x['percentrating'])[2:], str(x['viewcount']))
+			tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
+			
+			y = "{0} {1} {2}".format(head, middle, tail)
+			self.sock.say(msg[3], y)
+		else:
+			pass

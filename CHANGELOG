@@ -1,8 +1,16 @@
+=== Oct 29/30 ===
+- Added YouTube.py
+- Added Told.py
+- Added InsultGenerator.py
+- Fixed bugs with the above
 === Oct 26 ===
 - Removed 'bug' with Access.py and leaving the dict open
 - Moved cmdVar to Commands.py
 - Added message printing when one uses a command
 - Moved some quote/rule files into Plugins
+- Removed bug in Plugins/UrbanDictionary.py that causes the bot to fail if there is no cache file
+- /Finally/ added non commandVar commands.
+- Added Tinyboard plugin, parses for links (manually set in noVar_cmds) that run the Tinyboard software.
 === Oct 12 ===
 - Finished Quotes module, adding onto it with other things too.
 === Oct 09 ===

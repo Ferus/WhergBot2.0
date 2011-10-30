@@ -17,8 +17,8 @@ if __name__ == '__main__':
 		WhergBot = Core.Bot(nick, real, ident, owner, ssl)
 		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
 		WhergBot.irc.send("MODE {0} +Bs".format(nick))
-		WhergBot.irc.join("hacking,lobby,4chon,circlejerk,minecraft,tinyboard,tsunagari") #Channels can start with # too.
-		#WhergBot.irc.join("#hacking")
+		WhergBot.irc.join("hacking,lobby,4chon,circlejerk,minecraft,tinyboard,tsunagari,h") #Channels can start with # too.
+		#WhergBot.irc.join("#h")
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
 		

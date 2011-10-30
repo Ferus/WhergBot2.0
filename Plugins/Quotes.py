@@ -26,7 +26,7 @@ class IRCQuotes(object):
 				else: # Doesnt exist. Make it and pickle it.
 					_qP = [] #We have to dump an empty list to the file and pickle it
 					pickle.dump(_qP, open(self.QuoteFile, "wb"))
-					
+					print("* [Quotes] Creating blank database.")
 					_QuoteF = open(self.QuoteFile, "rb")
 					
 					with _QuoteF: # And now we load the pickle.
@@ -34,6 +34,7 @@ class IRCQuotes(object):
 				
 			self.QuoteCount = len(self.QuoteP)
 			print("* [Quotes] Loading Quote File: {0}".format(str(self.QuoteFile)))
+			print("* [Quotes] Loaded {0} Quotes".format(self.QuoteCount))
 				
 		else:
 			print("* [Quotes] Error: No QuoteFile specified.")
