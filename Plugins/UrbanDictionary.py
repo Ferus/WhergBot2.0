@@ -2,6 +2,7 @@
 
 import requests
 import os, re
+from htmldecode import convert
 # http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
 
 def request(word):
@@ -12,7 +13,7 @@ def request(word):
 	else:
 		url = "http://www.urbandictionary.com/tooltip.php?term="+word.replace(" ","%20")
 		try:
-			html = requests.get(url).content
+			html = convert(requests.get(url).content)
 		except:
 			print("* [UrbanDict] Error => Failed to connect.")
 			return "Failed to connect to Urban Dictionary."

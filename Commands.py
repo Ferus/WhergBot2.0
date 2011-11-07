@@ -2,7 +2,7 @@
 
 import re
 
-from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard, InsultGenerator, YouTube
+from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard, InsultGenerator, YouTube, Imgur
 
 class Commands():
 	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
@@ -29,6 +29,7 @@ class Commands():
 		self.tolds = Told.Told("./Plugins/Told.txt", self.sock)
 		self.chon = Tinyboard.Tinyboard()
 		self.youtube = YouTube.YT()
+		self.imgur = Imgur.Imgur()
 			
 			
 		self.cmds = {
@@ -66,13 +67,14 @@ class Commands():
 			'insult': [self.Insult, 5, False],
 					}
 					
-		self.noVar_cmds = { # Hurr durr have to escape ?'s
+		self.noVar_cmds = { # Hurr durr regex
 			'4chon.net': [self.TinyboardLink, 5, False],
 			'gattsuchan.tk': [self.TinyboardLink, 5, False],
 			'negimachan.com': [self.TinyboardLink, 5, False],
-			';_;': [self.Hug, 5, False],
-			';-;': [self.Hug, 5, False],
-			'youtube.com/watch\?v=': [self.utube, 5, False],
+			'uboachan.net': [self.TinyboardLink, 5, False],
+			';[_-].*?;': [self.Hug, 5, False],
+			'http:\/\/(www\.)?youtube\.com\/watch': [self.utube, 5, False],
+			'http:\/\/(?:www\.)?(i\.)?imgur\.com\/': [self.imager, 5, False],
 					}
 
 	def Echo(self, msg):
@@ -356,7 +358,7 @@ class Commands():
 			pass
 	
 	def utube(self, msg):
-		link = "http"+msg[4].split("http")[1].split("&feature=")[0]
+		link = "http"+msg[4].split("http")[1].split(" ")[0]
 		x = self.youtube.Main(link)
 		if x != None:
 		# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
@@ -369,3 +371,18 @@ class Commands():
 			self.sock.say(msg[3], y)
 		else:
 			pass
+	def imager(self, msg):
+		link = re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])[0]
+		stats = self.imgur.Main(link)		
+		head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
+		try:
+			tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
+		except:
+			tail = ""
+		img = head+tail
+		self.sock.say(msg[3], img)
+	
+	
+	
+	
+	
