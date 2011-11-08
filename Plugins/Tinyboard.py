@@ -72,11 +72,11 @@ class Tinyboard(object):
 			
 		try:
 			Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
-			Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","")
-			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "")
-			Post_Text = Post_Text.replace("<span class=\"quote\">&gt;",">").replace("</span>","")
-			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","")
-			#<a target="_blank" rel="nofollow" href="http://google.com">http://google.com</a>
+			Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","") #Italics?
+			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "") #Spoilers
+			Post_Text = Post_Text.replace("<span class=\"quote\">","").replace("</span>","") #Greentext
+			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","") #Bold?
+
 			if re.search("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text):
 				Link_html = re.findall("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text)
 				
