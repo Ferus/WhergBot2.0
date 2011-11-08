@@ -40,7 +40,8 @@ class Users():
 	def save(self):
 		try:
 			_db = shelve.open("Allowed_Users")
-			_db = self.db
+			for key in self.db.keys():
+				_db[key] = self.db[key]
 			_db.close()
 			return True
 		except:
