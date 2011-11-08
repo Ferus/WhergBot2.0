@@ -76,7 +76,15 @@ class Tinyboard(object):
 			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "")
 			Post_Text = Post_Text.replace("<span class=\"quote\">&gt;",">").replace("</span>","")
 			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","")
-			
+			#<a target="_blank" rel="nofollow" href="http://google.com">http://google.com</a>
+			if re.search("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text):
+				Link_html = re.findall("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text)
+				
+				for _link in Link_html:
+					_link = re.split("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">", _link)[1]
+					_link = re.split("</a>", _link)[0]
+					Post_Text = re.sub("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", _link, Post_Text)				
+				
 			if re.search("<a onclick=.*? href=.*?>>>.*?</a>", Post_Text): 
 				Link_Num = ">>"+re.findall(">[0-9]{1,}<", Post_Text)[0][:-1][4:]
 				Post_Text = re.sub("<a onclick=\"highlightReply.*;\" href=.*?>>>.*?</a>", Link_Num, Post_Text)
