@@ -53,5 +53,5 @@ hooks = {
 	';[_-]{1,};': [M.AllowHug, 4, False],
 	';[_-]{1,};': [M.DenyHug, 5, False],
 	'^@echo': [M.Echo, 4, False],
-	'^@raw': [M.Raw, 0, True],
+	'^\$raw': [M.Raw, 0, True],
 	}
