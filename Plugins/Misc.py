@@ -27,7 +27,7 @@ class misc():
 	def AllowHug(self, msg, sock):
 		sock.say(msg[3], "\x01ACTION hugs {0}.\x01".format(msg[0]))
 	def DenyHug(self, msg, sock):
-		sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man\x01".format(msg[0]))
+		sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man.\x01".format(msg[0]))
 		
 	def Echo(self, msg, sock):
 		try:
