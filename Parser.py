@@ -5,7 +5,7 @@ from datetime import datetime
 import time, re
 
 #Local Imports
-import Commands_New as Commands
+import Commands
 
 class Parse():
 	def __init__(self, sock=None, allowed=None, nick=None):
