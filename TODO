@@ -1,25 +1,11 @@
 1: Change how the parser handles messages, and more options
-	
-2: Add a plugins folder and add them to Commands.py
-	- Anything imported will need to be defined in __init__() (IE: meme.py)
-	- Finish others
-					
-3: NickServ auth options.
 
-4: Move everything to a config file?
+2: Move everything to a config file?
 
-5: Add showing when you cannot join a channel because lolbanned
+3: Add showing when you cannot join a channel because lolbanned
 
-6: Investigate why I cant add a : when using $raw privmsg
+4: Investigate why I cant add a : when using $raw privmsg
 	- String parsing " : " when adding quotes. everything past that isnt added.
-	
-7: Find a way to make plugins hook themselves. they would have to init when imported, but that means they would probably have to import Commands, Make them add to the cmds dict.
-	try/except to pass plugins like MpdScript that require another module
-	a blank dictionary/list/something that holds the names of all the loaded modules
-
-8: Dont import plugins that require modules that are not installed.
-	- Mainly mpdscript.py
-	
 
 #### PLUGINS ####
 
@@ -31,21 +17,14 @@
 3: Services
 	- Nickserv
 	- Any other service that might be wanted
-	- Kick, Ban, Unban, Kban, etc. (Need to update blackbox for this)
+	- Kick, Ban, Unban, Kban, etc.
 
 4: Guess
 
 5: Slap
 	- Now that i have a working dict that holds users of a channel ;D
-6: http://www.insultgenerator.org/
-###
-def hook(obj=None):
-	if not obj:
-		quit()
-	else:
-		obj.cmds[commandname] = [function/object, level, hostcheck]
-		#Repeat as needed for every part.	
-###
+
+FIX:
 >>> next(m)
 * [AutoMeme] Getting moar memes!
 * [AutoMeme] Error requesting new memes.

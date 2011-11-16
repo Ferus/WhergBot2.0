@@ -58,3 +58,23 @@ class YT(object):
 		}
 		return stats
 
+YouTube = YT()
+
+def youtubestats(msg, sock):
+	link = "http"+msg[4].split("http")[1].split(" ")[0]
+	x = YouTube.Main(link)
+	if x != None:
+	# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
+		head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02 seconds]".format(x['title'], x['author'], str(x['duration']))
+		middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(str(int(x['averagerating'])), str(x['maxrating']), str(x['percentrating'])[2:], str(x['viewcount']))
+		tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
+		
+		y = "{0} {1} {2}".format(head, middle, tail)
+		self.sock.say(msg[3], y)
+	else:
+		pass
+		
+hooks = {
+	'http:\/\/(www\.)?youtube\.com\/watch': [youtubestats, 5, False],	
+		}
+

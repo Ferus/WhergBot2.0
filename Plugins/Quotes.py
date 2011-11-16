@@ -179,4 +179,83 @@ class IRCRules(object):
 		else:
 			return self.Rules[Num]
 			
-		
+IRCq = IRCQuotes("./Plugins/Pickle_Quotes.pkl")
+IRCr = IRCRules("./Plugins/IRCRules.txt")
+
+def Quote(msg, sock):
+	'''
+	The main quote command. We check for any other data in the msg sent.
+	If its a number, we assume they are searching for a specific quote.
+	'''
+	try:
+		if msg[4].split()[1:]:
+			Text = msg[4].split()[1:][0]
+		else:
+			Text = None
+		sock.say(msg[3], IRCq.Number(QuoteNum=Text))
+	except:
+		pass
+
+def QuoteSearch(msg, sock):
+	'''Call the Search function of Quotes.py which uses re to find a quote'''	
+	if msg[4].split()[1:]:
+		Text = " ".join(msg[4].split()[1:])
+	else:
+		Text = ''
+	sock.say(msg[3], IRCq.Search(msg=Text))
+	
+def QuoteCount(msg, sock):
+	'''Returns the count of total quotes'''
+	sock.say(msg[3], IRCq.Count())
+
+def QuoteAdd(msg, sock):
+	'''Calls the add function to add a quote'''
+	try:
+		if msg[4].split()[1:]:
+			q = " ".join(msg[4].split()[1:])
+		sock.say(msg[3], IRCq.Add(QuoteString=q))
+	except:
+		pass
+			
+def QuoteDel(msg, sock):
+	'''Calls the del function to remove a quote'''
+	try:
+		Text = int(msg[4].split()[1:][0])
+	except:
+		Text = None
+	sock.say(msg[3], IRCq.Del(QuoteNum=Text))
+	
+def QuoteBackup(msg, sock):
+	'''Calls the backup function to backup the pickled quotes file in plaintext'''
+	try:
+		Text = msg[4].split()[1:][0]
+	except:
+		Text = None
+	sock.say(msg[3], IRCq.Backup(BackupFile=Text))
+	
+def Rule(msg, sock):
+	'''Calls Rule function of the IRCRules object'''
+	try:
+		Num = int(msg[4].split()[1:][0])
+	except:
+		Num = None
+	sock.say(msg[3], IRCr.Rule(Num=Num))
+	
+def RandRule(msg, sock):
+	'''Calls the Random fucntion of the IRCRules object'''
+	sock.say(msg[3], IRCr.Random())
+	
+	
+hooks = {
+	'^@quote': [Quote, 5, False],
+	'^@q': [Quote, 5, False],
+	'^@qsearch': [QuoteSearch, 5, False],
+	'^@qfind': [QuoteSearch, 5, False],
+	'^@qcount': [QuoteCount, 5, False],
+	'^@qadd': [QuoteAdd, 0, True],
+	'^@qdel': [QuoteDel, 0, True],
+	'^@qbackup': [QuoteBackup, 0, True],
+	'^@r': [Rule, 5, False],
+	'^@rule': [Rule, 5, False],
+	'^@rrand': [RandRule, 5, False],
+	}

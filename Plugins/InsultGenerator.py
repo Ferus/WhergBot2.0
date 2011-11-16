@@ -11,3 +11,12 @@ def insult():
 	html = convert(html.content)
 	insult = html.split("<TR align=center><TD>")[1].split("</TD></TR>")[0]
 	return insult
+	
+def gen(msg, sock):
+	'''Insult a fgt. :)'''
+	_insult = "{0}, {1}".format(msg[4].split()[1:][0], insult())
+	sock.say(msg[3], _insult)
+	
+hooks = {
+	'^@insult': [gen, 5, False],	
+		}

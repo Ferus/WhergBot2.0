@@ -49,3 +49,20 @@ class Imgur(object):
 		if html.status_code != 200:
 			return "Couldn't connect to Imgur"
 		return self.Parser(html.content)
+
+I = Imgur()		
+		
+def ImgurStats(msg, sock):
+	link = re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])[0]
+	stats = I.Main(link)		
+	head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
+	try:
+		tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
+	except:
+		tail = ""
+	img = head+tail
+	sock.say(msg[3], img)
+	
+hooks = {
+	'http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
+		}

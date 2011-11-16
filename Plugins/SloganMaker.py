@@ -8,3 +8,12 @@ def get_slogan(text):
 		print("* [SloganMaker] Error - Status Code {0}".format(r.status_code))
 		return "\x02[SloganMaker]\x02 Error; Status Code {0}".format(r.status_code)
 		
+def Slogan(msg, sock):
+	try:
+		sock.say(msg[3], get_slogan(" ".join(msg[4].split()[1:])))
+	except Exception, e:
+		print("* [SloganMaker] Error:\n* [SloganMaker] {0}".format(str(e)))
+		
+hooks = {
+	'^@slogan': [Slogan, 5, False],	
+		}

@@ -4,9 +4,8 @@ import time
 
 try:
 	import mpd
-except:
-	import sys
-	sys.exit("Please install python-mpd to use this plugin or remove it. MpdScript.py")
+except ImportError:
+	print("Please install python-mpd to use this plugin or remove/rename it. ./Plugins/MpdScript.py")
 
 
 hostname = "localhost"
@@ -80,3 +79,21 @@ def mpdnext_cb():
 	mpd_disconnect()
 	return mpdshow_cb(t=False)
 
+def Music(msg, sock):
+	try:
+		if msg[4].split()[1:]:
+			Text = msg[4].split()[1:]
+		else:
+			Text = []
+		if len(Text) < 1:
+			sock.say(msg[3], mpdshow_cb())
+		elif Text[0] == "next":
+			sock.say(msg[3], mpdnext_cb())
+		elif Text[0] == "prev":
+			sock.say(msg[3], mpdprev_cb())
+	except Exception, e:
+		print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))
+		
+hooks = {
+	'^@mpd': [Music, 0, True],	
+		}

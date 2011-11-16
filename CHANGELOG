@@ -1,41 +1,57 @@
+=== Nov 15 ===
++ Finally all plugins are 'plugins'
++ Many changes in Parser and Commands
++ Added Asl.py
++ Updated SloganMaker.py
++ Updated InsultGenerator.py
++ Updated Meme.py
++ Updated Told.py
++ Updated UrbanDictionary.py
++ Updated YouTube.py
++ Updated Stream.py
++ Updated Imgur.py
++ Updated Misc.py
++ Updated Tinyboard.py
++ Updated MpdScript.py
++ Updated Quotes.py
 === Nov 07 ===
-- Added Imgur.py
-- Added htmldecode.py because python cant into it. :<
-- Updated some plugins to use htmldecode
-- Fixed Imgur.py percent string lengths
++ Added Imgur.py
++ Added htmldecode.py because python cant into it. :<
++ Updated some plugins to use htmldecode
++ Fixed Imgur.py percent string lengths
 === Oct 29/30 ===
-- Added YouTube.py
-- Added Told.py
-- Added InsultGenerator.py
-- Fixed bugs with the above
++ Added YouTube.py
++ Added Told.py
++ Added InsultGenerator.py
++ Fixed bugs with the above
 === Oct 26 ===
 - Removed 'bug' with Access.py and leaving the dict open
-- Moved cmdVar to Commands.py
-- Added message printing when one uses a command
-- Moved some quote/rule files into Plugins
++ Moved cmdVar to Commands.py
++ Added message printing when one uses a command
++ Moved some quote/rule files into Plugins
 - Removed bug in Plugins/UrbanDictionary.py that causes the bot to fail if there is no cache file
-- /Finally/ added non commandVar commands.
-- Added Tinyboard plugin, parses for links (manually set in noVar_cmds) that run the Tinyboard software.
++ /Finally/ added non commandVar commands.
++ Added Tinyboard plugin, parses for links (manually set in noVar_cmds) that run the Tinyboard software.
 === Oct 12 ===
-- Finished Quotes module, adding onto it with other things too.
++ Finished Quotes module, adding onto it with other things too.
 === Oct 09 ===
-- Started to work on a new Quotes module.
-- Added more features to quotes module.
++ Started to work on a new Quotes module.
++ Added more features to quotes module.
 === Sep 26 ===
-- Added message printing (Parser) for /who and /kill
-- Added message printing (Parser) for MODE changes
-	- Fixed a bug with status modes (+-qaohv)
-- Added printing for DCC
-- Fixed a bug for the owner of the bot. Access could be changed with no way to revert it back.
-	- Access is now reset on every start to the nick/hostmask as defined in WhergBot.py
-	- Added a variable in Allowed.py that also holds the owner list
-- A simple ignore system that was already 'implemented' without realising it.
-- Added Meme.py in Plugins
-- Added SloganMaker.py in Plugins
-- Added UrbanDictionary in Plugins
-- Added MPD, Oven, Next, Bacon, Stream, and Act commands.
-- Added Misc.py in Plugins
++ Added message printing (Parser) for /who and /kill
++ Added message printing (Parser) for MODE changes
+	+ Fixed a bug with status modes (++qaohv)
++ Added printing for DCC
++ Fixed a bug for the owner of the bot. Access could be changed with no way to revert it back.
+	+ Access is now reset on every start to the nick/hostmask as defined in WhergBot.py
+	+ Added a variable in Allowed.py that also holds the owner list
++ A simple ignore system that was already 'implemented' without realising it.
++ Added Meme.py in Plugins
++ Added SloganMaker.py in Plugins
++ Added UrbanDictionary in Plugins
++ Added MPD, Oven, Next, Bacon, Stream, and Act commands.
++ Added Misc.py in Plugins
 === Sep 25 ===
-- Decided to start a CHANGELOG
-- Added three CTCP replies, with a small hack to make TIME work.
-- Starting to add more to the parser.
++ Decided to start a CHANGELOG
++ Added three CTCP replies, with a small hack to make TIME work.
++ Starting to add more to the parser.

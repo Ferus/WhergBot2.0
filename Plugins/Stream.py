@@ -2,7 +2,7 @@
 import requests
 from htmldecode import convert
 
-class Stream():
+class StreamInfo():
 	'''A personal script that polls a Shoutcast server.'''
 	def __init__(self):
 		self.url = "http://opsimathia.datnode.net:8000/index.html?sid=1"
@@ -46,4 +46,32 @@ class Stream():
 			return None
 		html = convert(html.content)
 		return html
+		
+S = StreamInfo()		
+		
+def Stream(msg, sock):
+	try:
+		if msg[4].split()[1:]:
+			Text = msg[4].split()[1:]
+		else:
+			Text = []
+		
+		if Text[0] == 'np' or Text[0].lower() == 'now' and Text[1].lower() == 'playing':
+			sock.say(msg[3], S.now_playing())
+		
+		elif Text[0] == 'url':
+			sock.say(msg[3], S.send_url())
+			
+		elif Text[0] == 'status':
+			sock.say(msg[3], S.status())
+			
+		elif Text[0] == 'title':
+			sock.say(msg[3], S.title())
+			
+	except Exception, e:
+		print("* [Stream] Error:\n* [Stream] {0}".format(str(e)))
+		
+hooks = {
+	'^@stream': [Stream, 5, False],	
+		}
 

@@ -20,7 +20,7 @@ class Tinyboard(object):
 				html = requests.get(link)
 				if html.status_code != 200:
 					return None
-				html = convert(html.content)
+				html = html.content
 				return html
 			except:
 				return None
@@ -28,6 +28,8 @@ class Tinyboard(object):
 	def Parse(self, link):
 		link = link.replace("mod.php?/", "")	
 		html = self.GetHtml(link)
+		if html == None:
+			return "Error'd: {0}".format(link)
 		
 		imageCount = html.count("<p class=\"fileinfo\">") #Number of images
 		postCount = html.count("<div class=\"post reply\"") #Number of post replies
@@ -44,7 +46,7 @@ class Tinyboard(object):
 			postText = "no replies"
 		else:
 			postText = "1 reply"
-		
+			
 		if re.search("#", link):
 			link = link.replace("#q","#")
 			threadnum, postnum = link.split("/")[-1].split(".html#")
@@ -70,29 +72,34 @@ class Tinyboard(object):
 		except:
 			Post_CapCode = None
 			
-		try:
-			Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
-			Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","") #Italics?
-			Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "") #Spoilers
-			Post_Text = Post_Text.replace("<span class=\"quote\">","").replace("</span>","") #Greentext
-			Post_Text = Post_Text.replace("<strong>","").replace("</strong>","") #Bold?
+		Post_Text = Post_html.split("<p class=\"body\">")[1].split("</p>")[0]
+		Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","") #Italics?
+		Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "") #Spoilers
+		Post_Text = Post_Text.replace("<span class=\"quote\">","").replace("</span>","") #Greentext
+		Post_Text = Post_Text.replace("<strong>","").replace("</strong>","") #Bold?
+		Post_Text = Post_Text.replace("&gt;",">")
+		
+		if re.search("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text):
+			Link_html = re.findall("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text)
+			
+			for _link in Link_html:
+				_link = re.split("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">", _link)[1]
+				_link = re.split("</a>", _link)[0]
+				Post_Text = re.sub("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", _link, Post_Text)
+		else:
+			pass
+				
 
-			if re.search("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text):
-				Link_html = re.findall("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text)
-				
-				for _link in Link_html:
-					_link = re.split("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">", _link)[1]
-					_link = re.split("</a>", _link)[0]
-					Post_Text = re.sub("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", _link, Post_Text)				
-				
-			if re.search("<a onclick=.*? href=.*?>>>.*?</a>", Post_Text): 
-				Link_Num = ">>"+re.findall(">[0-9]{1,}<", Post_Text)[0][:-1][4:]
-				Post_Text = re.sub("<a onclick=\"highlightReply.*;\" href=.*?>>>.*?</a>", Link_Num, Post_Text)
+		if re.search("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Post_Text):
+			# <a onclick="highlightReply('534963');" href="/r9k/res/534744.html#534963">&gt;&gt;534963</a>
+			Link_Num = re.findall(">>[0-9]{1,}<", Post_Text)[0][:-1]
+			Post_Text = re.sub("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Link_Num, Post_Text)
+		else:
+			pass
 			
-			Post_Text = self.smart_truncate(Post_Text)
-		except:
-			Post_Text = "Couldn't parse OP's post."
-			
+		Post_Text = self.smart_truncate(Post_Text)
+		Post_Text = self.conv(Post_Text).encode("utf-8")
+		
 		if Post_Trip:
 			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
 		elif Post_CapCode:
@@ -106,6 +113,9 @@ class Tinyboard(object):
 			return content
 		else:
 			return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+			
+	def conv(self, string):
+		return convert(string)
 	
 	def Main(self, link=None):
 		try:
@@ -113,4 +123,16 @@ class Tinyboard(object):
 		except:
 			return None
 			
-			
+TB = Tinyboard()
+
+def TinyboardLink(msg, sock):
+	link = re.findall('http:\/\/(?:www\.)?4chon\.net\/(?:mod\.php\?\/)?[a-zA-Z0-9]{1,}(?:\/res)\/[0-9]{1,}\.html(?:#[0-9]{1,})?', msg[4])[0]
+	x = TB.Main(link)
+	if x != None:
+		self.sock.say(msg[3], x)
+	else:
+		pass
+
+hooks = {
+	'http:\/\/(?:www\.)?4chon\.net\/(?:mod\.php\?\/)?[a-zA-Z0-9]{1,}(?:\/res)\/[0-9]{1,}\.html(?:#[0-9]{1,})?': [TinyboardLink, 5, False],	
+		}

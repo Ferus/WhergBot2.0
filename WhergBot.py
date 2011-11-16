@@ -5,6 +5,7 @@ import Core
 nick = 'WhergBot' #Bots Nickname
 real = 'WhergBot [Ferus]' #Bots realname
 ident = 'Wherg' #Bots Ident
+password = 'LOLiTROLLu' #Bots Nickserv pass
 owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
 ssl = True #To encrypt, Or to not encrypt, That is the question!
 if ssl:
@@ -17,9 +18,11 @@ if __name__ == '__main__':
 		WhergBot = Core.Bot(nick, real, ident, owner, ssl)
 		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
 		WhergBot.irc.send("MODE {0} +Bs".format(nick))
-		WhergBot.irc.join("hacking,lobby,4chon,circlejerk,minecraft,tinyboard,tsunagari,h,uboachan,animu,radio")
+		if password:
+			WhergBot.irc.send("MSG NickServ Identify {0}".format(password))
+		WhergBot.irc.join("hacking,lobby,4chon,circlejerk,minecraft,tinyboard,tsunagari,h,animu,radio")
 		#Channels can start with # too.
-		#WhergBot.irc.join("#hacking")
+		#WhergBot.irc.join("#h")
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=2048))
 		

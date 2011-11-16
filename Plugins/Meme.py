@@ -30,13 +30,15 @@ def meme():
 		yield "\x02[AutoMeme]\x02 {0}".format(memestr)
 
 MemeGen = meme()
-def MString(args=None):
-	'''Return it.'''
-	return next(MemeGen)
-		
-def Hook():
-	'''Hook into WhergBot'''
-	return [MString, 5, False]
+def MString(msg, sock):
+	try:
+		sock.say(msg[3], next(MemeGen))
+	except Exception, e:
+		print("* [AutoMeme] Error:\n* [AutoMeme] {0}".format(str(e)))
+
+hooks = {
+	'^@meme': [MString, 5, False],	
+		}
 	
 	
 	

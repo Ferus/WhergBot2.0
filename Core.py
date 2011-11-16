@@ -39,13 +39,13 @@ class Bot():
 		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		time.sleep(.5)
+		time.sleep(.2)
 		self.irc.username(self.ident, self.realname)
 		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
-		time.sleep(.5)
+		time.sleep(.2)
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
-		time.sleep(.5)
+		time.sleep(.2)
 		
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')
@@ -61,15 +61,6 @@ class Bot():
 			try:
 				self.msg = self.p.Main(self.msg)
 				# [ Name, Ident@Host, Action, Loc, Text, Cmd ]
-				self.nick = self.msg[0]
-				self.host = self.msg[1]
-				self.action = self.msg[2]
-				if self.nickname == self.msg[3]:
-					self.location = self.nick
-				else:
-					self.location = self.msg[3]
-				self.text = self.msg[4]
-				self.cmd = self.msg[5]
 			except:
 				pass
 

@@ -5,7 +5,7 @@ from datetime import datetime
 import time, re
 
 #Local Imports
-import Commands
+import Commands_New as Commands
 
 class Parse():
 	def __init__(self, sock=None, allowed=None, nick=None):
@@ -15,11 +15,9 @@ class Parse():
 		
 		self.users = {} #Storage for Users of each channel. The Key is channel, users are a list.
 		
-		self.command = Commands.Commands(sock=self.sock, parser=self, nick=self.nickname, allowed=self.allowed)
+		self.command = Commands.Commands(parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
-		self._noVar_commands = self.command.noVar_cmds.keys()
-		
-		self.cmdVar = self.command.cmdVar
+
 		self.ctcpReplies = {"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
 						"\x01TIME\x01" : "The local time here is {0}",
 						"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
@@ -139,26 +137,8 @@ class Parse():
 			if Nick == Location:
 				'''self.Loc() already handles where PM's come from, but now we need to change how it shows.'''
 				Location = self.nickname
-			
-			'''If a command is called, check the hostname and access level of the person who called it, and if they have access, execute the command.'''
-								
-			if Cmd.startswith(self.cmdVar) and Cmd[1:] in self._commands:
-				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
-				check = self.allowed.levelCheck(Nick)[1]
-				if check[1] <= self.command.cmds[Cmd[1:]][1]:
-					if self.command.cmds[Cmd[1:]][2]:
-						if Host == check[0]:
-							t = Thread(target=(self.command.cmds[Cmd[1:]])[0](Msg))
-							t.daemon = True
-							t.start()
-						else:
-							self.SendNotice(Nick, "You do not have the required authority to use this command.")
-					else:
-						t = Thread(target=(self.command.cmds[Cmd[1:]])[0](Msg))
-						t.daemon = True
-						t.start()
 						
-			elif Text.startswith("\x01"):
+			if Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
 					print
@@ -179,28 +159,27 @@ class Parse():
 						
 			elif Cmd == 'DCC':
 				'''I probably won't add dcc support.'''
-				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to ignore this.".format(Text.split()[1], Nick))
-
-			# Currently we parse for commands that start with a command variable.
-			# What if we just want to parse the message for something specific?
-			# Thats what im going to put here. :3
+				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to 'ignore' this.".format(Text.split()[1], Nick))
 						
 			else:
-				'''Non-commandvariable commands.'''
+				'''
+				If a command is called, check the hostname and access level of the person who called it, 
+				and if they have access, execute the command. Regex based commands too. :)
+				'''
 				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
-				for comm in self._noVar_commands: #Loop through every one.
+				for comm in self._commands: #Loop through every one.
 					if re.search(comm, Text): #If we match a command
 						check = self.allowed.levelCheck(Nick)[1] #Start an access check
-						if check[1] <= self.command.noVar_cmds[comm][1]: #Check access level
-							if self.command.noVar_cmds[comm][2]: #Is a hostcheck needed?
+						if check[1] <= self.command.cmds[comm][1]: #Check access level
+							if self.command.cmds[comm][2]: #Is a hostcheck needed?
 								if Host == check[0]: #Hostcheck
-									t = Thread(target=(self.command.noVar_cmds[comm])[0](Msg))
+									t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock))
 									t.daemon = True
 									t.start()
 								else: #Failed the hostcheck
-									self.SendNotice(Nick, "You do not have the required authority to use this command.")
+									self.sock.send("NOTICE {0} :{1}".format(Nick, "You do not have the required authority to use this command."))
 							else: #Passes access, but no hostcheck needed
-								t = Thread(target=(self.command.noVar_cmds[comm])[0](Msg))
+								t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock))
 								t.daemon = True
 								t.start()
 						else: #Doesnt pass access.
@@ -347,14 +326,4 @@ class Parse():
 		'''CTCP'd. Lets respond.'''
 		self.sock.send("NOTICE {0} :{1}".format(location, message))
 		print("* [CTCP {0} from {1}] Replying with: '{2}'".format(ctcp, location, message))
-						
-	def SendRaw(self, msg):
-		self.sock.send(msg)
-
-	def SendMsg(self, location, msg):
-		self.sock.say(location, msg)
-	
-	def SendNotice(self, location, msg):
-		self.SendRaw("NOTICE {0} :{1}".format(location, msg))
-		
 		

@@ -1,144 +1,83 @@
 #!/usr/bin/python2
 
 import re
-
-from Plugins import SloganMaker, UrbanDictionary, MpdScript, Misc, Stream, Meme, Quotes, Told, Tinyboard, InsultGenerator, YouTube, Imgur
+import pluginLoader as pL
 
 class Commands():
-	def __init__(self, nick=None, sock=None, parser=None, allowed=None):
+	def __init__(self, nick=None, parser=None, allowed=None):
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
 		Each command receives the raw message in a list. Optional socket allows for raw IRC commands.
 		
-		Every function defined in here has to receive a 'msg' variable, which is a list returned from the parser. IE:
+		Every function defined in here has to receive a 'msg' variable, which is a list returned from 
+		the parser and the socket object.
+		
 		['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$quit Some quit message.', '$quit']
 		msg[4][6:] == "Some quit message."
 		'''
-		self.cmdVar = "@"
 		self.nick = nick
-		
-		self.sock = sock
+
 		self.parser = parser
 		self.allowed = allowed
-		
-		### PLUGIN OBJECTS
-		self.M = Meme.meme()
-		self.misc = Misc.misc(sock=self.sock)
-		self.stream = Stream.Stream()
-		self.IRCq = Quotes.IRCQuotes("./Plugins/Pickle_Quotes.pkl")
-		self.IRCr = Quotes.IRCRules("./Plugins/IRCRules.txt")
-		self.tolds = Told.Told("./Plugins/Told.txt", self.sock)
-		self.chon = Tinyboard.Tinyboard()
-		self.youtube = YouTube.YT()
-		self.imgur = Imgur.Imgur()
-			
-			
+
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
-			# If you want to disable a command, just comment out the line for it.
-			'echo': [self.Echo, 4, False],
-			'raw': [self.Raw, 0, True],
-			'names': [self.Names, 0, False],
-			'join': [self.Join, 3, True],
-			'part': [self.Part, 3, True],
-			'quit': [self.Quit, 0, True],
-			'access': [self.Access, 0, True],
-			'act': [self.Act, 5, False],
-			
-			'meme': [self.Meme, 5, False],
-			'slogan': [self.Slogan, 5, False],
-			'ud': [self.UD, 5, False],
-			'mpd': [self.Music, 1, True],
-			'oven': [self.Oven, 5, False],
-			'next': [self.Next, 5, False],
-			'bacon': [self.Bacon, 5, False],
-			'stream': [self.Stream, 5, False],
-			'quote': [self.Quote, 5, False],
-			'q': [self.Quote, 5, False],
-			'qsearch': [self.QuoteSearch, 5, False],
-			'qfind': [self.QuoteSearch, 5, False],
-			'qcount': [self.QuoteCount, 5, False],
-			'qadd': [self.QuoteAdd, 0, True],
-			'qdel': [self.QuoteDel, 0, True],
-			'qbackup': [self.QuoteBackup, 0, True],
-			'r': [self.Rule, 5, False],
-			'rule': [self.Rule, 5, False],
-			'rrand': [self.RandRule, 5, False],
-			'told': [self.tolds.ReturnTold, 5, False],
-			'insult': [self.Insult, 5, False],
-					}
+			"^@quit": [self.Quit, 0, True],
+			"^@join": [self.Join, 3, True],
+			"^@part": [self.Part, 3, True],
+			"^@access": [self.Access, 0, True],
+			}
 					
-		self.noVar_cmds = { # Hurr durr regex
-			'4chon.net': [self.TinyboardLink, 5, False],
-			'gattsuchan.tk': [self.TinyboardLink, 5, False],
-			'negimachan.com': [self.TinyboardLink, 5, False],
-			'uboachan.net': [self.TinyboardLink, 5, False],
-			';[_-].*?;': [self.Hug, 5, False],
-			'http:\/\/(www\.)?youtube\.com\/watch': [self.utube, 5, False],
-			'http:\/\/(?:www\.)?(i\.)?imgur\.com\/': [self.imager, 5, False],
-					}
-
-	def Echo(self, msg):
-		'''Echos a message back'''
-		try:
-			self.sock.say(msg[3], msg[4][6:])
-		except Exception, e:
-			print("* [Echo] Error")
-			print(e)
-			
-	def Raw(self, msg):
-		'''Send a raw message to the IRC server.'''
-		try:
-			self.sock.send(msg[4][5:])
-		except Exception, e:
-			print("* [Raw] Error")
-			print(e)
-			
-	def Names(self, msg):
-		'''Debugging for users in a channel.'''
-		try:
-			for key in self.parser.users.keys():
-				print(key, self.parser.users[key])
+		#Load 'Plugins'
+		plugins = pL.load("Plugins")
+		loadedplugins = []
+		for key in plugins.keys():
+			print("* [Plugins] Loaded '{0}' plugin from '{1}'".format(key, str(plugins[key])))
+			try:
+				if hasattr(plugins[key], "hooks"):
+					loadedplugins.append(key)
+					comm = plugins[key].hooks
+					for _k in comm.keys():
+						self.cmds[_k] = comm[_k]
+						print("* [Plugins] Added command '{0}'".format(_k))
+			except:
+				print("* [Plugins] Failed to load plugin '{0}'".format(key))
+		del plugins
 				
-		except Exception, e:
-			print("* [Names] Error")
-			print(e)
-			
-	def Join(self, msg):
+	def Join(self, msg, sock):
 		try:
-			self.sock.join(msg[4][6:])
+			sock.join(msg[4][6:])
 		except Exception, e:
 			print("* [Join] Error")
 			print(e)
 			
-	def Part(self, msg):
+	def Part(self, msg, sock):
 		try:
 			if not msg[4][6:]:
-				self.sock.part(msg[3])
+				sock.part(msg[3])
 				del self.parser.users[msg[3]]
 			else:
-				self.sock.part(msg[4][6:])
+				sock.part(msg[4][6:])
 				del self.parser.users[msg[4][6:]]
 		except Exception, e:
 			print("* [Part] Error")
 			print(e)
 	
-	def Quit(self, msg):
+	def Quit(self, msg, sock):
 		if type(msg) == list:
 			msg = msg[4][6:]
 			if msg == '':
 				msg = "Quitting!"
 		elif type(msg) == str:
 			msg = msg
-			
-		self.sock.quit(msg)
+		sock.quit(msg)
 		print("* [IRC] Quitting with message '{0}'.".format(msg))
 		self.allowed.save()
 		print("* [Allowed] Saving database.")
-		self.sock.close()
+		sock.close()
 		print("* [IRC] Closing Socket.")
 		quit()
 	
-	def Access(self, msg):
+	def Access(self, msg, sock):
 		Nick = msg[0]
 		Host = msg[1]
 		Action = msg[2]
@@ -155,7 +94,7 @@ class Commands():
 						tmp[2] = None
 					
 					if tmp[1] == self.allowed.owner[0]:
-						self.sock.say(Location, "You cannot change your access.")
+						sock.say(Location, "You cannot change your access.")
 						print("* [Access] Denied changing owners access.")
 						return None
 						
@@ -164,225 +103,29 @@ class Commands():
 					else:
 						self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
 						
-					self.sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+					sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
 					print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
 						
 				elif tmp[0] == 'del':
 					if self.allowed.levelCheck(tmp[1]):
 						if tmp[1] != self.allowed.owner[0]:
 							del self.allowed.db[tmp[1]]
-							self.sock.say(Location, "Deleted access for {0}".format(tmp[1]))
+							sock.say(Location, "Deleted access for {0}".format(tmp[1]))
 							print("* [Access] Deleted access for {0}.".format(tmp[1]))
 						else:
-							self.sock.say(Location, "Access for {0} cannot be deleted.".format(tmp[1]))
+							sock.say(Location, "Access for {0} cannot be deleted.".format(tmp[1]))
 					else:
-						self.sock.say(Location, "No access level found for {0}".format(tmp[1]))
+						sock.say(Location, "No access level found for {0}".format(tmp[1]))
 				
 				elif tmp[0] == 'show':
 					try:								
-						self.sock.say(Location, str(self.allowed.db[tmp[1]]))
+						sock.say(Location, str(self.allowed.db[tmp[1]]))
 					except Exception, e:
 						print(e)
 						
 				
 			except Exception, e:
-				self.sock.send("NOTICE {0} :{1}".format(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`"))
+				sock.send("NOTICE {0} :{1}".format(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`"))
 				print("* [Access] Error:\n* [Access] {0}".format(str(e)))
-				
-	def Act(self, msg):
-		try:
-			self.sock.send("PRIVMSG {0} :\x01ACTION {1}\x01".format(msg[3], " ".join(msg[4].split()[1:])))
-		except Exception, e:
-			print("* [Act] Error:\n* [Act] {0}".format(str(e)))
-	
-	
-	### PLUGINS
-	def Meme(self, msg):
-		try:
-			self.sock.say(msg[3], next(self.M))
-		except Exception, e:
-			print("* [AutoMeme] Error:\n* [AutoMeme] {0}".format(str(e)))
-			
-	def Slogan(self, msg):
-		try:
-			self.sock.say(msg[3], SloganMaker.get_slogan(" ".join(msg[4].split()[1:])))
-		except Exception, e:
-			print("* [SloganMaker] Error:\n* [SloganMaker] {0}".format(str(e)))
-			
-	def UD(self, msg):
-		try:
-			self.sock.say(msg[3], UrbanDictionary.request(" ".join(msg[4].split()[1:])))
-		except Exception, e:
-			print("* [UrbanDict] Error:\n* [UrbanDict] {0}".format(str(e)))
-			
-	def Music(self, msg):
-		try:
-			if msg[4].split()[1:]:
-				Text = msg[4].split()[1:]
-			else:
-				Text = []
-				
-			if len(Text) < 1:
-				self.sock.say(msg[3], MpdScript.mpdshow_cb())
-			elif Text[0] == "next":
-				self.sock.say(msg[3], MpdScript.mpdnext_cb())
-			elif Text[0] == "prev":
-				self.sock.say(msg[3], MpdScript.mpdprev_cb())
-		except Exception, e:
-			print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))
-	
-	def Oven(self, msg):
-		try:
-			ovenee = " ".join(msg[4].split()[1:])
-			self.misc.Oven(msg[3], ovenee)
-		except Exception, e:
-			print("* [Oven] Error:\n* [Oven] {0}".format(str(e)))
-		
-	def Next(self, msg):
-		try:
-			self.misc.Next(msg[3])
-		except Exception, e:
-			print("* [Next] Error:\n* [Next] {0}".format(str(e)))
-			
-	def Bacon(self, msg):
-		try:
-			person = " ".join(msg[4].split()[1:])
-			self.misc.Bacon(msg[3], person)
-		except Exception, e:
-			print("* [Bacon] Error:\n* [Bacon] {0}".format(str(e)))
-	
-	def Stream(self, msg):
-		try:
-			if msg[4].split()[1:]:
-				Text = msg[4].split()[1:]
-			else:
-				Text = []
-			
-			if Text[0] == 'np' or Text[0].lower() == 'now' and Text[1].lower() == 'playing':
-				self.sock.say(msg[3], self.stream.now_playing())
-			
-			elif Text[0] == 'url':
-				self.sock.say(msg[3], self.stream.send_url())
-				
-			elif Text[0] == 'status':
-				self.sock.say(msg[3], self.stream.status())
-				
-			elif Text[0] == 'title':
-				self.sock.say(msg[3], self.stream.title())
-				
-		except Exception, e:
-			print("* [Stream] Error:\n* [Stream] {0}".format(str(e)))
-			
-	def Quote(self, msg):
-		'''
-		The main quote command. We check for any other data in the msg sent.
-		If its a number, we assume they are searching for a specific quote.
-		'''
-		try:
-			if msg[4].split()[1:]:
-				Text = msg[4].split()[1:][0]
-			else:
-				Text = None
-			self.sock.say(msg[3], self.IRCq.Number(QuoteNum=Text))
-		except:
-			pass
-	
-	def QuoteSearch(self, msg):
-		'''Call the Search function of Quotes.py which uses re to find a quote'''	
-		if msg[4].split()[1:]:
-			Text = " ".join(msg[4].split()[1:])
-		else:
-			Text = ''
-		self.sock.say(msg[3], self.IRCq.Search(msg=Text))
-		
-	def QuoteCount(self, msg):
-		'''Returns the count of total quotes'''
-		self.sock.say(msg[3], self.IRCq.Count())
-	
-	def QuoteAdd(self, msg):
-		'''Calls the add function to add a quote'''
-		try:
-			if msg[4].split()[1:]:
-				q = " ".join(msg[4].split()[1:])
-			self.sock.say(msg[3], self.IRCq.Add(QuoteString=q))
-		except:
-			pass
-				
-	def QuoteDel(self, msg):
-		'''Calls the del function to remove a quote'''
-		try:
-			Text = int(msg[4].split()[1:][0])
-		except:
-			Text = None
-		self.sock.say(msg[3], self.IRCq.Del(QuoteNum=Text))
-		
-	def QuoteBackup(self, msg):
-		'''Calls the backup function to backup the pickled quotes file in plaintext'''
-		try:
-			Text = msg[4].split()[1:][0]
-		except:
-			Text = None
-		self.sock.say(msg[3], self.IRCq.Backup(BackupFile=Text))
-		
-	def Rule(self, msg):
-		'''Calls Rule function of the IRCRules object'''
-		try:
-			Num = int(msg[4].split()[1:][0])
-		except:
-			Num = None
-		self.sock.say(msg[3], self.IRCr.Rule(Num=Num))
-		
-	def RandRule(self, msg):
-		'''Calls the Random fucntion of the IRCRules object'''
-		self.sock.say(msg[3], self.IRCr.Random())
-		
-	def Insult(self, msg):
-		'''Insult a fgt. :)'''
-		insult = "{0}, {1}".format(msg[4].split()[1:][0], InsultGenerator.insult())
-		self.sock.say(msg[3], insult)
 
-		# Non-CommandVar Commands:
-	def Hug(self, msg):
-		check = self.allowed.levelCheck(msg[0])[1]
-		if check[1] <= 4:
-			self.sock.say(msg[3], "\x01ACTION hugs {0}.\x01".format(msg[0]))
-		else:
-			self.sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man\x01".format(msg[0]))
-	
-	def TinyboardLink(self, msg):
-		link = "http"+msg[4].split("http")[1].split(" ")[0]
-		x = self.chon.Main(link)
-		if x != None:
-			self.sock.say(msg[3], x)
-		else:
-			pass
-	
-	def utube(self, msg):
-		link = "http"+msg[4].split("http")[1].split(" ")[0]
-		x = self.youtube.Main(link)
-		if x != None:
-		# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
-			
-			head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02 seconds]".format(x['title'], x['author'], str(x['duration']))
-			middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(str(int(x['averagerating'])), str(x['maxrating']), str(x['percentrating'])[2:], str(x['viewcount']))
-			tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
-			
-			y = "{0} {1} {2}".format(head, middle, tail)
-			self.sock.say(msg[3], y)
-		else:
-			pass
-	def imager(self, msg):
-		link = re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])[0]
-		stats = self.imgur.Main(link)		
-		head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
-		try:
-			tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
-		except:
-			tail = ""
-		img = head+tail
-		self.sock.say(msg[3], img)
-	
-	
-	
-	
-	
+	#A command to edit values in the cmds dict
