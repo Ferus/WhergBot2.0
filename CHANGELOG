@@ -1,3 +1,7 @@
+=== Nov 18 ===
++ Fixed a bug in the Parser
++ FuckMyLife Plugin
++ Some other small fixes
 === Nov 15 ===
 + Finally all plugins are 'plugins'
 + Many changes in Parser and Commands

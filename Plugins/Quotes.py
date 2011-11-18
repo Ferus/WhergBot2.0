@@ -248,14 +248,12 @@ def RandRule(msg, sock):
 	
 hooks = {
 	'^@quote': [Quote, 5, False],
-	'^@q': [Quote, 5, False],
 	'^@qsearch': [QuoteSearch, 5, False],
 	'^@qfind': [QuoteSearch, 5, False],
 	'^@qcount': [QuoteCount, 5, False],
 	'^@qadd': [QuoteAdd, 0, True],
 	'^@qdel': [QuoteDel, 0, True],
 	'^@qbackup': [QuoteBackup, 0, True],
-	'^@r': [Rule, 5, False],
 	'^@rule': [Rule, 5, False],
 	'^@rrand': [RandRule, 5, False],
 	}

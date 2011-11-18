@@ -4,24 +4,18 @@
 
 3: Add showing when you cannot join a channel because lolbanned
 
-4: Investigate why I cant add a : when using $raw privmsg
-	- String parsing " : " when adding quotes. everything past that isnt added.
-
 #### PLUGINS ####
 
-1: FuckMyLife
-	- Name says it all.
-	
-2: DuckDuckGo
+1: DuckDuckGo
 
-3: Services
+2: Services
 	- Nickserv
 	- Any other service that might be wanted
 	- Kick, Ban, Unban, Kban, etc.
 
-4: Guess
+3: Guess
 
-5: Slap
+4: Slap
 	- Now that i have a working dict that holds users of a channel ;D
 
 FIX:

@@ -218,8 +218,9 @@ class Parse():
 		
 	def Text(self, msg):
 		'''Parses out the text in a message'''
+		#:Ferus!anonymous@the.interwebs PRIVMSG #h :asl mate
 		try:
-			t = msg.split(" :")[1]
+			t = " ".join(msg.split()[3:])[1:]
 			return t
 		except:
 			return ''
@@ -227,7 +228,7 @@ class Parse():
 	def Cmd(self, msg):
 		'''Parses for a `command`'''
 		try:
-			c = msg.split(" :")[1].split()[0]	
+			c = msg.split()[3][1:]	
 			return c
 		except:
 			return ''

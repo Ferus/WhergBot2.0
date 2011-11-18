@@ -70,7 +70,7 @@ def youtubestats(msg, sock):
 		tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
 		
 		y = "{0} {1} {2}".format(head, middle, tail)
-		self.sock.say(msg[3], y)
+		sock.say(msg[3], y)
 	else:
 		pass
 		
