@@ -27,7 +27,7 @@ def fml():
 		_fml = fml_db.pop()
 		yield "\x02[FML]\x02 {0}".format(_fml)
 
-FmlGen = meme()
+FmlGen = fml()
 def FMLString(msg, sock):
 	try:
 		sock.say(msg[3], next(FmlGen))

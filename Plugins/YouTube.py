@@ -18,7 +18,7 @@ class YT(object):
 			jsonReply = requests.get(jsonLink)
 			if jsonReply.status_code != 200:
 				return None
-			jsonReply = json.load(jsonReply) # .load() requires an object that can .read()
+			jsonReply = json.loads(jsonReply.content)
 			return self.Parse(jsonReply)
 		except:
 			return None
@@ -75,6 +75,6 @@ def youtubestats(msg, sock):
 		pass
 		
 hooks = {
-	'http:\/\/(www\.)?youtube\.com\/watch': [youtubestats, 5, False],	
+	'http:\/\/(?:www\.)?youtube\.com\/watch': [youtubestats, 5, False],	
 		}
 

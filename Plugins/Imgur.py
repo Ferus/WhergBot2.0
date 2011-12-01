@@ -5,18 +5,19 @@ import requests, re, htmldecode
 class Imgur(object):
 	def __init__(self):
 		pass
-	def Parser(self, html):
+	def Parser(self, html, link):
 		'''Obtain ALL the stats!'''
 		html = htmldecode.convert(html.replace("\t","").replace("\n",""))
 		stats = {}
-		stats['link'] = re.findall("http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?", html)[0]
-		stats['title'] = re.findall("<h2>.*?</h2>", html)[0].replace("<h2>","").replace("</h2>","")
-
-		if re.findall("<div class=\info textbox nobottom\">", html): #Linked image wasnt really in the gallery, Also, Errors.
+		stats['link'] = link
+		try:
+			stats['title'] = re.findall("<h2>.*?</h2>", html)[0].replace("<h2>","").replace("</h2>","")
+		except:
+			stats['title'] = "No title found."
+		if re.findall("<div class=\"info textbox nobottom\">", html): #Linked image wasnt really in the gallery, Also, Errors.
 			stats['submitted'] = re.findall("<span id=\"nicetime\" .*?>.*?</span>", html)[0].split("\">")[1].split("<")[0]
 			stats['views'] = re.findall("<span id=\"views\">[0-9]{1,}</span>", html)[0].split("\">")[1].split("<")[0]
-			stats['bandwidth'] = re.findall("<span id=\"bandwidth\">.*</span>", html)[0].split("\">")[1].split("<")[0]
-			print("3")
+			stats['bandwidth'] = re.findall("<span id=\"bandwidth\">.*?</span>", html)[0].split("\">")[1].split("<")[0]
 		else:
 			tmp = re.findall("\"points-[a-zA-Z0-9]{5}\">[0-9]{1,}</span>.*?</div>", html)[0].split(":")
 			stats['points'] = tmp[0].split("</span>")[0].split("\">")[1]
@@ -43,12 +44,12 @@ class Imgur(object):
 	def Main(self, link):
 		'''Fetch HTML, Returns a dict from the Parser'''
 		if not re.search("gallery", link): #Convert to gallery link.
-			picId = re.findall("\/[a-zA-Z0-9]{5}\.(?:jpg|png|jpeg|gif)", link)[0][0:6]
+			picId = re.findall("\/[a-zA-Z0-9]{5}", link)[0]
 			link = "http://imgur.com/gallery{0}".format(picId)
 		html = requests.get(link)
 		if html.status_code != 200:
 			return "Couldn't connect to Imgur"
-		return self.Parser(html.content)
+		return self.Parser(html.content, link)
 
 I = Imgur()		
 		

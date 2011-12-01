@@ -4,6 +4,8 @@
 
 3: Add showing when you cannot join a channel because lolbanned
 
+4: Move access checking out of the parser, and into each plugin. Or better yet, make it an import.
+
 #### PLUGINS ####
 
 1: DuckDuckGo
@@ -17,15 +19,3 @@
 
 4: Slap
 	- Now that i have a working dict that holds users of a channel ;D
-
-FIX:
->>> next(m)
-* [AutoMeme] Getting moar memes!
-* [AutoMeme] Error requesting new memes.
-Traceback (most recent call last):
-  File "<input>", line 1, in <module>
-  File "Plugins/Meme.py", line 26, in meme
-    meme_db = get_meme()
-  File "Plugins/Meme.py", line 15, in get_meme
-    for meme in memes:
-UnboundLocalError: local variable 'memes' referenced before assignment

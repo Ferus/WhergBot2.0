@@ -13,6 +13,7 @@ def get_meme():
 		memes = requests.get(memeurl).content.replace('_','\x02').split("\n")
 	except:
 		print("* [AutoMeme] Error requesting new memes.")
+		return get_meme() #This /should/ force it to call itself again if we cant connect.
 	for meme in memes:
 		meme_db.append(meme)
 	meme_db.pop()

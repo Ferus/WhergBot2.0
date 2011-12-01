@@ -24,3 +24,6 @@ Requests is a very nice frontend to urllib2 and is used widely in many WhergBot 
 
 Python-Mpd - http://pypi.python.org/pypi/python-mpd/
 This module is used in Plugins/MpdScript.py and allows WhergBot to show the current song playing in MPD.
+
+wordnik - http://pypi.python.org/pypi/wordnik/
+The wrapper around the wordnik API, used for ./Plugins/Dictionary.py
