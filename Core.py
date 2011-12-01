@@ -5,13 +5,17 @@ from time import sleep
 #Local Imports
 import Parser
 import Allowed
+from Services import NickServ, HostServ
 
 class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
 		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
+
+		self.Nickserv = NickServ.NickServ(sock=self.irc)
+		self.Hostserv = HostServ.HostServ(sock=self.irc)
 		
-		self.allowed = Allowed.Users()
+		self.allowed = Allowed.Users("AllowedUsers.shelve")
 		
 		if owner:
 			self.owner = owner
@@ -50,12 +54,10 @@ class Bot():
 		print("* [IRC] Setting umodes +Bs")
 		sleep(.5)
 		
-	def Identify(self, password=None):
-		if password:
-			self.irc.say("NickServ", "Identify {0}".format(password))
-			self.irc.say("Nickserv", "update")
-			print("* [IRC] Identifying to NickServ with pass.")
-			sleep(.4)
+	def Identify(self):
+		if self.Nickserv.password != '':
+			self.Nickserv.Identify()
+			sleep(.3)
 		
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')

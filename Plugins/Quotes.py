@@ -182,7 +182,7 @@ class IRCRules(object):
 IRCq = IRCQuotes("./Plugins/Pickle_Quotes.pkl")
 IRCr = IRCRules("./Plugins/IRCRules.txt")
 
-def Quote(msg, sock):
+def Quote(msg, sock, users, allowed):
 	'''
 	The main quote command. We check for any other data in the msg sent.
 	If its a number, we assume they are searching for a specific quote.
@@ -196,7 +196,7 @@ def Quote(msg, sock):
 	except:
 		pass
 
-def QuoteSearch(msg, sock):
+def QuoteSearch(msg, sock, users, allowed):
 	'''Call the Search function of Quotes.py which uses re to find a quote'''	
 	if msg[4].split()[1:]:
 		Text = " ".join(msg[4].split()[1:])
@@ -204,11 +204,11 @@ def QuoteSearch(msg, sock):
 		Text = ''
 	sock.say(msg[3], IRCq.Search(msg=Text))
 	
-def QuoteCount(msg, sock):
+def QuoteCount(msg, sock, users, allowed):
 	'''Returns the count of total quotes'''
 	sock.say(msg[3], IRCq.Count())
 
-def QuoteAdd(msg, sock):
+def QuoteAdd(msg, sock, users, allowed):
 	'''Calls the add function to add a quote'''
 	try:
 		if msg[4].split()[1:]:
@@ -217,7 +217,7 @@ def QuoteAdd(msg, sock):
 	except:
 		pass
 			
-def QuoteDel(msg, sock):
+def QuoteDel(msg, sock, users, allowed):
 	'''Calls the del function to remove a quote'''
 	try:
 		Text = int(msg[4].split()[1:][0])
@@ -225,7 +225,7 @@ def QuoteDel(msg, sock):
 		Text = None
 	sock.say(msg[3], IRCq.Del(QuoteNum=Text))
 	
-def QuoteBackup(msg, sock):
+def QuoteBackup(msg, sock, users, allowed):
 	'''Calls the backup function to backup the pickled quotes file in plaintext'''
 	try:
 		Text = msg[4].split()[1:][0]
@@ -233,7 +233,7 @@ def QuoteBackup(msg, sock):
 		Text = None
 	sock.say(msg[3], IRCq.Backup(BackupFile=Text))
 	
-def Rule(msg, sock):
+def Rule(msg, sock, users, allowed):
 	'''Calls Rule function of the IRCRules object'''
 	try:
 		Num = int(msg[4].split()[1:][0])
@@ -241,7 +241,7 @@ def Rule(msg, sock):
 		Num = None
 	sock.say(msg[3], IRCr.Rule(Num=Num))
 	
-def RandRule(msg, sock):
+def RandRule(msg, sock, users, allowed):
 	'''Calls the Random fucntion of the IRCRules object'''
 	sock.say(msg[3], IRCr.Random())
 	

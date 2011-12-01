@@ -49,7 +49,7 @@ class StreamInfo():
 		
 S = StreamInfo()		
 		
-def Stream(msg, sock):
+def Stream(msg, sock, users, allowed):
 	try:
 		if msg[4].split()[1:]:
 			Text = msg[4].split()[1:]

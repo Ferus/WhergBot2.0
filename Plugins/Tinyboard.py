@@ -128,9 +128,18 @@ class Tinyboard(object):
 			
 TB = Tinyboard()
 
-def TinyboardLink(msg, sock):
+def TinyboardLink(msg, sock, users, allowed):
 	links = re.findall('https?:\/\/(?:www\.)?4chon\.net\/(?:mod\.php\?\/)?[a-zA-Z0-9]{1,}(?:\/res)?\/[0-9]{1,}\.html(?:#[0-9]{1,})?', msg[4])
-	for link in links:
+	tmp = []
+	while len(links) > 0:
+		link = links.pop()
+		if link not in tmp:
+			tmp.append(link)
+		else:
+			pass
+
+	while len(tmp) > 0:
+		link = tmp.pop()
 		x = TB.Main(link)
 		if x != None:
 			sock.say(msg[3], x)

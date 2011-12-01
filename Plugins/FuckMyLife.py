@@ -28,7 +28,7 @@ def fml():
 		yield "\x02[FML]\x02 {0}".format(_fml)
 
 FmlGen = fml()
-def FMLString(msg, sock):
+def FMLString(msg, sock, users, allowed):
 	try:
 		sock.say(msg[3], next(FmlGen))
 	except Exception, e:

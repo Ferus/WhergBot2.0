@@ -4,15 +4,11 @@
 
 3: Add showing when you cannot join a channel because lolbanned
 
-4: Move access checking out of the parser, and into each plugin. Or better yet, make it an import.
-
 #### PLUGINS ####
 
 1: DuckDuckGo
 
 2: Services
-	- Nickserv
-	- Any other service that might be wanted
 	- Kick, Ban, Unban, Kban, etc.
 
 3: Guess

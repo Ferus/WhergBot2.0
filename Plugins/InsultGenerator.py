@@ -12,7 +12,7 @@ def insult():
 	insult = html.split("<TR align=center><TD>")[1].split("</TD></TR>")[0]
 	return insult
 	
-def gen(msg, sock):
+def gen(msg, sock, users, allowed):
 	'''Insult a fgt. :)'''
 	_insult = "{0}, {1}".format(msg[4].split()[1:][0], insult())
 	sock.say(msg[3], _insult)

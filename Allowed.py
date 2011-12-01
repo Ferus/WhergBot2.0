@@ -2,13 +2,17 @@
 import shelve
 
 class Users():
-	def __init__(self):
+	def __init__(self, db=None):
 		'''Permissions for our bot.
 		Dictionary holds user names as keys, 
 		and a list containing the host and access level
 		'''
-		
-		_db = shelve.open("Allowed_Users")
+		if db:
+			self._dbFile = db
+		else:
+			self._dbFile = "AllowedUsers.shelve"
+			
+		_db = shelve.open(self._dbFile)
 		self.db = self.dump(_db)
 		_db.close()
 			
@@ -39,7 +43,7 @@ class Users():
 		
 	def save(self):
 		try:
-			_db = shelve.open("Allowed_Users")
+			_db = shelve.open(self._dbFile)
 			for key in self.db.keys():
 				_db[key] = self.db[key]
 			_db.close()

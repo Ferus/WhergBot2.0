@@ -54,7 +54,7 @@ def add_cache(word, definition=''):
 			print('* [UrbanDict] Cache => Adding word {0}'.format(word))
 			c.write("{0} : {1}\n".format(word, definition))
 			
-def UD(msg, sock):
+def UD(msg, sock, users, allowed):
 	try:
 		sock.say(msg[3], request(" ".join(msg[4].split()[1:])))
 	except Exception, e:

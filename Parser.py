@@ -6,14 +6,15 @@ import time, re
 
 #Local Imports
 import Commands
+import Users as _U
 
 class Parse():
 	def __init__(self, sock=None, allowed=None, nick=None):
 		self.sock = sock
 		self.allowed = allowed	
 		self.nickname = nick
-		
-		self.users = {} #Storage for Users of each channel. The Key is channel, users are a list.
+
+		self.Users = _U.Users() # Users.Userlist: Storage for Users of each channel. The Key is channel, users are a list.
 		
 		self.command = Commands.Commands(parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
@@ -73,7 +74,7 @@ class Parse():
 							if x not in self.allowed.db.keys():
 								self.allowed.db[x] = [None, 5]
 							
-						self.users[msg[4]] = nameslist	
+						self.Users.Userlist[msg[4]] = nameslist	
 						print("* [IRC] Users on {0}: {1}".format(msg[4], " ".join(nameslist)))
 						
 				except:
@@ -173,19 +174,17 @@ class Parse():
 						if check[1] <= self.command.cmds[comm][1]: #Check access level
 							if self.command.cmds[comm][2]: #Is a hostcheck needed?
 								if Host == check[0]: #Hostcheck
-									t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock))
+									t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock, self.Users, self.allowed))
 									t.daemon = True
 									t.start()
 								else: #Failed the hostcheck
 									self.sock.send("NOTICE {0} :{1}".format(Nick, "You do not have the required authority to use this command."))
 							else: #Passes access, but no hostcheck needed
-								t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock))
+								t = Thread(target=(self.command.cmds[comm])[0](Msg, self.sock, self.Users, self.allowed))
 								t.daemon = True
 								t.start()
 						else: #Doesnt pass access.
-							pass				
-																							
-					
+							pass
 		except Exception, e:
 			print("* [Privmsg] Error")
 			print(repr(e))
@@ -218,7 +217,6 @@ class Parse():
 		
 	def Text(self, msg):
 		'''Parses out the text in a message'''
-		#:Ferus!anonymous@the.interwebs PRIVMSG #h :asl mate
 		try:
 			t = " ".join(msg.split()[3:])[1:]
 			return t
@@ -253,8 +251,6 @@ class Parse():
 		except:
 			return ''
 
-
-
 	def Invited(self, msg):
 		'''Join a channel we were invited to if the person's hostname is defined in allowed.'''
 		try:
@@ -262,66 +258,62 @@ class Parse():
 			if self.allowed.db[person][0] == host:
 				chan = msg[3][1:]
 				self.sock.join(chan)
-			print("* [IRC] Invited to {0}, by {1}. Now joining.".format(chan, person))	
+			print("* [IRC] Invited to {0}, by {1}. Attempting to join.".format(chan, person))	
 		except:
 			pass
 
 	def Joined(self, msg):
 		'''Someone joined, add them to allowed, with level 5 access, no hostname, and add them to the channel users list.'''
+		person, host = msg[0].split(":")[1].split("!")
+		chan = msg[2].strip(":")
+		print("* [IRC] {0} ({1}) joined {2}.".format(person, host, chan))		
 		try:
-			person, host = msg[0].split(":")[1].split("!")
-			chan = msg[2].strip(":")
 			if person not in self.allowed.keys:
 				self.allowed.db[person] = [None, 5]
-			self.users[chan].append(person)
-			print("* [IRC] {0} ({1}) joined {2}.".format(person, host, chan))
+			self.Users.Userlist[chan].append(person)
 		except:
 			pass
 		
 		
 	def Parted(self, msg):
 		'''Someone parted a channel, remove them from the channel users list.'''
+		person, host = msg[0].split(":")[1].split("!")
+		print("* [IRC] {0} ({1}) parted {2}.".format(person, host, msg[2]))
 		try:
-			person, host = msg[0].split(":")[1].split("!")
-			self.users[msg[2]].remove(person)
-			print("* [IRC] {0} ({1}) parted {2}.".format(person, host, msg[2]))
+			self.Users.Userlist[msg[2]].remove(person)
 		except:
 			pass
 		
 	def Quitted(self, msg):
+		person, host = msg[0].split(":")[1].split("!")
+		print("* [IRC] {0} ({1}) has quit.".format(person, host))
 		try:
-			person, host = msg[0].split(":")[1].split("!")
-			for chan in self.users.keys():
-				if person in self.users[chan]:
-					self.users[chan].remove(person)
-			print("* [IRC] {0} ({1}) has quit.".format(person, host))
+			for chan in self.Users.Userlist.keys():
+				if person in self.Users.Userlist[chan]:
+					self.Users.Userlist[chan].remove(person)
 		except:
 			pass
 			
 	def Nickchange(self, msg):
+		person, host = msg[0].split(":")[1].split("!")
+		new = msg[2][1:]
+		print("* [IRC] {0} has changed nick to {1}.".format(person, new))
 		try:
-			person, host = msg[0].split(":")[1].split("!")
-			new = msg[2][1:]
-			for chan in self.users.keys():
-				if person in self.users[chan]:
-					self.users[chan].remove(person)
-					self.users[chan].append(new)
-			if person not in self.allowed.keys:
-				self.allowed.db[person] = [None, 5]
-			print("* [IRC] {0} has changed nick to {1}.".format(person, new))
+			for chan in self.Users.Userlist.keys():
+				if person in self.Users.Userlist[chan]:
+					self.Users.Userlist[chan].remove(person)
+					self.Users.Userlist[chan].append(new)
+			if new not in self.allowed.keys:
+				self.allowed.db[new] = [None, 5]
 		except:
 			pass
 			
 	def Modechange(self, msg):
-		try:
-			person, host = msg[0].split(":")[1].split("!")
-			if len(msg[3]) > 2: #Multiple modes set
-				print("* [IRC] {0} ({1}) set modes {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
-			else:
-				print("* [IRC] {0} ({1}) set mode {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
-		except:
-			pass
-
+		person, host = msg[0].split(":")[1].split("!")
+		if len(msg[3]) > 2: #Multiple modes set
+			print("* [IRC] {0} ({1}) set modes {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
+		else:
+			print("* [IRC] {0} ({1}) set mode {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
 		
 	def CTCP(self, ctcp, location, message):
 		'''CTCP'd. Lets respond.'''

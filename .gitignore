@@ -1,7 +1,7 @@
 *.pyc
 *~
 *.txt
-Allowed_Users
+*.shelve
 Pickle_Quotes.pkl
 Loader.py
 *.py.*

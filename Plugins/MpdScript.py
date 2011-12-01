@@ -79,7 +79,7 @@ def mpdnext_cb():
 	mpd_disconnect()
 	return mpdshow_cb(t=False)
 
-def Music(msg, sock):
+def Music(msg, sock, users, allowed):
 	try:
 		if msg[4].split()[1:]:
 			Text = msg[4].split()[1:]

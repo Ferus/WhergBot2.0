@@ -31,7 +31,7 @@ def meme():
 		yield "\x02[AutoMeme]\x02 {0}".format(memestr)
 
 MemeGen = meme()
-def MString(msg, sock):
+def MString(msg, sock, users, allowed):
 	try:
 		sock.say(msg[3], next(MemeGen))
 	except Exception, e:

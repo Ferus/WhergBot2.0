@@ -53,7 +53,7 @@ class Imgur(object):
 
 I = Imgur()		
 		
-def ImgurStats(msg, sock):
+def ImgurStats(msg, sock, users, allowed):
 	link = re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])[0]
 	stats = I.Main(link)		
 	head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])

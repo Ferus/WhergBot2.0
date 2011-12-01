@@ -7,7 +7,7 @@ class Told(object):
 			with open(ToldFile, "r") as Tolds:
 				self.ToldList = Tolds.readlines()
 	
-	def ReturnTold(self, msg, sock):
+	def ReturnTold(self, msg, sock, users, allowed):
 		 sock.send("PRIVMSG {0} :{1}".format(msg[3], choice(self.ToldList)))
 
 t = Told("Plugins/Told.txt")

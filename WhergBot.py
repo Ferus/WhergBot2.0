@@ -1,11 +1,12 @@
 #!/usr/bin/python2
 
 import Core
+from threading import Timer
 
 nick = 'WhergBot' #Bots Nickname
 real = 'WhergBot [Ferus]' #Bots realname
 ident = 'Wherg' #Bots Ident
-password = 'LOLiTROLLu' #Bots Nickserv pass
+channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu']
 owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
 ssl = True #To encrypt, Or to not encrypt, That is the question!
 if ssl:
@@ -17,9 +18,16 @@ if __name__ == '__main__':
 	try:
 		WhergBot = Core.Bot(nick, real, ident, owner, ssl)
 		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
-		WhergBot.irc.join("#hacking,#lobby,#4chon,#circlejerk,#tinyboard,#animu")
-		if password:
-			WhergBot.Identify(password)
+		if WhergBot.Nickserv.password != '':
+			_p = Timer(3, WhergBot.Identify, ())
+			_p.daemon = True
+			_p.start()
+		for chan in channels:
+			_t = Timer(5, WhergBot.irc.join, (chan, ))
+			_t.daemon = True
+			_t.start()
+			Core.sleep(.05)
+
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=1024))
 		else:

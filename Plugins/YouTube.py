@@ -60,7 +60,7 @@ class YT(object):
 
 YouTube = YT()
 
-def youtubestats(msg, sock):
+def youtubestats(msg, sock, users, allowed):
 	link = "http"+msg[4].split("http")[1].split(" ")[0]
 	x = YouTube.Main(link)
 	if x != None:
