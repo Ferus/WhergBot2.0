@@ -1,6 +1,6 @@
 #Global Imports
 from blackbox import blackbox_core
-import time
+from time import sleep
 
 #Local Imports
 import Parser
@@ -39,13 +39,23 @@ class Bot():
 		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		time.sleep(.2)
+		sleep(.5)
 		self.irc.username(self.ident, self.realname)
 		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
-		time.sleep(.2)
+		sleep(.5)
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
-		time.sleep(.2)
+		sleep(.5)
+		self.irc.send("MODE {0} +Bs".format(self.nickname))
+		print("* [IRC] Setting umodes +Bs")
+		sleep(.5)
+		
+	def Identify(self, password=None):
+		if password:
+			self.irc.say("NickServ", "Identify {0}".format(password))
+			self.irc.say("Nickserv", "update")
+			print("* [IRC] Identifying to NickServ with pass.")
+			sleep(.4)
 		
 	def Parse(self, msg):
 		self.msg = msg.strip('\r\n')
