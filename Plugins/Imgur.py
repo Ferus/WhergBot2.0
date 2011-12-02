@@ -62,7 +62,7 @@ def ImgurStats(msg, sock, users, allowed):
 	except:
 		tail = ""
 	img = head+tail
-	sock.say(msg[3], img)
+	sock.send("PRIVMSG {0} :{1}".format(msg[3], img))
 	
 hooks = {
 	'http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	

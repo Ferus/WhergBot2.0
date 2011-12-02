@@ -29,14 +29,14 @@ class wordnikObj(object):
 				defs.append(x['text'])
 					
 			if numdefs == 0:
-				sock.say(msg[3], "I didn't find any definitions for '{0}'.".format(w))
+				sock.send("PRIVMSG {0} :\x01[WordNik]\x01 I didn't find any definitions for '{1}'.".format(msg[3], w))
 			elif numdefs == 1:
-				sock.say(msg[3], "I found one definition for '{0}'.".format(w))
-				sock.say(msg[3], "\x01{0}\x01: {1}".format(w, defs[0]))
+				sock.send("PRIVMSG {0} :\x01[WordNik]\x01 I found one definition for '{0}'.".format(msg[3], w))
+				sock.send("PRIVMSG {0} :\x01[WordNik]\x01 {1}: {2}".format(msg[3], w, defs[0]))
 			else:
-				sock.say(msg[3], "I found {0} definitions for '{1}'.".format(numdefs, w))
+				sock.send("PRIVMSG {0} :\x01[WordNik]\x01 I found {1} definitions for '{2}'.".format(msg[3], numdefs, w))
 				while len(defs) != 0:
-					sock.say(msg[3], "\x01{0}\x01: {1}".format(w, defs.pop(0)))
+					sock.send("PRIVMSG {0} :\x01[WordNik]\x01 {1}: {2}".format(msg[3], w, defs.pop(0)))
 		else:
 			sock.say(msg[3], "Please install the python wordnik API and get a developers API key. http://developer.wordnik.com/libraries#python")
 
