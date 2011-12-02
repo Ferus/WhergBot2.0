@@ -4,7 +4,7 @@ from getpass import getpass
 class NickServ(object):
 	'''Nickserv controls.'''
 	def __init__(self, sock=None):
-		self.password = getpass("Enter bot's NickServ pass. (Blank for no pass): ")
+		self.password = getpass("* [NickServ] Enter bot's NickServ pass. (Blank for no pass): ")
 		
 		if sock:
 			self.sock = sock
