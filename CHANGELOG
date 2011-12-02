@@ -9,6 +9,9 @@
 + Changes to Plugins/Tinyboard.py regarding some Tinyboard updates.
 + A '@cmdedit' command that allows editing command access level requirements on the fly
 + Core.py and WhergBot.py have changes that m ake the bot start better.
++ Dictionary.py to define words.
++ Small edits to NickServ.py
++ Asl.py now reads a textfile of places.
 === Nov 18 ===
 + Fixed a bug in the Parser
 + FuckMyLife Plugin
