@@ -1,7 +1,7 @@
 === Dec 01 ===
 + Plugins now take the non-optional 'users' and 'allowed' in the called functions
-	'users' is an Users.Users() object that holds the userlist for each channel.
-	'allowed' is an Allowed.Users() object that holds access levels, allowing each 
+	+'users' is an Users.Users() object that holds the userlist for each channel.
+	+'allowed' is an Allowed.Users() object that holds access levels, allowing each 
 		plugin to 'bypass' set access levels.
 + A Services folder, used for network Services like NickServ and HostServ
 + Optional NickServ pass on start.
@@ -12,6 +12,7 @@
 + Dictionary.py to define words.
 + Small edits to NickServ.py
 + Asl.py now reads a textfile of places.
++ Added a new plugin, GuessingGame.py, starts automatically, guess away.
 === Nov 18 ===
 + Fixed a bug in the Parser
 + FuckMyLife Plugin

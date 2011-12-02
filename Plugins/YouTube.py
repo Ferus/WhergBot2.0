@@ -13,7 +13,7 @@ class YT(object):
 		if not link:
 			return None
 		try:
-			vidId = re.findall("\?v=[a-zA-Z0-9_\-]{11}", link)[0][3:]
+			vidId = re.findall("v=[a-zA-Z0-9_\-]{11}", link)[0][2:]
 			jsonLink = "http://gdata.youtube.com/feeds/api/videos/{0}?alt=json".format(vidId)
 			jsonReply = requests.get(jsonLink)
 			if jsonReply.status_code != 200:
