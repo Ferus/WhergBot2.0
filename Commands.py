@@ -92,6 +92,7 @@ class Commands():
 					self.allowed.Add(tmp[1], tmp[2], int(tmp[3]))		
 					sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
 					print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
+					self.allowed.Save()
 				except:
 					sock.say(Location, "Failed to update access for '{0}'".format(tmp[1]))
 					print("* [Access] Failed to update access for '{0}'".format(tmp[1]))
@@ -102,6 +103,7 @@ class Commands():
 						del self.allowed.db[tmp[1]]
 						sock.say(Location, "Deleted access for {0}".format(tmp[1]))
 						print("* [Access] Deleted access for {0}.".format(tmp[1]))
+						self.allowed.Save()
 					else:
 						sock.say(Location, "Access for {0} cannot be deleted.".format(tmp[1]))
 				else:

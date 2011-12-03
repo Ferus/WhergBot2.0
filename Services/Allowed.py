@@ -21,7 +21,6 @@ class Allowed():
 		
 	def Add(self, nick, host, level):
 		self.db[nick] = [host, int(level)]
-		self.Save()
 		
 	def levelCheck(self, nick):
 		if nick in self.db.keys():
