@@ -36,7 +36,6 @@ class GuessingStats(object):
 		#End Players Block },
 	
 	#Globals
-	'regens':0,
 	'totalWins':0,
 	'totalPlayers':len(db['Players'])
 	}
@@ -55,7 +54,7 @@ class GuessingStats(object):
 
 		if 'Players' not in self.StatsDB.keys():
 			self.StatsDB['Players'] = {}
-
+				
 	def Load(self, _db):
 		x = {}
 		for key in _db.keys():
@@ -83,12 +82,16 @@ class GuessingStats(object):
 		try:
 			if Player:
 				if Player not in self.StatsDB['Players'].keys():
-					self.StatsDB['Players'][Player] = {}
-				
-				if Stat not in self.StatsDB['Players'][Player].keys():
-					self.StatsDB['Players'][Player][Stat] = Value
-				else:
-					self.StatsDB['Players'][Player][Stat] += Value
+					self.StatsDB['Players'][Player] = {
+						'notValid':0,
+						'overMax':0,
+						'underMin':0,
+						'tooHigh':0,
+						'tooLow':0,
+						'wins':0,
+						}
+						
+				self.StatsDB['Players'][Player][Stat] += Value
 
 			else:
 				if not self.StatsDB[Stat]:
@@ -98,7 +101,13 @@ class GuessingStats(object):
 			self.Save()
 		except:
 			print("* [Guess] Error'd")
-			
+
+	def GetStats(self, Person):
+		st = self.StatsDB['Players'][Person]
+				
+		x = "\x02[Guess]\x02 Stats for {0}: {1} Non-valid numbers, {2} Guesses over max, {3} Guesses under min, {4} Guesses too high, {5} Guesses too low, and {6} wins."
+		x = x.format(Person, st['notValid'], st['overMax'], st['underMin'], st['tooHigh'], st['tooLow'], st['wins'])
+		return x			
 		
 class GuessingGame(object):
 	def __init__(self, _stats=False):
@@ -134,12 +143,12 @@ class GuessingGame(object):
 			return None
 
 		if UserGuess > self.MaxNum:
-			sock.say(msg[3], "Sorry {0}, but my maximum number is set to {1}.".format(msg[0], self.MaxNum))
+			sock.say(msg[3], "I'm sorry {0}, but my maximum number is set to {1}.".format(msg[0], self.MaxNum))
 			if self._stats:
 				self.Stats.AddStats(Player=msg[0], Stat='overMax', Value=1)
 				
 		elif UserGuess <= 0:
-			sock.say(msg[3], "Sorry {0}, but my number cannot be lower than 0.".format(msg[0]))
+			sock.say(msg[3], "I'm sorry {0}, but my number cannot be lower than 0.".format(msg[0]))
 			if self._stats:
 				self.Stats.AddStats(Player=msg[0], Stat='underMin', Value=1)
 				
@@ -161,17 +170,16 @@ class GuessingGame(object):
 		else:
 			pass #Wut.
 
-	def StatTest(self, msg, sock, users, allowed):
+	def GetStat(self, msg, sock, users, allowed):
 		try:
-			_d = str(self.Stats.StatsDB['Players'][msg[0]])
+			sock.say(msg[3], self.Stats.GetStats(msg[0]))
 		except:
-			_d = "{}"
-		sock.say(msg[3], _d)
+			sock.say(msg[3], "I'm sorry {0}, but I couldn't find any stats for you.".format(msg[0]))
 			
 G = GuessingGame(_stats=True)
 
 hooks = {
 	'^@guess': [G.CheckGuess, 5, False],
 	'^@setguess': [G.SetMaxNum, 3, False],
-	'^@checkstats': [G.StatTest, 5, False],
+	'^@checkstats': [G.GetStat, 5, False],
 	}
