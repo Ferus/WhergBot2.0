@@ -171,10 +171,13 @@ class GuessingGame(object):
 			pass #Wut.
 
 	def GetStat(self, msg, sock, users, allowed):
-		try:
-			sock.say(msg[3], self.Stats.GetStats(msg[0]))
-		except:
-			sock.say(msg[3], "I'm sorry {0}, but I couldn't find any stats for you.".format(msg[0]))
+		if self._stats:
+			try:
+				sock.say(msg[3], self.Stats.GetStats(msg[0]))
+			except:
+				sock.say(msg[3], "I'm sorry {0}, but I couldn't find any stats for you.".format(msg[0]))
+		else:
+			sock.say(msg[3], "Stats are not enabled.")
 			
 G = GuessingGame(_stats=True)
 
