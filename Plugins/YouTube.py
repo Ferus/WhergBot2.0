@@ -47,14 +47,14 @@ class YT(object):
 			
 		title = jsonReply['entry']['title']['$t'].encode('utf-8')
 		duration = self.ConvertTime(int(jsonReply['entry']['media$group']['yt$duration']['seconds']))
-		
+
 		stats = {
 		'title':convert(title),
 		'author':convert(str(jsonReply['entry']['author'][0]['name']['$t'])),
 		
 		'averagerating':D(jsonReply['entry']['gd$rating']['average']).quantize(TWOPLACES),
-		'maxrating':int(jsonReply['entry']['gd$rating']['max']),
-		'percentrating':"{:.2%}".format((jsonReply['entry']['gd$rating']['average']) / int(jsonReply['entry']['gd$rating']['max'])),
+		'maxrating':int(jsonReply['entry']['gd$rating']['max']),	
+		'percentrating':str(perc).replace(".","").lstrip("0"),
 		'totalvotes':totalvotes,
 		'likes':likes,
 		'dislikes':dislikes,
@@ -107,9 +107,9 @@ def youtubestats(msg, sock, users, allowed):
 	x = YouTube.Main(vidId)
 	if x != None:
 	# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
-		head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02]".format(x['title'], x['author'], str(x['duration']))
-		middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(str(int(x['averagerating'])), str(x['maxrating']), str(x['percentrating'])[2:], str(x['viewcount']))
-		tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
+		head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02]".format(x['title'], x['author'], x['duration'])
+		middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(x['averagerating'], x['maxrating'], x['percentrating'], x['viewcount'])
+		tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(x['likes'], x['dislikes'], x['totalvotes'])
 		
 		y = "{0} {1} {2}".format(head, middle, tail)
 		sock.say(msg[3], y)
@@ -126,5 +126,5 @@ def YouTubeGetVids(msg, sock, users, allowed):
 		
 hooks = {
 	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch': [youtubestats, 5, False],
-	'@yt': [YouTubeGetVids, 5, False],
+	'^@yt': [YouTubeGetVids, 5, False],
 		}
