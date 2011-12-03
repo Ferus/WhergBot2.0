@@ -14,7 +14,7 @@ class Bot():
 		self.Nickserv = NickServ.NickServ(sock=self.irc)
 		self.Hostserv = HostServ.HostServ(sock=self.irc)
 		
-		self.allowed = Allowed.Users("Services/AllowedUsers.shelve")
+		self.allowed = Allowed.Allowed("Services/AllowedUsers.shelve")
 		
 		if owner:
 			self.Owner = owner
