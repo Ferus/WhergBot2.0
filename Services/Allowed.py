@@ -1,7 +1,7 @@
 #!/usr/bin/python2
 import shelve
 
-class Users():
+class Allowed():
 	def __init__(self, db=None):
 		'''Permissions for our bot.
 		Dictionary holds user names as keys, 

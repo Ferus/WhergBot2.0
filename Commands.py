@@ -83,7 +83,7 @@ class Commands():
 				if tmp[2] == 'None':
 					tmp[2] = None
 					
-				if tmp[1] == self.allowed.owner[0]:
+				if tmp[1] == self.allowed.Owner[0]:
 					sock.say(Location, "You cannot change your access.")
 					print("* [Access] Denied changing owners access.")
 					return None
@@ -98,7 +98,7 @@ class Commands():
 						
 			elif tmp[0] == 'del':
 				if self.allowed.levelCheck(tmp[1]):
-					if tmp[1] != self.allowed.owner[0]:
+					if tmp[1] != self.allowed.Owner[0]:
 						del self.allowed.db[tmp[1]]
 						sock.say(Location, "Deleted access for {0}".format(tmp[1]))
 						print("* [Access] Deleted access for {0}.".format(tmp[1]))
