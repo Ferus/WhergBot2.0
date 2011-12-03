@@ -41,7 +41,7 @@ class Allowed():
 			for key in self.db.keys():
 				_db[key] = self.db[key]
 			_db.close()
-			print("* [Allowed] Saving database.")
+			print("* [Access] Saving database.")
 			return True
 		except:
 			return False
