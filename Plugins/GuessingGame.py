@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 
 from random import randint
+import shelve
 
 class GuessingStats(object):
 	'''
@@ -42,9 +43,7 @@ class GuessingStats(object):
 	#Etc
 	'''
 	
-	def __init__(self, _StatsDB=None):
-		import shelve
-		
+	def __init__(self, _StatsDB=None):		
 		if _StatsDB:
 			self._StatsDB = _StatsDB
 		else:
@@ -61,6 +60,7 @@ class GuessingStats(object):
 		x = {}
 		for key in _db.keys():
 			x[key] = _db[key]
+		print("* [Guess] Loaded stats database.")
 		return x
 		
 	def Save(self):
@@ -69,9 +69,10 @@ class GuessingStats(object):
 			for key in self.StatsDB.keys():
 				_db[key] = self.StatsDB[key]
 			_db.close()
-			print("* [Guess] Saving database")
+			print("* [Guess] Saving stats database")
 			return True
-		except:
+		except Exception, e:
+			print(repr(e))
 			return False
 			
 	def AddStats(self, Player=None, Stat=None, Value=None):
@@ -79,22 +80,24 @@ class GuessingStats(object):
 		Check if we are adding stats to a player.
 		If we are not, we fall back to globals.
 		'''
-		if Player:
-			if Player not in self.StatsDB['Players'].keys():
-				self.StatsDB['Players'][Player] = {}
+		try:
+			if Player:
+				if Player not in self.StatsDB['Players'].keys():
+					self.StatsDB['Players'][Player] = {}
 				
-			if Stat not in self.StatsDB['Players'][Player].keys():
-				self.StatsDB['Players'][Player][Stat] = Value
-			else:
-				self.StatsDB['Players'][Player][Stat] += Value
+				if Stat not in self.StatsDB['Players'][Player].keys():
+					self.StatsDB['Players'][Player][Stat] = Value
+				else:
+					self.StatsDB['Players'][Player][Stat] += Value
 
-		else:
-			if not self.StatsDB[Stat]:
-				self.StatsDB[Stat] = Value
 			else:
-				self.StatsDB[Stat] += Value
-
-		self.Save()
+				if not self.StatsDB[Stat]:
+					self.StatsDB[Stat] = Value
+				else:
+					self.StatsDB[Stat] += Value
+			self.Save()
+		except:
+			print("* [Guess] Error'd")
 			
 		
 class GuessingGame(object):
@@ -105,6 +108,7 @@ class GuessingGame(object):
 
 		self._stats = _stats
 		if self._stats:
+			print("* [Guess] Enabling stats.")
 			self.Stats = GuessingStats()
 
 	def GenNumber(self, sock=None, location=None):
@@ -158,8 +162,11 @@ class GuessingGame(object):
 			pass #Wut.
 
 	def StatTest(self, msg, sock, users, allowed):
-		if self._stats:
-			sock.say(msg[3], str(self.Stats.StatsDB['Players'][msg[0]]))
+		try:
+			_d = str(self.Stats.StatsDB['Players'][msg[0]])
+		except:
+			_d = "{}"
+		sock.say(msg[3], _d)
 			
 G = GuessingGame(_stats=True)
 
