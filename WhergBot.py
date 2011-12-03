@@ -6,7 +6,8 @@ from threading import Timer
 nick = 'WhergBot' #Bots Nickname
 real = 'WhergBot [Ferus]' #Bots realname
 ident = 'Wherg' #Bots Ident
-channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu']
+#channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu']
+channels = ['#hacking']
 owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
 ssl = True #To encrypt, Or to not encrypt, That is the question!
 if ssl:

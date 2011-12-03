@@ -4,24 +4,23 @@ from time import sleep
 
 #Local Imports
 import Parser
-import Allowed
-from Services import NickServ, HostServ
+from Services import NickServ, HostServ, Allowed
 
 class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
-		self.irc = blackbox_core.Core(logging=True, logfile="blackbox.txt", ssl=ssl)
+		self.irc = blackbox_core.Core(logging=False, ssl=ssl)
 
 		self.Nickserv = NickServ.NickServ(sock=self.irc)
 		self.Hostserv = HostServ.HostServ(sock=self.irc)
 		
-		self.allowed = Allowed.Users("AllowedUsers.shelve")
+		self.allowed = Allowed.Users("Services/AllowedUsers.shelve")
 		
 		if owner:
-			self.owner = owner
-			self.allowed.owner = self.owner
-			self.allowed.db[self.owner[0]] = [self.owner[1], self.owner[2]] #Reset the owner. Just in case the config changed.
-			print("* [Access] Setting owner to {0}, with hostmask {1}".format(self.owner[0], self.owner[1]))
+			self.Owner = owner
+			self.allowed.Owner = self.Owner
+			self.allowed.db[self.Owner[0]] = [self.Owner[1], self.Owner[2]] #Reset the owner. Just in case the config changed.
+			print("* [Access] Setting owner to {0}, with hostmask {1}".format(self.Owner[0], self.Owner[1]))
 		
 		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
 				

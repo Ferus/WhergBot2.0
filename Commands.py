@@ -66,8 +66,6 @@ class Commands():
 			msg = msg
 		sock.quit(msg)
 		print("* [IRC] Quitting with message '{0}'.".format(msg))
-		self.allowed.save()
-		print("* [Allowed] Saving database.")
 		sock.close()
 		print("* [IRC] Closing Socket.")
 		quit()
@@ -79,7 +77,6 @@ class Commands():
 		Location = msg[3]
 		Text = msg[4]
 		try:
-			levels = {0: self.allowed.addOwner, 1: self.allowed.addAdmin}
 			tmp = Text.split()[1:]
 			
 			if tmp[0] == 'add':
@@ -90,14 +87,14 @@ class Commands():
 					sock.say(Location, "You cannot change your access.")
 					print("* [Access] Denied changing owners access.")
 					return None
-						
-				if int(tmp[3]) in levels.keys():
-					levels[int(tmp[3])](tmp[1], tmp[2])								
-				else:
-					self.allowed.addOther(tmp[1], tmp[2], int(tmp[3]))
-						
-				sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
-				print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
+
+				try:
+					self.allowed.Add(tmp[1], tmp[2], int(tmp[3]))		
+					sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
+					print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
+				except:
+					sock.say(Location, "Failed to update access for '{0}'".format(tmp[1]))
+					print("* [Access] Failed to update access for '{0}'".format(tmp[1]))
 						
 			elif tmp[0] == 'del':
 				if self.allowed.levelCheck(tmp[1]):

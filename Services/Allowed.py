@@ -10,24 +10,18 @@ class Users():
 		if db:
 			self._dbFile = db
 		else:
-			self._dbFile = "AllowedUsers.shelve"
+			self._dbFile = "Services/AllowedUsers.shelve"
 			
 		_db = shelve.open(self._dbFile)
-		self.db = self.dump(_db)
+		self.db = self.Load(_db)
 		_db.close()
 			
 		self.keys = self.db.keys()
-		self.owner = None
+		self.Owner = None
 		
-	def addOwner(self, nick, host):
-		self.db[nick] = [host, 0]
-		
-	def addAdmin(self, nick, host):
-		self.db[nick] = [host, 1]
-		
-	def addOther(self, nick, host, level):
-		'''This is only temporary until I think of names for the others.'''
+	def Add[self, nick, host, level):
 		self.db[nick] = [host, int(level)]
+		self.Save()
 		
 	def levelCheck(self, nick):
 		if nick in self.db.keys():
@@ -35,18 +29,19 @@ class Users():
 		else:
 			return None
 			
-	def dump(self, db):
+	def Load(self, db):
 		x = {}
 		for key in db.keys():
 			x[key] = db[key]
 		return x
 		
-	def save(self):
+	def Save(self):
 		try:
 			_db = shelve.open(self._dbFile)
 			for key in self.db.keys():
 				_db[key] = self.db[key]
 			_db.close()
+			print("* [Allowed] Saving database.")
 			return True
 		except:
 			return False

@@ -1,3 +1,10 @@
+=== Dec 03 ===
++ Created a ./docs and moved some files to it.
++ Moved Users.py and Allowed.py to ./Services
++ Edited YouTube regex because people like to link w/o 'http://' >_>
++ Finished Stats for GuessingGame.py
++ GuessingGame.py and now Allowed.py call their Save() functions when something is added.
++ Edits reflecting upon the above (File path corrections, renamed some functions)
 === Dec 01 ===
 + Plugins now take the non-optional 'users' and 'allowed' in the called functions
 	+'users' is an Users.Users() object that holds the userlist for each channel.

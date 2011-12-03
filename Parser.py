@@ -6,7 +6,7 @@ import time, re
 
 #Local Imports
 import Commands
-import Users as _U
+from Services import Users as _U
 
 class Parse():
 	def __init__(self, sock=None, allowed=None, nick=None):

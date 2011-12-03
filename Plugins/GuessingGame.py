@@ -69,6 +69,7 @@ class GuessingStats(object):
 			for key in self.StatsDB.keys():
 				_db[key] = self.StatsDB[key]
 			_db.close()
+			print("* [Guess] Saving database")
 			return True
 		except:
 			return False
@@ -92,6 +93,8 @@ class GuessingStats(object):
 				self.StatsDB[Stat] = Value
 			else:
 				self.StatsDB[Stat] += Value
+
+		self.Save()
 			
 		
 class GuessingGame(object):
