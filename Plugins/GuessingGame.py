@@ -65,7 +65,7 @@ class GuessingStats(object):
 		
 	def Save(self):
 		try:
-			_db = shelve.open(self.StatsDB)
+			_db = shelve.open(self._StatsDB)
 			for key in self.StatsDB.keys():
 				_db[key] = self.StatsDB[key]
 			_db.close()
