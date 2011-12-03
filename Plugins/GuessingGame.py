@@ -105,7 +105,7 @@ class GuessingStats(object):
 	def GetStats(self, Person):
 		st = self.StatsDB['Players'][Person]
 				
-		x = "\x02[Guess]\x02 Stats for {0}: {1} Non-valid numbers, {2} Guesses over max, {3} Guesses under min, {4} Guesses too high, {5} Guesses too low, and {6} wins."
+		x = "\x02[Guess]\x02 Stats for {0}: {1} Non-valid number(s), {2} Guess(es) over max, {3} Guess(es) under min, {4} Guess(es) too high, {5} Guess(es) too low, and {6} win(s)."
 		x = x.format(Person, st['notValid'], st['overMax'], st['underMin'], st['tooHigh'], st['tooLow'], st['wins'])
 		return x			
 		

@@ -9,11 +9,10 @@ import re
 from htmldecode import convert
 
 class YT(object):
-	def Main(self, link):
-		if not link:
+	def Main(self, vidId):
+		if not vidId:
 			return None
 		try:
-			vidId = re.findall("=[a-zA-Z0-9_\-]{11}", link)[0][1:]
 			jsonLink = "http://gdata.youtube.com/feeds/api/videos/{0}?alt=json".format(vidId)
 			jsonReply = requests.get(jsonLink)
 			if jsonReply.status_code != 200:
@@ -37,9 +36,14 @@ class YT(object):
 			likes = int(totalvotes*float(perc))
 			dislikes = int(totalvotes-likes)
 			
-		title = jsonReply['entry']['title']['$t']
-		if type(title) != str:
-			title = title.encode('utf-8')
+		title = jsonReply['entry']['title']['$t'].encode('utf-8')
+
+		minutes, seconds = divmod(int(jsonReply['entry']['media$group']['yt$duration']['seconds']), 60)
+		hours, minutes = divmod(minutes, 60)
+		duration = ""
+		if hours != 0:
+			duration += "{0}:".format(str(hours).zfill(2))
+		duration += "{0}:{1}".format(str(minutes).zfill(2), str(seconds).zfill(2))
 
 		stats = {
 		'title':convert(title),
@@ -52,7 +56,7 @@ class YT(object):
 		'likes':likes,
 		'dislikes':dislikes,
 		
-		'duration':int(jsonReply['entry']['media$group']['yt$duration']['seconds']),
+		'duration':duration,
 		'viewcount':"{:1,}".format(int(jsonReply['entry']['yt$statistics']['viewCount'])),
 		'favorites':int(jsonReply['entry']['yt$statistics']['favoriteCount']),
 		}
@@ -61,11 +65,11 @@ class YT(object):
 YouTube = YT()
 
 def youtubestats(msg, sock, users, allowed):
-	link = re.split('(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*?\s?', msg[4])[0]
-	x = YouTube.Main(link)
+	vidId = re.findall("=[a-zA-Z0-9_\-]{11}", msg[4])[0][1:]
+	x = YouTube.Main(vidId)
 	if x != None:
 	# [YouTube] title - By: author {duration} <averagerating/maxrating (percentrating%)> [x Likes/x Dislikes/x Total]
-		head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02 seconds]".format(x['title'], x['author'], str(x['duration']))
+		head = "\x02[YouTube]\x02 {0} - By: \x02{1}\x02 [\x02{2}\x02]".format(x['title'], x['author'], str(x['duration']))
 		middle = "<\x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02) \x02{3}\x02 Views>".format(str(int(x['averagerating'])), str(x['maxrating']), str(x['percentrating'])[2:], str(x['viewcount']))
 		tail = "[\x02{0}\x02 Likes/\x02{1}\x02 Dislikes/\x02{2}\x02 Total]".format(str(x['likes']), str(x['dislikes']), str(x['totalvotes']))
 		
