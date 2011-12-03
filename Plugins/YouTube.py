@@ -37,7 +37,7 @@ class YT(object):
 		
 		totalvotes = int(jsonReply['entry']['gd$rating']['numRaters'])
 		perc = (D(jsonReply['entry']['gd$rating']['average']) / int(jsonReply['entry']['gd$rating']['max'])).quantize(TWOPLACES)
-
+		
 		try:
 			likes = int(jsonReply['entry']['yt$rating']['numLikes'])
 			dislikes = int(jsonReply['entry']['yt$rating']['numDislikes'])
@@ -54,7 +54,7 @@ class YT(object):
 		
 		'averagerating':D(jsonReply['entry']['gd$rating']['average']).quantize(TWOPLACES),
 		'maxrating':int(jsonReply['entry']['gd$rating']['max']),
-		'percentrating':perc,
+		'percentrating':"{:.2%}".format((jsonReply['entry']['gd$rating']['average']) / int(jsonReply['entry']['gd$rating']['max'])),
 		'totalvotes':totalvotes,
 		'likes':likes,
 		'dislikes':dislikes,
@@ -80,7 +80,7 @@ class YT(object):
 		for vidInfo in jsonReply:
 			Uploader = vidInfo['author'][0]['name']['$t']
 			VidTitle = vidInfo['title']['$t']
-			VidAverage = vidInfo['gd$rating']['average']
+			VidAverage = "{:.2}".format(vidInfo['gd$rating']['average'])
 			VidMax = vidInfo['gd$rating']['max']
 			VidNumRaters = vidInfo['gd$rating']['numRaters']
 			VidViewCounts = vidInfo['yt$statistics']['viewCount']
@@ -121,7 +121,7 @@ def YouTubeGetVids(msg, sock, users, allowed):
 		terms = "+".join(msg[4].split()[1:]).replace("|","%7C")
 	except:
 		sock.say(msg[3], "Supply some searchterms you derp!")
-	for vid in YouTube.Search(terms):
+	for vid in YouTube.Search(terms, results=1):
 		sock.say(msg[3], vid)
 		
 hooks = {
