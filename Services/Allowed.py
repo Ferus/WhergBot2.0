@@ -19,7 +19,7 @@ class Users():
 		self.keys = self.db.keys()
 		self.Owner = None
 		
-	def Add[self, nick, host, level):
+	def Add(self, nick, host, level):
 		self.db[nick] = [host, int(level)]
 		self.Save()
 		
