@@ -13,7 +13,9 @@ Simply edit all the varibles in WhergBot.py and run with ./WhergBot.py
 Don't forget to change the owner variable to include your Nick, and Ident@Hostname
 Help can be found on irc.datnode.net (Ports 6667 (text) and 6697 (ssl)) on the channel #hacking
 
-=== Required Modules (That aren't built in)===
+=== Modules (That aren't built in Python)===
+=== Required ===
+These modules are required for the core of WhergBot to function.
 It is highly recommended to use the latest source for each of these.
 
 BlackBox (Develop Branch) - https://github.com/proxypoke/blackbox_IRC-macros/
@@ -22,8 +24,38 @@ BlackBox is a great module that's built over the IRC protocol. It's used here to
 Requests - https://github.com/kennethreitz/requests
 Requests is a very nice frontend to urllib2 and is used widely in many WhergBot Plugins.
 
+=== Plugin based ===
+These modules are used in WhergBot plugins. If you can't use them,
+(like mpd.py on Windows), then you can remove the Plugin file in ./Plugins
+* I have NOT tested running WhergBot without these modules. He may not run if they are not installed.
+
 Python-Mpd - http://pypi.python.org/pypi/python-mpd/
 This module is used in Plugins/MpdScript.py and allows WhergBot to show the current song playing in MPD.
+Used in ./Plugins/MpdScript.py
 
 wordnik - http://pypi.python.org/pypi/wordnik/
-The wrapper around the wordnik API, used for ./Plugins/Dictionary.py
+A nice wrapper around the wordnik API, used in ./Plugins/Dictionary.py
+
+
+=== Developing Plugins ===
+Each plugin requires a function to call as well as a 'hooks' dictionary.
+The 'hooks' dictionary will contain regex based keys, their values will be a list.
+The list for each key should hold a function to call, access level, and a True/False
+for if a hostcheck is required.
+IE:
+hooks = { "^@MyCommand" : [HelloWorld, 5, False] }
+Will hook a "@MyCommand" command that calls HelloWorld (example below) only 
+if the user has level 5 or higher access.
+
+The function to be called should receive 4 objects:
+A message list, which holds the line sent, so you can parse it for data.
+A blackbox IRC object, which allows access to sending messages as well as other things.
+An users object, which allows access to a userlist dict, the key being a channel, 
+	value being a list of names in a channel.
+An allowed object, which gives you access to a dict of access levels.
+IE:
+def HelloWorld(Message, IRC, Users, Allowed):
+	IRC.say(Message[3], "Hello {0}!".format(Message[0]))
+This function will send "Hello <Name>" where <Name> is the name of the person who
+triggered the function. 
+
