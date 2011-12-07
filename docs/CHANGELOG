@@ -1,3 +1,5 @@
+=== Dec 06 ===
++ Plugins/Plinko.py
 === Dec 03 ===
 + Created a ./docs and moved some files to it.
 + Moved Users.py and Allowed.py to ./Services
