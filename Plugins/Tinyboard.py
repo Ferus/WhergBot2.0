@@ -82,7 +82,7 @@ class Tinyboard(object):
 		Post_Text = re.sub("</p>", "", Post_Text)
 		Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","") #Italics
 		Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "") #Spoilers
-		Post_Text = Post_Text.replace("<span class=\"quote\">","\x0103").replace("</span>","\x01") #Greentext
+		Post_Text = Post_Text.replace("<span class=\"quote\">","\x033").replace("</span>","\x03") #Greentext
 		Post_Text = Post_Text.replace("<strong>","\x02").replace("</strong>","\x02") #Bold
 		Post_Text = Post_Text.replace("&gt;",">")
 		
@@ -96,7 +96,6 @@ class Tinyboard(object):
 				
 
 		if re.search("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Post_Text):
-			# <a onclick="highlightReply('534963');" href="/r9k/res/534744.html#534963">&gt;&gt;534963</a>
 			Link_Num = re.findall(">>[0-9]{1,}<", Post_Text)[0][:-1]
 			Post_Text = re.sub("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Link_Num, Post_Text)
 			
@@ -104,18 +103,20 @@ class Tinyboard(object):
 		Post_Text = self.conv(Post_Text)#.encode("utf-8")
 		
 		if Post_Trip:
-			return "{0}{1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
+			return "{0}{1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
 		elif Post_CapCode:
-			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_CapCode, postText, imageText, Post_Text, link)
+			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_CapCode, postText, imageText, Post_Text, link)
 		else:
-			return "{0} ({1}, {2}) posted: {3} - {4}".format(Post_Name, postText, imageText, Post_Text, link)
+			return "{0} ({1}, {2}) posted: {3} - {4}".format(Post_Name, postText, imageText, Post_Text, link)
 	
 	def smart_truncate(self, content, length=300, suffix='...'):
 		'''Borrowed from stackoverflow, Credits to 'Adam'. :) '''
 		if len(content) <= length:
 			return content
 		else:
-			return ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+			x = ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
+			return x
+				
 			
 	def conv(self, string):
 		return convert(string)

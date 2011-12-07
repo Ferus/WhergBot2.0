@@ -7,10 +7,9 @@ def Act(msg, sock, users, allowed):
 	sock.send("PRIVMSG {0} :\x01ACTION {1}\x01".format(msg[3], " ".join(msg[4].split()[1:])))
 	
 def Oven(msg, sock, users, allowed):
-	location = msg[3]
 	person = " ".join(msg[4].split()[1:])
-	sock.send("PRIVMSG {0} :\x01ACTION prepares his ovens\x01".format(location))
-	t = Timer(randint(7,11), sock.send, ("PRIVMSG {0} :\x01ACTION ovens {1}\x01".format(location, person), ))
+	sock.send("PRIVMSG {0} :\x01ACTION prepares his ovens\x01".format(msg[3]))
+	t = Timer(randint(7,11), sock.send, ("PRIVMSG {0} :\x01ACTION ovens {1}\x01".format(msg[3], person), ))
 	t.daemon = True
 	t.start()
 		
@@ -21,7 +20,7 @@ def Bacon(msg, sock, users, allowed):
 	person = " ".join(msg[4].split()[1:])
 	if person == '':
 		person = 'Ferus'
-	sock.send("PRIVMSG {0} :\x01ACTION cooks up some fancy bacon for {1}\x01".format(location, person))
+	sock.send("PRIVMSG {0} :\x01ACTION cooks up some fancy bacon for {1}\x01".format(msg[3], person))
 		
 def Hug(msg, sock, users, allowed):
 	access = allowed.levelCheck(msg[0])[1][1]

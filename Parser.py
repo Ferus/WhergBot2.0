@@ -20,9 +20,9 @@ class Parse():
 		self._commands = self.command.cmds.keys()
 
 		self.ctcpReplies = {"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
-						"\x01TIME\x01" : "The local time here is {0}",
-						"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
-						}
+			"\x01TIME\x01" : "The local time here is {0}",
+			"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
+			}
 							
 		
 	def Main(self, msg):
@@ -190,7 +190,7 @@ class Parse():
 			print(repr(e))
 			
 	def Notice(self, msg):
-		print msg
+		#print msg
 		Nick = self.Nick(msg)
 		Host = self.Host(msg)
 		Action = self.Action(msg)

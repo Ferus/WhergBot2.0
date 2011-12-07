@@ -125,6 +125,6 @@ def YouTubeGetVids(msg, sock, users, allowed):
 		sock.say(msg[3], vid)
 		
 hooks = {
-	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/watch': [youtubestats, 5, False],
+	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/': [youtubestats, 5, False],
 	'^@yt': [YouTubeGetVids, 5, False],
 		}
