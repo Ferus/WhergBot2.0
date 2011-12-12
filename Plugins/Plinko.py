@@ -1,6 +1,7 @@
 #!/usr/bin/python2
 import random
 import re
+from threading import Timer
 
 class Plinko(object):
 	def __init__(self):
@@ -15,6 +16,7 @@ class Plinko(object):
 		self.End = "|_|_|_|_|_|_|_|_|_|"
 		self.isHead = True
 		self.Location = None
+		self.Locked = False
 		
 		self.GoLeftHead = {
 			"1":"1", #Cant go left.
@@ -74,7 +76,7 @@ class Plinko(object):
 			return int(self.GoRightTail[Pos])
 
 	def ChooseDirection(self, Pos):
-		if random.choice([True]*53 + [False]*47):
+		if random.choice([True]*50 + [False]*50):
 			return self.Left(Pos)
 		else:
 			return self.Right(Pos)
@@ -101,6 +103,15 @@ class Plinko(object):
 			self.isHead = False
 		else:
 			self.isHead = True
+			
+	def Lock(self):
+		if not self.Locked:
+			self.Locked = True
+			t = Timer(5, self.UnLock, ())
+			t.daemon = True
+			t.start()
+	def UnLock(self):
+		self.Locked = False
 
 	def Start(self, StartLocation):
 		if type(StartLocation) != int:
@@ -124,6 +135,12 @@ class Plinko(object):
 Pl = Plinko()
 
 def Parse(Msg, Sock, Users, Allowed):
+	if Msg[3] not in chans:
+		Sock.notice(Msg[0], "Go back to #games faggot.")
+		return None
+	if Pl.Locked:
+		Sock.notice(Msg[0], "Locked. Try again in a few seconds.")
+		return None
 	try:
 		x = int(Msg[4].split()[1])
 		if x > 9:
@@ -135,11 +152,36 @@ def Parse(Msg, Sock, Users, Allowed):
 		else:
 			pass
 	except:
-		Sock.say(Msg[3], '\x02[Plinko]\x02 Error. Defaulting to 5.')
+		Sock.say(Msg[3], '\x02[Plinko]\x02 Error: Defaulting to 5.')
 		x = 5
 	for line in Pl.Start(x):
 		Sock.say(Msg[3], line)
+		Pl.Lock()
+	try:
+		for x in prizes[str(Pl.Location)]:
+			exec(x)
+	except Exception, e:
+		Sock.say(Msg[3], "\x02[Plinko]\x02 Error: {0}".format(str(repr(e))))
 		
 hooks = {
-	"^@plinko": [Parse, 1, True],
+	"^@plinko": [Parse, 5, False],
 	}
+chans = ['#games']
+
+prizes = {
+	'1' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	'2' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	'3' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	'4' : ["Sock.say(Msg[3], '!tkb {0} 2m You fucking suck.'.format(Msg[0]))", "t = Timer(125, Sock.invite(Msg[0], Msg[3])", "t.daemon = True", "t.start()"],
+	'5' : ["Sock.say(Msg[3], '!access add {0} 5'.format(Msg[0]))", "t = Timer(300, Sock.say, (Msg[3], '!access del {0}'.format(Msg[0]),))", "t.daemon = True", "t.start()"],
+	'6' : ["Sock.say(Msg[3], '!tkb {0} 2m You fucking suck.'.format(Msg[0]))", "t = Timer(125, Sock.invite(Msg[0], Msg[3])", "t.daemon = True", "t.start()"],
+	'7' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	'8' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	'9' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
+	}
+phrases = [
+	"YOU DIDN'T EVEN GET CLOSE, FAGGOT!",
+	"Try again you fucking faggot.",
+	"How about you stop sucking dicks and /TRY/ to win next time.",
+	"Congratulations, you didn't win shit.",
+	]
