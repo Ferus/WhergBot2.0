@@ -156,7 +156,7 @@ def Parse(Msg, Sock, Users, Allowed):
 		x = 5
 	for line in Pl.Start(x):
 		Sock.say(Msg[3], line)
-		Pl.Lock()
+	Pl.Lock()
 	try:
 		for x in prizes[str(Pl.Location)]:
 			exec(x)
