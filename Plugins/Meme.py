@@ -4,7 +4,7 @@ import requests
 Poll automeme.net for a 'meme'.
 Usage: import Meme, m = Meme.meme(), next(m)
 '''
-def urls = {
+urls = {
 	"regular": "http://api.automeme.net/text?lines=80",
 	"hipster": "http://api.automeme.net/text?lines=80&vocab=hipster",
 	}
