@@ -5,8 +5,8 @@ Poll automeme.net for a 'meme'.
 Usage: import Meme, m = Meme.meme(), next(m)
 '''
 def urls = {
-	"regular": "http://api.automeme.net/text?lines=80"
-	"hipster": "http://api.automeme.net/text?lines=80&vocab=hipster"
+	"regular": "http://api.automeme.net/text?lines=80",
+	"hipster": "http://api.automeme.net/text?lines=80&vocab=hipster",
 	}
 
 def get_meme(t):
