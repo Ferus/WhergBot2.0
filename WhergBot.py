@@ -6,8 +6,8 @@ from threading import Timer
 nick = 'WhergBot' #Bots Nickname
 real = 'WhergBot [Ferus]' #Bots realname
 ident = 'Wherg' #Bots Ident
-channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games']
-#channels = ['#hacking']
+#channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games']
+channels = ['#hacking']
 owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
 ssl = True #To encrypt, Or to not encrypt, That is the question!
 if ssl:
@@ -23,11 +23,14 @@ if __name__ == '__main__':
 			_p = Timer(3, WhergBot.Identify, ())
 			_p.daemon = True
 			_p.start()
-		for chan in channels:
-			_t = Timer(5, WhergBot.irc.join, (chan, ))
-			_t.daemon = True
-			_t.start()
-			Core.sleep(.05)
+		#for chan in channels:
+		#	_t = Timer(5, WhergBot.irc.join, (chan, ))
+		#	_t.daemon = True
+		#	_t.start()
+		#	Core.sleep(.05)
+		_t = Timer(5, WhergBot.irc.join, (" ".join(channels),))
+		_t.daemon = True
+		_t.start() 
 
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=1024))

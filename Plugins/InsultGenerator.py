@@ -14,7 +14,7 @@ def insult():
 	
 def gen(msg, sock, users, allowed):
 	'''Insult a fgt. :)'''
-	_insult = "{0}, {1}".format(msg[4].split()[1:][0], insult())
+	_insult = "{0}, {1}".format(" ".join(msg[4].split()[1:]), insult())
 	sock.say(msg[3], _insult)
 	
 hooks = {

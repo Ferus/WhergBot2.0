@@ -13,6 +13,7 @@ class Parse():
 		self.sock = sock
 		self.allowed = allowed	
 		self.nickname = nick
+		self.Buffer = ''
 
 		self.Users = _U.Users() # Users.Userlist: Storage for Users of each channel. The Key is channel, users are a list.
 		
@@ -23,126 +24,78 @@ class Parse():
 			"\x01TIME\x01" : "The local time here is {0}",
 			"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
 			}
+
 							
-		
+		self.Actions = {
+			'PRIVMSG': self.Privmsg,
+			'NOTICE': self.Notice,
+			'INVITE': self.Invited,
+			'KICK': self.Kicked,
+			'JOIN': self.Joined,
+			'PART': self.Parted,
+			'QUIT': self.Quitted,
+			'NICK': self.Nickchange,
+			'MODE': self.Modechange,
+			'001': self.Welcome,
+			'002': self._Welcome,
+			'003': self._Welcome,
+			'005': self.IgnoreLine,
+			'251': self.UserCount,
+			'331': self.NoTopic,
+			'332': self.Topic,
+			'333': self.TopicTime,
+			'352': self.Who,
+			'353': self.Names,
+			'366': self.IgnoreLine,
+			'372': self.MOTD,
+			'376': self.MOTD,
+			'404': self.BannedVoice,
+			'474': self.Banned,
+			}
+			
 	def Main(self, msg):
 		'''Main Parser, Here we take raw data, and split at \r\n.'''
-		tmp = msg.splitlines()
+		self.Buffer += msg
+		msg = self.Buffer.split('\r')
+		self.Buffer = msg.pop()
 
-		if len(tmp) >1: #Somehow this handles the bunched up lists when connecting. Weird.
-			for msg in tmp:
-				msg = msg.split()
-				#print(msg) #Temporary printing here, until we define the rest of the parser.
-				
-				try:
-					if msg[1] == '331':
-						print("* [IRC] There is no topic set for {0}".format(msg[3]))
-					if msg[1] == '332':
-						print("* [IRC] Topic for {0} set to {1}".format(msg[3] , " ".join(msg[4:])[1:]))
-				
-					if msg[1] == '333':
-						print(datetime.fromtimestamp(int(msg[5])).strftime("* [IRC] Topic for {0} set by {1} at %c".format(msg[3], msg[4])))
-					
-					if msg[1] == '352':						
-						'''<channel> <user> <host> <server> <nick> <H|G>[*][@|+] :<hopcount> <real name>
-						[':opsimathia.datnode.net', '352', 'WhergBot2', '#hacking', 'anonymous', 'the.interwebs', 'opsimathia.datnode.net', 'Ferus', 'Hr*', ':0', 'Matt']'''
-						person, host = msg[7], msg[4]+"@"+msg[5]
-						
-						print("* [IRC] {0} has Ident/Host of '{1}' and Realname of '{2}'.".format(person, host, " ".join(msg[10:])))
-						
-						if "*" in msg[8]:
-							print("* [IRC] {0} is an IRC Operator on {1}.".format(person, msg[6]))
-						if 'H' in msg[8]:
-							print("* [IRC] {0} is currently available.".format(person))
-						if 'G' in msg[8]:
-							print("* [IRC] {0} is currently away.".format(person))
-							
-					if msg[7] == 'KILL':
-						print("* [IRC] {0} killed by oper {1}. Reason: {2}".format(msg[10], msg[12], " ".join(msg[15:])))
-					
-					if msg[1] == 'QUIT':
-						'''This was probably from a kill.'''
-						self.Quitted(msg)							
-						
-					
-					if msg[1] == '353':
-						nameslist = []
-						for x in msg[5:]:
-							x = x.replace(":","").replace("~","").replace("&","").replace("@","").replace("%","").replace("+","")
-							nameslist.append(x)
-							
-							if x not in self.allowed.db.keys():
-								self.allowed.db[x] = [None, 5]
-							
-						self.Users.Userlist[msg[4]] = nameslist	
-						print("* [IRC] Users on {0}: {1}".format(msg[4], " ".join(nameslist)))
-						
-				except:
-					pass
-					
-		else:
-			for msg in tmp:
-				tmp = msg #The full message as a string.
-				msg = msg.split() #The message split, a list of strings.
-				#print(msg) #Temporary printing here, until we define the rest of the parser.
+		for line in msg:
+			if line.startswith("\n"):
+				line = line.strip("\n")
+			if line.startswith(":"):
+				line = line[1:]
+			line = line.split()
+			if line[1] in self.Actions.keys():
+				self.Actions[line[1]](line)
 
-				try:
-					# Parts, Joins, Kicks, All IRC actions
-					if msg[1] == 'KICK' and msg[3] == self.nickname:
-						'''Auto-rejoin if we are kicked.'''
-						self.sock.send("JOIN {0}".format(msg[2]))
-						print("* [IRC] Kicked from {0} by {1} ({2}). Autorejoining.".format(msg[2], msg[0].split("!")[0][1:], " ".join(msg[4:])[1:]))
-						
-					if msg[1] == 'PRIVMSG':
-						self.Privmsg(tmp)
-				
-					if msg[1] == 'NOTICE':
-						self.Notice(tmp)
-						
-					if msg[1] == 'INVITE':
-						self.Invited(msg)			
+			elif line[7] == 'KILL': #lolhax
+				print("* [IRC] {0} killed by oper {1}. Reason: {2}".format(line[10], line[12], " ".join(line[15:])))
+			else:
+				print line
 
-					if msg[1] == 'JOIN':
-						self.Joined(msg)
-						
-					if msg[1] == 'PART':
-						self.Parted(msg)
-						
-					if msg[1] == 'QUIT':
-						self.Quitted(msg)
-						
-					if msg[1] == 'NICK':
-						self.Nickchange(msg)
-						
-					if msg[1] == 'MODE':
-						self.Modechange(msg)
-					
-					else:
-						pass #Havent finished defining everything.
-	
-				except:
-					pass
-					
 	
 	def Privmsg(self, msg):
 		'''Parse for commands. Etc.'''
+		tmp = msg
+		msg = " ".join(msg)
 		try:
-			Nick = self.Nick(msg)
-			Host = self.Host(msg)
-			Action = self.Action(msg)
-			Location = self.Loc(msg)
-			Text = self.Text(msg)
-			Cmd = self.Cmd(msg)
+			Nick, Host = tmp[0].split("!")
+			Action = tmp[1]
+			Text = " ".join(tmp[3:])[1:]
+			Cmd = tmp[3][1:]
+			if tmp[2] == self.nickname:
+				Location = tmp[0].split("!")[0]
+			else:
+				Location = tmp[2]
 			Msg = [Nick, Host, Action, Location, Text, Cmd]
 			
 			if Nick == Location:
-				'''self.Loc() already handles where PM's come from, but now we need to change how it shows.'''
 				Location = self.nickname
 						
 			if Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
-					print
+					print("* [CTCP] {0}".format(Cmd.strip("\x01")))
 					if Cmd.strip("\x01") == 'TIME':
 						ti = self.ctcpReplies[Cmd].format(time.strftime("%c", time.localtime()))
 						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, ti))
@@ -190,71 +143,21 @@ class Parse():
 			print(repr(e))
 			
 	def Notice(self, msg):
-		#print msg
-		Nick = self.Nick(msg)
-		Host = self.Host(msg)
-		Action = self.Action(msg)
-		Location = self.Loc(msg)
-		Text = self.Text(msg)
+		try:
+			Nick = msg[0].split("!")[0]
+			if Nick.startswith(":"):
+				Nick = Nick[1:]
+		except:
+			Nick = msg[0]
+		Text = " ".join(msg[3:])
+		if Text.startswith(":"):
+			Text = Text[1:]
 		print("* [Notice] <{0}> {1}".format(Nick, Text))
 	
-	
-	def Nick(self, msg):
-		'''Parses the nick of a person who sent a message'''
-		try:
-			n = msg.split("!")[0].strip(":")
-			return n
-		except:
-			return ''
-			
-	def Host(self, msg):
-		'''Parses the Ident@Host of a person who sent a message'''
-		try:
-			h = msg.split("!")[1].split(" ")[0]
-			return h
-		except:
-			return ''
-		
-	def Text(self, msg):
-		'''Parses out the text in a message'''
-		try:
-			t = " ".join(msg.split()[3:])[1:]
-			return t
-		except:
-			return ''
-		
-	def Cmd(self, msg):
-		'''Parses for a `command`'''
-		try:
-			c = msg.split()[3][1:]	
-			return c
-		except:
-			return ''
-	
-	def Loc(self, msg):
-		'''Parses for the location from a PRIVMSG or NOTICE. If we are PM'd it returns the Nick of the person who PM'd us.'''
-		try:
-			l = msg.split()
-			if l[2] == self.nickname:
-				l = l[0].split("!")[0][1:]
-			else:
-				l = l[2]
-			return l
-		except:
-			return ''
-	
-	def Action(self, msg):
-		'''Parses for the type of action that is happening, IE: PRIVMSG, NOTICE'''
-		try:
-			a = msg.split()[1]
-			return a
-		except:
-			return ''
-
 	def Invited(self, msg):
 		'''Join a channel we were invited to if the person's hostname is defined in allowed.'''
 		try:
-			person, host = msg[0].split(":")[1].split("!")
+			person, host = msg[0].split("!")
 			if self.allowed.db[person][0] == host:
 				chan = msg[3][1:]
 				self.sock.join(chan)
@@ -262,9 +165,16 @@ class Parse():
 		except:
 			pass
 
+	def Kicked(self, msg):
+		if msg[3] == self.nickname:
+			print("* [IRC] Kicked from {0} by {1} ({2}). Attempting to Auto-Rejoin.".format(msg[2], msg[0].split("!")[0], " ".join(msg[4:])[1:]))
+			self.sock.join(msg[2])
+		else:
+			print("* [IRC] {0} was kicked from {1} by {2}; Reason ({3})".format(msg[3], msg[2], msg[0].split("!")[0], " ".join(msg[4:])[1:]))
+	
 	def Joined(self, msg):
 		'''Someone joined, add them to allowed, with level 5 access, no hostname, and add them to the channel users list.'''
-		person, host = msg[0].split(":")[1].split("!")
+		person, host = msg[0].split("!")
 		chan = msg[2].strip(":")
 		print("* [IRC] {0} ({1}) joined {2}.".format(person, host, chan))		
 		try:
@@ -277,7 +187,7 @@ class Parse():
 		
 	def Parted(self, msg):
 		'''Someone parted a channel, remove them from the channel users list.'''
-		person, host = msg[0].split(":")[1].split("!")
+		person, host = msg[0].split("!")
 		print("* [IRC] {0} ({1}) parted {2}.".format(person, host, msg[2]))
 		try:
 			self.Users.Userlist[msg[2]].remove(person)
@@ -285,7 +195,7 @@ class Parse():
 			pass
 		
 	def Quitted(self, msg):
-		person, host = msg[0].split(":")[1].split("!")
+		person, host = msg[0].split("!")
 		print("* [IRC] {0} ({1}) has quit.".format(person, host))
 		try:
 			for chan in self.Users.Userlist.keys():
@@ -295,7 +205,7 @@ class Parse():
 			pass
 			
 	def Nickchange(self, msg):
-		person, host = msg[0].split(":")[1].split("!")
+		person, host = msg[0].split("!")
 		new = msg[2][1:]
 		print("* [IRC] {0} has changed nick to {1}.".format(person, new))
 		try:
@@ -309,7 +219,7 @@ class Parse():
 			pass
 			
 	def Modechange(self, msg):
-		person, host = msg[0].split(":")[1].split("!")
+		person, host = msg[0].split("!")
 		if len(msg[3]) > 2: #Multiple modes set
 			print("* [IRC] {0} ({1}) set modes {2} on channel {3}.".format(person, host, " ".join(msg[3:]), msg[2]))
 		else:
@@ -319,4 +229,53 @@ class Parse():
 		'''CTCP'd. Lets respond.'''
 		self.sock.send("NOTICE {0} :{1}".format(location, message))
 		print("* [CTCP {0} from {1}] Replying with: '{2}'".format(ctcp, location, message))
+
+	def NoTopic(self, msg):
+		print("* [IRC] There is no topic set for {0}".format(msg[3]))
+
+	def Topic(self, msg):
+		print("* [IRC] Topic for {0} set to {1}".format(msg[3] , " ".join(msg[4:])[1:]))
+
+	def TopicTime(self, msg):
+		print(datetime.fromtimestamp(int(msg[5])).strftime("* [IRC] Topic for {0} set by {1} at %c".format(msg[3], msg[4])))
+
+	def Who(self, msg):
+		person, host = msg[7], msg[4]+"@"+msg[5]
+		print("* [IRC] {0} has Ident/Host of '{1}' and Realname of '{2}'.".format(person, host, " ".join(msg[10:])))
+		if "*" in msg[8]:
+			print("* [IRC] {0} is an IRC Operator on {1}.".format(person, msg[6]))
+		if 'H' in msg[8]:
+			print("* [IRC] {0} is currently available.".format(person))
+		if 'G' in msg[8]:
+			print("* [IRC] {0} is currently away.".format(person))
 		
+	def Names(self, msg):
+		nameslist = []
+		for x in msg[5:]:
+			x = x.replace(":","").replace("~","").replace("&","").replace("@","").replace("%","").replace("+","")
+			nameslist.append(x)
+			if x not in self.allowed.db.keys():
+				self.allowed.db[x] = [None, 5]
+		self.Users.Userlist[msg[4]] = nameslist	
+		print("* [IRC] Users on {0}: {1}".format(msg[4], " ".join(nameslist)))
+
+	def MOTD(self, msg):
+		print("* [MOTD] {0}".format(" ".join(msg[3:])))
+
+	def Banned(self, msg):
+		print("* [IRC] Cannot join {0}, Banned (+b).".format(msg[3]))
+
+	def BannedVoice(self, msg):
+		print("* [IRC] Cannot speak in {0}; Banned/No voice.".format(msg[3]))
+
+	def Welcome(self, msg):
+		print("* [IRC] {0}, {1}".format(" ".join(msg[3:-1])[1:], msg[2]))
+
+	def _Welcome(self, msg):
+		print("* [IRC] {0}".format(" ".join(msg[3:])[1:]))
+
+	def UserCount(self, msg):
+		print("* [IRC] {0}".format(" ".join(msg[3:])[1:]))
+
+	def IgnoreLine(self, msg):
+		pass

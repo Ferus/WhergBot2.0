@@ -1,5 +1,6 @@
 #Global Imports
-from blackbox import blackbox_core
+#from blackbox import blackbox_core
+from blackbox import blackbox
 from time import sleep
 
 #Local Imports
@@ -9,7 +10,7 @@ from Services import NickServ, HostServ, Allowed
 class Bot():
 	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
-		self.irc = blackbox_core.Core(logging=False, ssl=ssl)
+		self.irc = blackbox.IRC(logging=False, ssl=ssl)
 
 		self.Nickserv = NickServ.NickServ(sock=self.irc)
 		self.Hostserv = HostServ.HostServ(sock=self.irc)
@@ -42,16 +43,20 @@ class Bot():
 		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		sleep(.5)
 		self.irc.username(self.ident, self.realname)
 		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
-		sleep(.5)
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
-		sleep(.5)
+		try:
+			#Unreal has a fucking bug where you have to wait until you
+			#recieve a line after registering to continue.
+			while True:
+				if self.irc.recv():
+					break
+		except:
+			quit()
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
 		print("* [IRC] Setting umodes +Bs")
-		sleep(.5)
 		
 	def Identify(self):
 		if self.Nickserv.password != '':
@@ -59,19 +64,15 @@ class Bot():
 			sleep(.3)
 		
 	def Parse(self, msg):
-		self.msg = msg.strip('\r\n')
-		#self.raw = self.msg
-		
-		if not self.msg:
+		if not msg:
 			self.irc._isConnected = False
 			self.irc.close()
-			raise blackbox_core.IRCError('Killed from server.')
+			raise blackbox.blackbox_core.IRCError('Killed from server.')
 			quit()
-			
 		else:
 			try:
-				self.msg = self.p.Main(self.msg)
-				# [ Name, Ident@Host, Action, Loc, Text, Cmd ]
+				self.msg = self.p.Main(msg)
 			except:
 				pass
+				#print("* [Parse Error] {0}".format(msg))
 
