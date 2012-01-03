@@ -1,3 +1,5 @@
+=== Jan 03 ===
++ Fixed bugs in Plugins/Imgur.py
 === Dec 22 ===
 + Added HipsterMemes, silly automeme.net.
 + Changed the parser. Now it actually /works/ how I want it to.
