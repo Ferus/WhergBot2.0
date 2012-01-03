@@ -19,7 +19,7 @@ class Imgur(object):
 			stats['views'] = re.findall("<span id=\"views\">[0-9]{1,}</span>", html)[0].split("\">")[1].split("<")[0]
 			stats['bandwidth'] = re.findall("<span id=\"bandwidth\">.*?</span>", html)[0].split("\">")[1].split("<")[0]
 		else:
-			tmp = re.findall("\"points-[a-zA-Z0-9]{5}\">[0-9]{1,}</span>.*?</div>", html)[0].split(":")
+			tmp = re.findall("\"points-[a-zA-Z0-9]{5}\">[0-9]{1,}</span>.*?</div>", html.replace(",",""))[0].split(":")
 			stats['points'] = tmp[0].split("</span>")[0].split("\">")[1]
 
 			likes = re.findall("positive \" title=\".*?\" style=\".*?%\"></div>", html)[0]
@@ -32,7 +32,7 @@ class Imgur(object):
 			stats['dislikes'] = dislikes
 			stats['dislikespercent'] = str(dislikespercent)[0:4]
 
-			s = re.findall("<strong>Submitted .*? hours ago</strong>", html)[0]
+			s = re.findall("<strong>Submitted .*? ago</strong>", html)[0]
 			stats['submitted'] = s.split("</strong>")[0].split("<strong>")[1]
 
 			v, bw = re.findall("<strong><span class=\"stat\">.*?</span> .*?</strong>", html)
@@ -43,9 +43,7 @@ class Imgur(object):
 	
 	def Main(self, link):
 		'''Fetch HTML, Returns a dict from the Parser'''
-		if not re.search("gallery", link): #Convert to gallery link.
-			picId = re.findall("\/[a-zA-Z0-9]{5}", link)[0]
-			link = "http://imgur.com/gallery{0}".format(picId)
+		link = "http://imgur.com/gallery/{0}".format(re.findall("[a-zA-Z0-9]{5}", link)[-1])
 		html = requests.get(link)
 		if html.status_code != 200:
 			return "Couldn't connect to Imgur"
@@ -54,15 +52,17 @@ class Imgur(object):
 I = Imgur()		
 		
 def ImgurStats(msg, sock, users, allowed):
-	link = re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])[0]
-	stats = I.Main(link)		
-	head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
-	try:
-		tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
-	except:
-		tail = ""
-	img = head+tail
-	sock.send("PRIVMSG {0} :{1}".format(msg[3], img))
+	links = []
+	[links.append(x) for x in re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4]) if x not in links]
+	for link in links:
+		stats = I.Main(link)
+		head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
+		try:
+			tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
+		except:
+			tail = ""
+		img = head+tail
+		sock.send("PRIVMSG {0} :{1}".format(msg[3], img))
 	
 hooks = {
 	'http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
