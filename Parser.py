@@ -30,6 +30,7 @@ class Parse():
 			'PRIVMSG': self.Privmsg,
 			'NOTICE': self.Notice,
 			'INVITE': self.Invited,
+			'TOPIC': self.TopicChange,
 			'KICK': self.Kicked,
 			'JOIN': self.Joined,
 			'PART': self.Parted,
@@ -217,6 +218,9 @@ class Parse():
 				self.allowed.db[new] = [None, 5]
 		except:
 			pass
+
+	def TopicChange(self, msg):
+		print("* [IRC] {0} has changed the topic of {1} to '{2}'".format(msg[0].split("!")[0], msg[2], " ".join(msg[3:])[1:]))
 			
 	def Modechange(self, msg):
 		person, host = msg[0].split("!")

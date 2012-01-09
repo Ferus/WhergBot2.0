@@ -9,7 +9,6 @@ class Imgur(object):
 		'''Obtain ALL the stats!'''
 		html = htmldecode.convert(html.replace("\t","").replace("\n",""))
 		stats = {}
-		stats['link'] = link
 		try:
 			stats['title'] = re.findall("<h2>.*?</h2>", html)[0].replace("<h2>","").replace("</h2>","")
 		except:
@@ -41,9 +40,9 @@ class Imgur(object):
 
 		return stats
 	
-	def Main(self, link):
+	def Main(self, ID):
 		'''Fetch HTML, Returns a dict from the Parser'''
-		link = "http://imgur.com/gallery/{0}".format(re.findall("[a-zA-Z0-9]{5}", link)[-1])
+		link = "http://imgur.com/gallery/{0}".format(ID)
 		html = requests.get(link)
 		if html.status_code != 200:
 			return "Couldn't connect to Imgur"
@@ -52,18 +51,22 @@ class Imgur(object):
 I = Imgur()		
 		
 def ImgurStats(msg, sock, users, allowed):
-	links = []
-	[links.append(x) for x in re.findall('http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4]) if x not in links]
-	for link in links:
-		stats = I.Main(link)
+	ImageIds = []
+	[ImageIds.append(x) for x in re.findall("[a-zA-Z0-9]{5}", msg[4]) if (x not in ImageIds and x != "imgur")]
+	if len(ImageIds) > 3: #Shitty spam 'control'
+		del ImageIds[3:]
+	for ID in ImageIds:
+		stats = I.Main(ID)
 		head = "\x02[Imgur]\x02 {0} [\x02{1}\x02 views/\x02{2}\x02 bandwidth/\x02{3}\x02]".format(stats['title'],stats['views'],stats['bandwidth'],stats['submitted'])
 		try:
-			tail = " - (\x02{0}\x02 Points)-(Likes: \x02{1}\x02/\x02{2}\x02%)-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['points'],stats['likes'],stats['likespercent'],stats['dislikes'],stats['dislikespercent'])
+			tail = " - (\x02{0}\x02 Points)".format(stats['points'])
+			tail += "-(Likes: \x02{1}\x02/\x02{2}\x02%)".format(stats['likes'],stats['likespercent'])
+			tail += "-(Dislikes: \x02{3}\x02/\x02{4}\x02%)".format(stats['dislikes'],stats['dislikespercent'])
 		except:
 			tail = ""
 		img = head+tail
 		sock.send("PRIVMSG {0} :{1}".format(msg[3], img))
 	
 hooks = {
-	'http:\/\/(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
+	'(:?http:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
 		}

@@ -56,8 +56,3 @@ hooks = {
 	'^@meme': [RegMeme, 5, False],
 	'^@hipmeme': [HipMeme, 5, False],
 		}
-	
-	
-	
-	
-	

@@ -52,14 +52,14 @@ class Tinyboard(object):
 			link = link.replace("#q","#")
 			threadnum, postnum = link.split("/")[-1].split(".html#")
 			if not threadnum == postnum:
-				string = "<div class=\"post reply\" id=\"reply_{0}\"(?: itemprop=\"comment\" itemscope itemid=\"\/[a-zA-Z0-9]{{1,}}\/[0-9]{{1,}}\" itemtype=\".*?\")?>".format(postnum)
+				string = "<div class=\"post reply\" id=\"reply_{0}\">".format(postnum)
 				Post_html = re.findall(string, html)[0]
 				Post_html = html.split(Post_html)[1].split("</div>")[0]
 			else:
-				Post_html = re.findall("<div class=\"post op\"(?: itemscope itemid=\"\/[a-zA-Z0-9]{1,}\/[0-9]{1,}\" itemtype=\".*?\")?>", html)[0]
+				Post_html = re.findall("<div class=\"post op\">", html)[0]
 				Post_html = html.split(Post_html)[1].split("</div>")[0]
 		else:
-			Post_html = re.findall("<div class=\"post op\"(?: itemscope itemid=\"\/[a-zA-Z0-9]{1,}\/[0-9]{1,}\" itemtype=\".*?\")?>", html)[0]
+			Post_html = re.findall("<div class=\"post op\">", html)[0]
 			Post_html = html.split(Post_html)[1].split("</div>")[0]
 			
 		try:
@@ -76,14 +76,36 @@ class Tinyboard(object):
 			Post_CapCode = Post_html.split("<a class=\"capcode\">")[1].split("</a>")[0].strip(" ")
 		except:
 			Post_CapCode = None
+
+		Post_Text = re.findall("<p class=\"body\">(.*?)</p>", Post_html)[0]
 		
-		Post_Text = re.findall("<p itemprop=\"(commentText|description)\" class=\"body\">(.*?)</p>", Post_html)[0][1]
-		Post_Text = re.sub("<p itemprop=\"(commentText|description)\" class=\"body\">", "", Post_Text)
-		Post_Text = re.sub("</p>", "", Post_Text)
-		Post_Text = Post_Text.replace("<br/>"," ").replace("<em>","").replace("</em>","") #Italics
-		Post_Text = Post_Text.replace("<span class=\"spoiler\">", "").replace("<span class=\"heading\">", "") #Spoilers
-		Post_Text = Post_Text.replace("<span class=\"quote\">","\x033").replace("</span>","\x03") #Greentext
-		Post_Text = Post_Text.replace("<strong>","\x02").replace("</strong>","\x02") #Bold
+		#Replace heading html with irc bold and red color.
+		Headings = re.findall("<span class=\"heading\">(.*?)<\/span>", Post_Text)
+		print Headings
+		for Heading in Headings:
+			Post_Text = re.sub("<span class=\"heading\">{0}<\/span>".format(Heading), "\x02\x0305{0}\x03\x02".format(Heading), Post_Text)
+		
+		#Replace spoiler html with irc black on black text.
+		Spoilers = re.findall("<span class=\"spoiler\">(.*?)<\/span>", Post_Text)
+		for Spoiler in Spoilers:
+			Post_Text = re.sub("<span class=\"spoiler\">{0}<\/span>".format(Spoiler), "\x0301,01{0}\x03".format(Spoiler), Post_Text)
+		
+		#Replace all italics html with irc underlines.
+		Italics = re.findall("<em>(.*?)<\/em>", Post_Text)
+		for Italic in Italics:
+			Post_Text = re.sub("<em>{0}<\/em>".format(Italic), "\x1f{0}\x1f".format(Italic), Post_Text)
+		
+		#Replace all bold html with irc bold.
+		Bolds = re.findall("<strong>(.*?)<\/strong>", Post_Text)
+		for Bold in Bolds:
+			Post_Text = re.sub("<strong>{0}<\/strong>".format(Bold), "\x02{0}\x02".format(Bold), Post_Text)
+		
+		#Replace all greentext lines with green irc color.
+		Implys = re.findall("<span class=\"quote\">(.*?)<\/span>", Post_Text)
+		for Imply in Implys:
+			Post_Text = re.sub("<span class=\"quote\">{0}<\/span>".format(Imply), "\x0303{0}\x03".format(Imply), Post_Text)
+		
+		Post_Text = Post_Text.replace("<br/>"," ")
 		Post_Text = Post_Text.replace("&gt;",">")
 		
 		if re.search("<a target=\"_blank\" rel=\"nofollow\" href=\".*?\">.*?</a>", Post_Text):
@@ -100,7 +122,7 @@ class Tinyboard(object):
 			Post_Text = re.sub("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Link_Num, Post_Text)
 			
 		Post_Text = self.smart_truncate(Post_Text)
-		Post_Text = self.conv(Post_Text)#.encode("utf-8")
+		Post_Text = convert(Post_Text)
 		
 		if Post_Trip:
 			return "{0}{1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
@@ -116,10 +138,6 @@ class Tinyboard(object):
 		else:
 			x = ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 			return x
-				
-			
-	def conv(self, string):
-		return convert(string)
 	
 	def Main(self, link=None):
 		try:

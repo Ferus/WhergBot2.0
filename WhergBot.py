@@ -3,17 +3,17 @@
 import Core
 from threading import Timer
 
-nick = 'WhergBot' #Bots Nickname
-real = 'WhergBot [Ferus]' #Bots realname
-ident = 'Wherg' #Bots Ident
+nick = 'WhergBot'
+real = 'WhergBot [Ferus]'
+ident = 'Wherg'
 channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games']
-#channels = ['#hacking']
-owner = ['Ferus', 'anonymous@the.interwebs', 0] #Bots owner, [Nick, Ident@Host, Access Level]
-ssl = True #To encrypt, Or to not encrypt, That is the question!
+#channels = ['#h']
+owner = ['Ferus', 'anonymous@the.interwebs', 0]
+ssl = True
 if ssl:
-	port = 6697 #Our ssl port to use.
+	port = 6697
 else:
-	port = 6667 #Our non-ssl port.
+	port = 6667
 
 if __name__ == '__main__':
 	try:
@@ -23,11 +23,6 @@ if __name__ == '__main__':
 			_p = Timer(3, WhergBot.Identify, ())
 			_p.daemon = True
 			_p.start()
-		#for chan in channels:
-		#	_t = Timer(5, WhergBot.irc.join, (chan, ))
-		#	_t.daemon = True
-		#	_t.start()
-		#	Core.sleep(.05)
 		_t = Timer(5, WhergBot.irc.join, (",".join(channels),))
 		_t.daemon = True
 		_t.start() 

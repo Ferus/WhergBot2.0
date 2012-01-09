@@ -74,5 +74,5 @@ class Bot():
 				self.msg = self.p.Main(msg)
 			except:
 				pass
-				#print("* [Parse Error] {0}".format(msg))
+				print("* [Parse Error] {0}".format(msg))
 
