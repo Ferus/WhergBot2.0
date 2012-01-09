@@ -1,3 +1,7 @@
+=== Jan 09 ===
++ Changes to the regex in Plugins/Tinyboard.py
++ Added Plugins/Fapget.py
++ Added Plugins/Wikipedia.py
 === Jan 03 ===
 + Fixed bugs in Plugins/Imgur.py
 === Dec 22 ===
