@@ -6,50 +6,74 @@
 
 # This is a very simple initial version.
 
+# Jan 11 - Removed Footnotes from text
+# Jan 11 - Fixed a bug with missing 'http://' for requests
+# Jan 11 - Removed Unicode bug
+# Jan 09 - Added truncate function
+
 import requests
 import os, re
 from htmldecode import convert
 
+def truncate(content, length=300, suffix='...'):
+	if len(content) <= length:
+		return content
+	else:
+		x = u' '.join(content[:length+1].split(u' ')[0:-1]) + u"{0}".format(suffix)
+		return x
+
 def getArticleByName(articleName):
-	return getArticleByUrl("http://en.wikipedia.org/wiki/"+articleName.strip().replace(" ","%20"));
+	Url = "http://en.wikipedia.org/wiki/Special:Search?search={0}".format(articleName.strip().replace(" ","%20"))
+	return "{0} - {1}".format(getArticleByUrl(Url), Url)
 
 def getArticleByUrl(articleUrl):
+	if not articleUrl.startswith("http://"):
+		articleUrl = "http://{0}".format(articleUrl)
 	try:
-		articleHtml = requests.get(articleUrl).content.encode("utf-8")
+		articleHtml = requests.get(articleUrl).content
 	except:
-		print("* [Wikipedia] Error => Failed to connect.");
+		print("* [Wikipedia] Error => Failed to connect.")
 		return "Failed to connect to Wikipedia."
 			
-	titleRegex = re.compile("<title>(.*?) -");
-	firstParaRegex = re.compile("<p>(.*?)[\r\n]?<\/p>");
+	titleRegex = re.compile("<title>(.*?) -")
+	firstParaRegex = re.compile("<p>(.*?)[\r\n]?<\/p>")
+	footnoteRegex = re.compile("\[[0-9]{1,3}\]")
 	
 	# Special cases
 	disambRegex = re.compile('may refer to:$')
-	notfoundRegex = re.compile('Other reasons this message may be displayed:');
+	notfoundRegex = re.compile('Other reasons this message may be displayed:')
 	
 	try:
-		title = re.sub('<[^<]+?>', '', titleRegex.search(articleHtml).group());
-		text = re.sub('<[^<]+?>', '', firstParaRegex.search(articleHtml).group());
+		title = re.sub('<[^<]+?>', '', titleRegex.search(articleHtml).group())
+		text = re.sub('<[^<]+?>', '', firstParaRegex.search(articleHtml).group())
+		text = footnoteRegex.sub('', text)
+		
+		text = truncate(text).encode("utf-8")
 
 		if disambRegex.search(text):
 			text = "Disambiguations are not yet supported."
 		elif notfoundRegex.search(text):
 			text = "Article not found."
 					
-		result = "{0} {1} - {2}".format(title, text, articleUrl)
+		result = "{0} {1}".format(title, text)
 	except: 
-		result = "Failed to retrieve the Wikipedia article.";
-	return result;
+		result = "Failed to retrieve the Wikipedia article."
+
+	return result
+
 
 def wikiUrl(msg, sock, users, allowed):
-	try:
-		sock.say(msg[3], u"\x02[Wikipedia]\x02 {0}".format(getArticleByUrl(msg[4])))
-	except Exception, e:
-		print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
+	urls = re.findall("(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?(?:\s|$)", msg[4])
+	for url in urls:
+		try:
+			sock.say(msg[3], "\x02[Wikipedia]\x02 {0}".format(getArticleByUrl(url)))
+		except Exception, e:
+			print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
 def wikiName(msg, sock, users, allowed):
 	try:
-		sock.say(msg[3], u"\x02[Wikipedia]\x02 {0}".format(getArticleByName(" ".join(msg[4].split()[1:]))))
+		article = " ".join(msg[4].split()[1:])
+		sock.say(msg[3], "\x02[Wikipedia]\x02 {0}".format(getArticleByName(article)))
 	except Exception, e:
 		print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
