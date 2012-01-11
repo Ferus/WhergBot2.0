@@ -81,7 +81,6 @@ class Tinyboard(object):
 		
 		#Replace heading html with irc bold and red color.
 		Headings = re.findall("<span class=\"heading\">(.*?)<\/span>", Post_Text)
-		print Headings
 		for Heading in Headings:
 			Post_Text = re.sub("<span class=\"heading\">{0}<\/span>".format(Heading), "\x02\x0305{0}\x03\x02".format(Heading), Post_Text)
 		
