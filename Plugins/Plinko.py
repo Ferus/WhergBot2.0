@@ -166,6 +166,10 @@ def Parse(Msg, Sock, Users, Allowed):
 hooks = {
 	"^@plinko": [Parse, 5, False],
 	}
+
+helpstring = """An ascii version of Plinko from The Price Is Right.
+@plinko <number>: If a number is specified, it will start in that slot. Defaults to 5"""
+
 chans = ['#games']
 
 prizes = {

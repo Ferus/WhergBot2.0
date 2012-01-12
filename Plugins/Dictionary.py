@@ -44,3 +44,5 @@ W = wordnikObj("Plugins/DictionaryAPIKey.txt")
 hooks = {
 	'^@def': [W.reply, 5, False],	
 		}
+
+helpstring = """Polls the WordNik API for a word."""

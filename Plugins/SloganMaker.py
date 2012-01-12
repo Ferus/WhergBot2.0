@@ -17,3 +17,5 @@ def Slogan(msg, sock, users, allowed):
 hooks = {
 	'^@slogan': [Slogan, 5, False],	
 		}
+
+helpstring = "@slogan <string> returns a 'slogan' from SloganMaker.com"

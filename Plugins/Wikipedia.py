@@ -81,3 +81,6 @@ hooks = {
 	'(?:https?:\/\/)?en.wikipedia\.org\/wiki\/': [wikiUrl, 5, False],
 	'^@wiki': [wikiName, 5, False],
 	}
+
+helpstring = """Returns info about a wikipedia page
+@wiki <string>: Searches for a wikipedia page"""

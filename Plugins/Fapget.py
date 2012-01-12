@@ -103,3 +103,5 @@ def Fapget(Msg, Sock, Users, Allowed):
 hooks = {
 	"^@fapget" : [Fapget, 5, False]
 	}
+
+helpstring = """Returns a random philia/etc for one to fap to."""

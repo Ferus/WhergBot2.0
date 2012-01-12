@@ -74,4 +74,8 @@ def Stream(msg, sock, users, allowed):
 hooks = {
 	'^@stream': [Stream, 5, False],	
 		}
-
+helpstring = """Used with Shoutcast servers to show info.
+@stream np/now playing: Shows current song
+@stream url: Gives the streams url
+@stream status: Gives the streams status
+@stream title: Gives the streams title"""

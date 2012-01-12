@@ -257,3 +257,17 @@ hooks = {
 	'^@rule': [Rule, 5, False],
 	'^@rrand': [RandRule, 5, False],
 	}
+
+helpstring = """Stores IRC quotes/`rules` in a pickle file.
+@quote <number>: Sends the specified quote, if no number is given, a random quote
+@qsearch <regex>: Uses a regex to find quotes
+@qfind <regex>: Same as @qsearch
+@qcount: Sends the quote count
+@qadd <quote>: adds a quote
+@qdel <quotenumber>: deletes a quote
+@qbackup <filename>: Creates a plaintext backup
+ 
+The provided rules file is just for fun, Created on irc.n0v4.net by a few friends.
+You can change this file and put your own channel/server rules.
+@rule <number>: Sends an IRC rule. 
+@rrand: Sends a random rule."""

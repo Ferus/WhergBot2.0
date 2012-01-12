@@ -63,3 +63,5 @@ def UD(msg, sock, users, allowed):
 hooks = {
 	'^@ud': [UD, 5, False],	
 		}
+
+helpstring = "Polls UrbanDictionary for a word if that word is not already in the local cache"

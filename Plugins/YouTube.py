@@ -128,3 +128,6 @@ hooks = {
 	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/': [youtubestats, 5, False],
 	'^@yt': [YouTubeGetVids, 5, False],
 		}
+
+helpstring = """Polls for youtube video info based on a regex.
+@yt <string>: Searches for a video and returns the first, along with some stats."""

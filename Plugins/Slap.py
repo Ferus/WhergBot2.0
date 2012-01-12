@@ -52,3 +52,9 @@ S = Slap("Plugins/Fish.txt")
 hooks = {
 	"^@slap" : [S.Parse, 5, False],
 	}
+
+helpstring = """Slaps a person with either a random `fish` or an object.
+@slap <person> <object>: Slaps a person with <object>
+@slap <person> random: Slaps a person with a random `fish`
+@slap random <object>: Slaps a random person with <object>
+@slap random random: Slaps a random person with a random `fish`"""

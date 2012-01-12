@@ -20,3 +20,5 @@ def asl(msg, sock, users, allowed):
 hooks = {
 	'(?:\s+?|^)asl(?:\s+?|$)': [asl, 5, False],	
 		}
+
+helpstring = "Uses a regex to find \"asl\" in a message, sends a \"random\" asl."

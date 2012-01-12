@@ -97,3 +97,7 @@ def Music(msg, sock, users, allowed):
 hooks = {
 	'^@mpd': [Music, 0, True],	
 		}
+
+helpstring = """Gives the owner control over MPD, a music playing daemon.
+@mpd next/prev: Changes to next/prev song
+@mpd <anythingelse>: Shows currently playing song"""

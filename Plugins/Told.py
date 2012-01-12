@@ -14,3 +14,5 @@ t = Told("Plugins/Told.txt")
 hooks = {
 	'^@told': [t.ReturnTold, 5, False],	
 		}
+
+helpstring = "Sends a random 'Told' string"

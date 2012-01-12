@@ -20,3 +20,5 @@ def gen(msg, sock, users, allowed):
 hooks = {
 	'^@insult': [gen, 5, False],	
 		}
+
+helpstring = "Insults someone/something. Polls insultgenerator.org for an insult."

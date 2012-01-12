@@ -56,3 +56,7 @@ hooks = {
 	'^@meme': [RegMeme, 5, False],
 	'^@hipmeme': [HipMeme, 5, False],
 		}
+
+helpstring = """Polls automeme.net for some lulzy content.
+@meme: A regular meme
+@hipmeme: A hipster themed meme using automeme's `new` API."""

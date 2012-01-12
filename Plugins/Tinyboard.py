@@ -147,23 +147,19 @@ class Tinyboard(object):
 TB = Tinyboard()
 
 def TinyboardLink(msg, sock, users, allowed):
-	links = re.findall('https?:\/\/(?:www\.)?4chon\.net\/(?:mod\.php\?\/)?[a-zA-Z0-9]{1,}(?:\/res)?\/[0-9]{1,}\.html(?:#[0-9]{1,})?', msg[4])
-	tmp = []
-	while len(links) > 0:
-		link = links.pop()
-		if link not in tmp:
-			tmp.append(link)
-		else:
-			pass
-
-	while len(tmp) > 0:
-		link = tmp.pop()
+	links = []
+	for x in hooks.keys():
+		for y in re.findall(x, msg[4]):
+			if y not in links:
+				links.append(y)
+				
+	for link in links:
 		x = TB.Main(link)
 		if x != None:
 			sock.say(msg[3], x)
-		else:
-			pass
 
 hooks = {
 	'https?:\/\/(?:www\.)?4chon\.net\/(?:mod\.php\?\/)?[a-zA-Z0-9]{1,}(?:\/res)?\/[0-9]{1,}\.html(?:#[0-9]{1,})?': [TinyboardLink, 5, False],	
 		}
+
+helpstring = "A tinyboard parsing plugin. Parses any link that matches a regex as defined by the owner."

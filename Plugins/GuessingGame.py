@@ -186,3 +186,8 @@ hooks = {
 	'^@setguess': [G.SetMaxNum, 3, False],
 	'^@checkstats': [G.GetStat, 5, False],
 	}
+
+helpstring = """Provides a nice guessing game. Also saves stats.
+@guess #: Allows one to guess the number.
+@setguess: Changes the max number.
+@checkstats: Checks a users stats."""

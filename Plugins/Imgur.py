@@ -72,3 +72,5 @@ def ImgurStats(msg, sock, users, allowed):
 hooks = {
 	'(:?http:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
 		}
+
+helpstring = """Parses messages for imgur links, and returns statistics of the image."""

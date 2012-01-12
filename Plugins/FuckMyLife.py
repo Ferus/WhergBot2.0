@@ -37,3 +37,5 @@ def FMLString(msg, sock, users, allowed):
 hooks = {
 	'^@fml': [FMLString, 5, False],
 	}
+
+helpstring = """Polls FML's from fmylife.com/random"""

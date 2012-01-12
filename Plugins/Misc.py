@@ -4,7 +4,11 @@ from threading import Timer
 from random import randint
 
 def Act(msg, sock, users, allowed):
-	sock.send("PRIVMSG {0} :\x01ACTION {1}\x01".format(msg[3], " ".join(msg[4].split()[1:])))
+	x =  " ".join(msg[4].split()[1:])
+	if not x:
+		sock.action(msg[3], "slaps {0} upside the head".format(msg[0]))
+	else:
+		sock.action(msg[3], x)
 	
 def Oven(msg, sock, users, allowed):
 	person = " ".join(msg[4].split()[1:])
@@ -44,3 +48,13 @@ hooks = {
 	'^@echo': [Echo, 4, False],
 	'^\$raw': [Raw, 0, True],
 	}
+
+helpstring = """Holds a bunch of misc plugins;
+@oven <object>: `Ovens` a person/thing.
+@next: Another satisfied customer! Next! (Stolen from #Archlinux on freenode <3)
+@bacon <object>: Cooks cyberbacon for a person/thing.
+@act <thing to do>: Performs a /me command.
+@echo <something>: Performs a /say commans. Simply echoing text.
+$raw <string>: Sends a raw string to the server. It's wise to limit this command.
+A regex for crying emoticon faces is also included, if a user has access, s/he is hugged. :3"""
+
