@@ -21,30 +21,65 @@ class Commands():
 
 		self.cmds = {
 			# Command name to be called : Block of code to execute, Access level, Hostcheck
+			"^@help": [self.Help, 5, False],
+			"^@plugins": [self.Plugins, 5, False],
 			"^@quit": [self.Quit, 0, True],
 			"^@join": [self.Join, 3, True],
 			"^@part": [self.Part, 3, True],
 			"^@access": [self.Access, 0, True],
 			"^@cmdedit": [self.commandchange, 0, True]
 			}
+
+		self.helpstrings = {
+			#Key = Module Name, Value = Basic info string.
+			#@plugins will give the user a list of loaded plugins.
+			#@help alone will give a basic infostring showing how to use @help
+			#@help <ModuleName> will give specific info about a module.
+			"Help" : """@help takes one argument, the name of a plugin in which you wish to get help for.
+To get a list of loaded plugins, use '@plugins'""",
+			"Plugins" : "Notices the user with a list of plugins available. You can also '@help <PluginName>' for specific info",
+			"Join" : "Tells {0} to join one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
+			"Part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
+			"Quit" : "Tells {0} to shutdown.".format(self.nick),
+			"Access":"""Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
+The default level for ignore is anything above 5, but this can be changed easily.
+add:	Used to add/change access of a person. Takes 3 arguments, Nick, Host (or 'none'), and an Access Level.
+del:	Used to revoke access from a user. Takes 1 argument, Nick.
+show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.""",
+			"Cmdedit" : "Used to change access of a plugin. Format is `command [access/host] [level/True/False]`"
+			}
+
+		self.loadedplugins = []
 					
 		#Load 'Plugins'
 		plugins = pL.load("Plugins")
-		loadedplugins = []
 		for key in plugins.keys():
-			print("* [Plugins] Loaded '{0}' plugin from '{1}'".format(key, str(plugins[key])))
+			print("* [Plugins] Loading '{0}' plugin from '{1}'".format(key, str(plugins[key])))
 			try:
 				if hasattr(plugins[key], "hooks"):
-					loadedplugins.append(key)
 					comm = plugins[key].hooks
 					for _k in comm.keys():
 						self.cmds[_k] = comm[_k]
 						print("* [Plugins] Added command '{0}'".format(_k))
+					if hasattr(plugins[key], "helpstring"):
+						self.helpstrings[key] = plugins[key].helpstring
+					else:
+						self.helpstrings[key] = "{0} seems to have forgotten to put a helpstring in for this command, please bug him/her about it.".format(self.allowed.Owner[0])
+						print("* [Plugins] {0} has no 'helpstring' attribute, You might want to add one.".format(key))
 				else:
 					print("* [Plugins] {0} has no 'hooks' attribute, passing.".format(key))
 			except:
 				print("* [Plugins] Failed to load plugin '{0}'".format(key))
 		del plugins
+
+	def Help(self, msg, sock, users, _allowed):
+		x = msg[4].split()[1]
+		if x in self.helpstrings.keys():
+			for string in self.helpstrings[x].splitlines():
+				sock.notice(msg[0], string)
+
+	def Plugins(self, msg, sock, users, _allowed):
+		sock.notice(msg[0], ", ".join(self.helpstrings.keys()))
 				
 	def Join(self, msg, sock, users, _allowed):
 		sock.join(msg[4][6:])
@@ -80,7 +115,7 @@ class Commands():
 			tmp = Text.split()[1:]
 			
 			if tmp[0] == 'add':
-				if tmp[2] == 'None':
+				if tmp[2].lower() == 'none':
 					tmp[2] = None
 					
 				if tmp[1] == self.allowed.Owner[0]:
