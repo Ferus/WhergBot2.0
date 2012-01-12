@@ -8,9 +8,22 @@ import Parser
 from Services import NickServ, HostServ, Allowed
 
 class Bot():
-	def __init__(self, nickname='', realname = '', ident = '', owner = [], ssl = True):
+	def __init__(self, nickname='', realname='', ident='', owner=[], ssl=True, proxy=None):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
 		self.irc = blackbox.IRC(logging=False, ssl=ssl)
+		if proxy:
+			try:
+				print("* [IRC] Attempting to set proxy to {0} on port {1}".format(proxy[0][0], proxy[0][1]))
+				import socks
+				Proxy = proxy[0]
+				Types = {"http":socks.PROXY_TYPE_HTTP, "socks4":socks.PROXY_TYPE_SOCKS4, "socks5":socks.PROXY_TYPE_SOCKS5}
+				Sock = socks.socksocket()
+				Sock.setproxy(Types[proxy[1]], Proxy[0], int(Proxy[1]))
+				self.irc._irc = Sock
+				print("* [IRC] Set proxy, if the bot fails to connect, the proxy may be bad.\n* [IRC] This does not set a proxy for any HTTP GET/POST/etc requests.")
+			except Exception, e:
+				print("* [IRC] Failed to set proxy, using none.")
+				print(repr(e))
 
 		self.Nickserv = NickServ.NickServ(sock=self.irc)
 		self.Hostserv = HostServ.HostServ(sock=self.irc)
@@ -51,7 +64,7 @@ class Bot():
 			#Unreal has a fucking bug where you have to wait until you
 			#recieve a line after registering to continue.
 			while True:
-				if self.irc.recv():
+				if self.irc.recv(1):
 					break
 		except:
 			quit()
@@ -72,7 +85,7 @@ class Bot():
 		else:
 			try:
 				self.msg = self.p.Main(msg)
-			except:
-				pass
-				print("* [Parse Error] {0}".format(msg))
+			except Exception, e:
+				print("* [Parse Error] {0}".format([msg]))
+				print(repr(e))
 

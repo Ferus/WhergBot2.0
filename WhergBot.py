@@ -6,9 +6,13 @@ from threading import Timer
 nick = 'WhergBot'
 real = 'WhergBot [Ferus]'
 ident = 'Wherg'
-channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games']
-#channels = ['#h']
+#channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games', "#h"]
+channels = ['#h']
 owner = ['Ferus', 'anonymous@the.interwebs', 0]
+
+server = 'localhost'
+#proxy = (("127.0.0.1", 3125), "socks5")
+proxy = None
 ssl = True
 if ssl:
 	port = 6697
@@ -17,8 +21,8 @@ else:
 
 if __name__ == '__main__':
 	try:
-		WhergBot = Core.Bot(nick, real, ident, owner, ssl)
-		WhergBot.Connect(server='opsimathia.datnode.net', port=port)
+		WhergBot = Core.Bot(nick, real, ident, owner, ssl, proxy=proxy)
+		WhergBot.Connect(server=server, port=7001)
 		if WhergBot.Nickserv.password != '':
 			_p = Timer(3, WhergBot.Identify, ())
 			_p.daemon = True
