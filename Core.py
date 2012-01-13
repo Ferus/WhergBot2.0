@@ -79,9 +79,11 @@ class Bot():
 				self.irc._isConnected = False
 				self.irc.close()
 				raise blackbox.blackbox_core.IRCError('Pinged out?')
-				quit()
 			else:
 				self.msg = self.p.Main(msg)
+		except blackbox.blackbox_core.IRCError, e:
+			import sys
+			sys.exit("* [IRC] Error: {0}".format(e))
 		except Exception, e:
 			print("* [Error] {0}, {1}".format(repr(e), e.__class__))
 			#self.irc.close()
