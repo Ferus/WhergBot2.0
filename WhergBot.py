@@ -33,9 +33,6 @@ if __name__ == '__main__':
 
 		while WhergBot.irc._isConnected:
 			WhergBot.Parse(WhergBot.irc.recv(bufferlen=1024))
-		else:
-			WhergBot.irc.close()
-			quit()
 			
 	except KeyboardInterrupt:
 		print("\n* [Core] Interrupt Caught; Quitting!")

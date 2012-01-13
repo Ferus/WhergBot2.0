@@ -1,5 +1,4 @@
 #Global Imports
-#from blackbox import blackbox_core
 from blackbox import blackbox
 from time import sleep
 
@@ -69,23 +68,21 @@ class Bot():
 		except:
 			quit()
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
-		print("* [IRC] Setting umodes +Bs")
 		
 	def Identify(self):
-		if self.Nickserv.password != '':
-			self.Nickserv.Identify()
-			sleep(.3)
+		self.Nickserv.Identify()
+		sleep(.3)
 		
 	def Parse(self, msg):
-		if not msg:
-			self.irc._isConnected = False
-			self.irc.close()
-			raise blackbox.blackbox_core.IRCError('Killed from server.')
-			quit()
-		else:
-			try:
+		try:
+			if not msg:
+				self.irc._isConnected = False
+				self.irc.close()
+				raise blackbox.blackbox_core.IRCError('Pinged out?')
+				quit()
+			else:
 				self.msg = self.p.Main(msg)
-			except Exception, e:
-				print("* [Parse Error] {0}".format([msg]))
-				print(repr(e))
-
+		except Exception, e:
+			print("* [Error] {0}, {1}".format(repr(e), e.__class__))
+			#self.irc.close()
+			#quit()

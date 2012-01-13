@@ -6,11 +6,9 @@ import pluginLoader as pL
 class Commands():
 	def __init__(self, nick=None, parser=None, allowed=None):
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
-		Each command receives the raw message in a list. Optional socket allows for raw IRC commands.
-		
-		Every function defined in here has to receive a 'msg' variable, which is a list returned from 
-		the parser and the socket object.
-		
+		Each command receives the raw message in a list (msg object).
+		Every function defined in each command has to receive a 'msg', 'sock', 'allowed', and 'users' object.
+				
 		['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$quit Some quit message.', '$quit']
 		msg[4][6:] == "Some quit message."
 		'''
@@ -31,8 +29,6 @@ class Commands():
 			}
 
 		self.helpstrings = {
-			#Key = Module Name, Value = Basic info string.
-			#@plugins will give the user a list of loaded plugins.
 			#@help alone will give a basic infostring showing how to use @help
 			#@help <ModuleName> will give specific info about a module.
 			"Help" : """@help takes one argument, the name of a plugin in which you wish to get help for.
@@ -73,10 +69,16 @@ show:	Used to print the access for a user to a channel. Takes 1 argument, Nick."
 		del plugins
 
 	def Help(self, msg, sock, users, _allowed):
-		x = msg[4].split()[1]
+		try:
+			x = msg[4].split()[1]
+		except:
+			return None
 		if x in self.helpstrings.keys():
 			for string in self.helpstrings[x].splitlines():
 				sock.notice(msg[0], string)
+		else:
+			sock.notice(msg[0], "No plugin found with name '{0}'; Loaded plugins with help strings include:".format(x))
+			sock.notice(msg[0], ", ".join(self.helpstrings.keys()))
 
 	def Plugins(self, msg, sock, users, _allowed):
 		sock.notice(msg[0], ", ".join(self.helpstrings.keys()))
