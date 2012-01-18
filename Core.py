@@ -12,7 +12,7 @@ class Bot():
 		self.irc = blackbox.IRC(logging=False, ssl=ssl)
 		if proxy:
 			try:
-				print("* [IRC] Attempting to set proxy to {0} on port {1}".format(proxy[0][0], proxy[0][1]))
+				print("* [IRC] Attempting to set proxy to {0} on port {1}".format(proxy[0], proxy[1]))
 				import socks
 				Types = {"http":socks.PROXY_TYPE_HTTP, "socks4":socks.PROXY_TYPE_SOCKS4, "socks5":socks.PROXY_TYPE_SOCKS5}
 				Sock = socks.socksocket()
