@@ -58,9 +58,9 @@ show:	Used to print the access for a user to a channel. Takes 1 argument, Nick."
 						self.cmds[_k] = comm[_k]
 						print("* [Plugins] Added command '{0}'".format(_k))
 					if hasattr(plugins[key], "helpstring"):
-						self.helpstrings[key] = plugins[key].helpstring
+						self.helpstrings[key.lower()] = plugins[key].helpstring
 					else:
-						self.helpstrings[key] = "{0} seems to have forgotten to put a helpstring in for this command, please bug him/her about it.".format(self.allowed.Owner[0])
+						self.helpstrings[key.lower()] = "{0} seems to have forgotten to put a helpstring in for this command, please bug him/her about it.".format(self.allowed.Owner[0])
 						print("* [Plugins] {0} has no 'helpstring' attribute, You might want to add one.".format(key))
 				else:
 					print("* [Plugins] {0} has no 'hooks' attribute, passing.".format(key))
@@ -70,7 +70,7 @@ show:	Used to print the access for a user to a channel. Takes 1 argument, Nick."
 
 	def Help(self, msg, sock, users, _allowed):
 		try:
-			x = msg[4].split()[1]
+			x = msg[4].split()[1].lower()
 		except:
 			return None
 		if x in self.helpstrings.keys():
