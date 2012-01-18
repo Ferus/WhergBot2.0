@@ -31,18 +31,18 @@ class Commands():
 		self.helpstrings = {
 			#@help alone will give a basic infostring showing how to use @help
 			#@help <ModuleName> will give specific info about a module.
-			"Help" : """@help takes one argument, the name of a plugin in which you wish to get help for.
+			"help" : """@help takes one argument, the name of a plugin in which you wish to get help for.
 To get a list of loaded plugins, use '@plugins'""",
-			"Plugins" : "Notices the user with a list of plugins available. You can also '@help <PluginName>' for specific info",
-			"Join" : "Tells {0} to join one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
-			"Part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
-			"Quit" : "Tells {0} to shutdown.".format(self.nick),
-			"Access":"""Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
+			"plugins" : "Notices the user with a list of plugins available. You can also '@help <PluginName>' for specific info",
+			"join" : "Tells {0} to join one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
+			"part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
+			"quit" : "Tells {0} to shutdown.".format(self.nick),
+			"access":"""Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
 The default level for ignore is anything above 5, but this can be changed easily.
 add:	Used to add/change access of a person. Takes 3 arguments, Nick, Host (or 'none'), and an Access Level.
 del:	Used to revoke access from a user. Takes 1 argument, Nick.
 show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.""",
-			"Cmdedit" : "Used to change access of a plugin. Format is `command [access/host] [level/True/False]`"
+			"cmdedit" : "Used to change access of a plugin. Format is `command [access/host] [level/True/False]`"
 			}
 
 		self.loadedplugins = []
