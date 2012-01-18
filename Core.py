@@ -14,10 +14,9 @@ class Bot():
 			try:
 				print("* [IRC] Attempting to set proxy to {0} on port {1}".format(proxy[0][0], proxy[0][1]))
 				import socks
-				Proxy = proxy[0]
 				Types = {"http":socks.PROXY_TYPE_HTTP, "socks4":socks.PROXY_TYPE_SOCKS4, "socks5":socks.PROXY_TYPE_SOCKS5}
 				Sock = socks.socksocket()
-				Sock.setproxy(Types[proxy[1]], Proxy[0], int(Proxy[1]))
+				Sock.setproxy(Types[proxy[2]], proxy[0], proxy[1])
 				self.irc._irc = Sock
 				print("* [IRC] Set proxy, if the bot fails to connect, the proxy may be bad.\n* [IRC] This does not set a proxy for any HTTP GET/POST/etc requests.")
 			except Exception, e:

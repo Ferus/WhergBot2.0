@@ -11,18 +11,17 @@ channels = ['#h']
 owner = ['Ferus', 'anonymous@the.interwebs', 0]
 
 server = 'localhost'
-#proxy = (("127.0.0.1", 3125), "socks5")
-proxy = None
+proxy = ("127.0.0.1", 3125, "socks5")
 ssl = True
 if ssl:
-	port = 6697
+	port = 7001
 else:
-	port = 6667
+	port = 7000
 
 if __name__ == '__main__':
 	try:
 		WhergBot = Core.Bot(nick, real, ident, owner, ssl, proxy=proxy)
-		WhergBot.Connect(server=server, port=7001)
+		WhergBot.Connect(server=server, port=port)
 		if WhergBot.Nickserv.password != '':
 			_p = Timer(3, WhergBot.Identify, ())
 			_p.daemon = True
