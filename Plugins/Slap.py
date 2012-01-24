@@ -24,28 +24,30 @@ class Slap(object):
 		return random.choice(Users.GetUserList(Channel))
 
 	def Parse(self, Msg, Sock, Users, Allowed):
-		tmp = Msg[4].split()[1:]
-		if tmp[0] == 'random' and tmp[1] == 'random':
-			#All random.
-			Person = self.GetPerson(Msg[3], Users)
-			Fish = self.GetFish()
-			Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, Fish))
+		try:
+			tmp = Msg[4].split()[1:]
+			if tmp[0] == 'random' and tmp[1] == 'random':
+				#All random.
+				Person = self.GetPerson(Msg[3], Users)
+				Fish = self.GetFish()
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, Fish))
 
-		elif tmp[0] == 'random' and tmp[1] != 'random':
-			#Random person
-			Person = self.GetPerson(Msg[3], Users)
-			Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, " ".join(tmp[1:])))
+			elif tmp[0] == 'random' and tmp[1] != 'random':
+				#Random person
+				Person = self.GetPerson(Msg[3], Users)
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, " ".join(tmp[1:])))
 
-		elif tmp[0] != 'random' and tmp[1] == 'random':
-			#Random fish
-			Fish = self.GetFish()
-			Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], Fish))
+			elif tmp[0] != 'random' and tmp[1] == 'random':
+				#Random fish
+				Fish = self.GetFish()
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], Fish))
 
-		elif tmp[0] != 'random' and tmp[1] != 'random':
-			#No random
-			Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], " ".join(tmp[1:])))
-		else:
-			Sock.say(Msg[3], "Error'd.")
+			elif tmp[0] != 'random' and tmp[1] != 'random':
+				#No random
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], " ".join(tmp[1:])))
+
+		except IndexError:
+			Sock.notice(Msg[0], "@slap takes two arguments. The person and the object. Either can be 'random'")
 
 S = Slap("Plugins/Fish.txt")
 

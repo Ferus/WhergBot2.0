@@ -2,6 +2,12 @@
 
 2: Move everything to a config file?
 
+3: Woll Smoth mode.
+	Override blackbox.send()
+	Use regex to replace all vowels in recv'd lines with o
+
+4: Fix CTCP printing, apparently started since the parser was revamped
+
 #### PLUGINS ####
 
 1: DuckDuckGo

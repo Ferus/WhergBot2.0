@@ -73,12 +73,13 @@ class Parse():
 		#Works better than splitlines. srsly. >makes no fucking sense as to why.
 		self.Buffer = msg.pop()
 
-		ColorRegex = re.compile("\x03[0-9]{1,2}(?:,[0-9]{1,2})?")
+		unwantedCharRegex = re.compile("\x03[0-9]{1,2}(?:,[0-9]{1,2})?|\x02|\x07")
+		
 		for line in msg:
 			if not line:
 				continue
 
-			line = "".join(ColorRegex.split(line))
+			line = unwantedCharRegex.sub("", line)
 
 			if line.startswith(":"):
 				line = line[1:]
@@ -119,16 +120,15 @@ class Parse():
 			if Text.startswith("\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
-					print("* [CTCP] {0}".format(Cmd.strip("\x01")))
 					if Cmd.strip("\x01") == 'TIME':
 						ti = self.ctcpReplies[Cmd].format(time.strftime("%c", time.localtime()))
 						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, ti))
-						t.daemon = True																			
-						t.start()						
+						t.daemon = True
+						t.start()
 
 					else:
 						t = Thread(target=self.CTCP(Cmd.strip("\x01"), Nick, self.ctcpReplies[Cmd]))
-						t.daemon = True																			
+						t.daemon = True
 						t.start()
 				else:
 					if Cmd.strip("\x01") == 'ACTION':
@@ -172,7 +172,7 @@ class Parse():
 			Nick = msg[0].split("!")[0]
 		except:
 			Nick = msg[0]
-		Text = " ".join(msg[3:])
+		Text = " ".join(msg[3:]).lstrip(":")
 		print("* [Notice] <{0}> {1}".format(Nick, Text))
 
 	def Invited(self, msg):

@@ -51,10 +51,11 @@ class Imgur(object):
 I = Imgur()		
 		
 def ImgurStats(msg, sock, users, allowed):
-	Links = [x for x in re.findall('(:?http:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])]
+	Links = [x for x in re.findall('(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])]
 	ImageIds = []
 	for Link in Links:
 		[ImageIds.append(x) for x in re.findall("[a-zA-Z0-9]{5}", Link) if (x not in ImageIds and x != "imgur")]
+	print ImageIds
 	if len(ImageIds) > 3: # Limit polling to the first 3 images.
 		del ImageIds[3:]
 	for ID in ImageIds:
@@ -70,7 +71,7 @@ def ImgurStats(msg, sock, users, allowed):
 		sock.send("PRIVMSG {0} :{1}".format(msg[3], img))
 	
 hooks = {
-	'(:?http:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
+	'(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],	
 		}
 
 helpstring = """Parses messages for imgur links, and returns statistics of the image."""
