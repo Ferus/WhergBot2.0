@@ -135,7 +135,7 @@ class Parse():
 						act = " ".join(Text.strip("\x01").split()[1:])
 						print("* [Privmsg] [{0}] * {1} {2}".format(Location, Nick, act))
 
-			elif Cmd == 'DCC':
+			elif Cmd == '\x01DCC':
 				'''I probably won't add dcc support.'''
 				print("* [DCC] {0} request from {1}. Since DCC isnt implemented yet, we are just going to 'ignore' this.".format(Text.split()[1], Nick))
 
