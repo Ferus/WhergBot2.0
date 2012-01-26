@@ -36,19 +36,10 @@ class Bot():
 		
 		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
 				
-		if nickname:
-			self.nickname = nickname
-		else:
-			self.nickname = 'WhergBot2'
-		if realname:
-			self.realname = realname
-		else:
-			self.realname = 'WhergBot [Ferus]'
-		if ident:
-			self.ident = ident
-		else:
-			self.ident = 'Wherg'
-
+		self.nickname = nickname if nickname else 'WhergBot2'
+		self.realname = realname if realname else 'WhergBot [Ferus]'
+		self.ident = ident if ident else 'Wherg'
+        
 		
 	def Connect(self, server, port=6697):
 		'''Connect to the server, default the port to 6697 because SSL'''
