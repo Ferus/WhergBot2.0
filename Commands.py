@@ -72,10 +72,12 @@ show:	Used to print the access for a user to a channel. Takes 1 argument, Nick."
 		try:
 			x = msg[4].split()[1].lower()
 		except:
-			return None
+			x = ''
 		if x in self.helpstrings.keys():
 			for string in self.helpstrings[x].splitlines():
-				sock.notice(msg[0], string)
+				sock.notice(msg[0], string.strip('\t'))
+		elif x == '':
+			sock.notice(msg[0], self.helpstrings['help'])
 		else:
 			sock.notice(msg[0], "No plugin found with name '{0}'; Loaded plugins with help strings include:".format(x))
 			sock.notice(msg[0], ", ".join(self.helpstrings.keys()))
