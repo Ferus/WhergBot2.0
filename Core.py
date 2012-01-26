@@ -51,7 +51,7 @@ class Bot():
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		try:
 			#Unreal has a fucking bug where you have to wait until you
-			#recieve a line after registering to continue.
+			#receive a line after registering to continue.
 			while True:
 				if self.irc.recv(1):
 					break

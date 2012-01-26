@@ -44,8 +44,7 @@ def load(folder):
                 [module])
         except Exception as e:
             print("=================================")
-            print("An error occured trying to import {0}:"
-                    .format(module))
+            print("An error occured trying to import {0}:".format(module))
             print(repr(e))
             print("Ignored. Fix this shit bro.")
             print("Moving on...")
