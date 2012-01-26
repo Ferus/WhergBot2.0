@@ -45,10 +45,6 @@ class Bot():
 		'''Connect to the server, default the port to 6697 because SSL'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		self.irc.username(self.ident, self.realname)
-		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
-		self.irc.nickname(self.nickname)
-		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		try:
 			#Unreal has a fucking bug where you have to wait until you
 			#recieve a line after registering to continue.
@@ -57,6 +53,10 @@ class Bot():
 					break
 		except:
 			quit()
+		self.irc.username(self.ident, self.realname)
+		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
+		self.irc.nickname(self.nickname)
+		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
 		
 	def Identify(self):
