@@ -1,5 +1,7 @@
 === Feb 03 ===
 + Some changes reflecting upon latest requests and blackbox
++ #!/usr/bin/python2 -> #!/usr/bin/env python
++ Removed lock from Plinko.py and turned it into CommandLock.py to be shared.
 === Jan 12 ===
 + @help/@plugins command and helpstrings
 === Jan 09 ===
