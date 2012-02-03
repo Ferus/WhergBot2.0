@@ -47,7 +47,7 @@ class Bot():
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
 		try:
 			#Unreal has a fucking bug where you have to wait until you
-			#recieve a line after registering to continue.
+			#receive a line after registering to continue.
 			while True:
 				if self.irc.recv(1):
 					break
