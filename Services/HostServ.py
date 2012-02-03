@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 class HostServ(object):
 	'''Hostserv On/Off controls.'''
@@ -6,15 +6,15 @@ class HostServ(object):
 		if sock:
 			self.sock = sock
 
-	def On():
+	def On(self):
 		print("* [HostServ] Turning vHost on.")
 		self.sock.say("HostServ", "On")
 
-	def Off():
+	def Off(self):
 		print("* [HostServ] Turning vHost off.")
 		self.sock.say("HostServ", "Off")
 
-	def Request(vHost):
+	def Request(self, vHost):
 		if vHost:
 			print("* [HostServ] Requesting vHost.")
 			self.sock.say("HostServ", "Request {0}".format(vHost))

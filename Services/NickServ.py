@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 from getpass import getpass
 
 class NickServ(object):
@@ -13,6 +13,6 @@ class NickServ(object):
 		print("* [NickServ] Identifying to NickServ.")
 		self.sock.say("NickServ", "Identify {0}".format(self.password))
 
-	def Update():
+	def Update(self):
 		print("* [NickServ] Updating.")
 		self.sock.say("NickServ", "Update")

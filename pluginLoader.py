@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # This program is Free Software under the terms of
 # the Do What The Fuck You Want To Public License (WTFPL)
 # See wtfpl.txt or http://sam.zoy.org/wtfpl/COPYING

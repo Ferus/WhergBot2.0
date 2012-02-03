@@ -1,8 +1,8 @@
-#Global Imports
+#!/usr/bin/env python
+
 from blackbox import blackbox
 from time import sleep
 
-#Local Imports
 import Parser
 from Services import NickServ, HostServ, Allowed
 
@@ -68,13 +68,14 @@ class Bot():
 			if not msg:
 				self.irc._isConnected = False
 				self.irc.close()
-				raise blackbox.blackbox_core.IRCError('Pinged out?')
+				raise blackbox.IRCError('Pinged out?')
 			else:
 				self.msg = self.p.Main(msg)
-		except blackbox.blackbox_core.IRCError, e:
+		except blackbox.IRCError, e:
 			import sys
 			sys.exit("* [IRC] Error: {0}".format(e))
 		except Exception, e:
 			print("* [Error] {0}, {1}".format(repr(e), e.__class__))
+			print("* [Error] {0}".format([msg]))
 			#self.irc.close()
 			#quit()

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 import re
 import pluginLoader as pL
@@ -96,14 +96,16 @@ class Commands():
 			del users.Userlist[msg[3]]
 		else:
 			sock.part(msg[4][6:])
-			del users.Userlist[msg[4][6:]]
+			for x in msg[4][6:].split():
+				del users.Userlist[x]
+				
 	
 	def Quit(self, msg, sock, users, _allowed):
 		if type(msg) == list:
 			msg = msg[4][6:]
 			if msg == '':
 				msg = "Quitting!"
-		elif type(msg) == str:
+		elif type(msg) == unicode:
 			msg = msg
 		sock.quit(msg)
 		print("* [IRC] Quitting with message '{0}'.".format(msg))

@@ -1,4 +1,4 @@
-1: Change how the parser handles messages, and more options
+1: Define more hooks for the parser
 
 2: Move everything to a config file?
 

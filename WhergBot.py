@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 import Core
 from threading import Timer
@@ -6,17 +6,18 @@ from threading import Timer
 nick = 'WhergBot'
 real = 'WhergBot [Ferus]'
 ident = 'Wherg'
-#channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' ,'#tinyboard' ,'#animu', '#games', "#h"]
+#channels = ['#hacking', '#lobby' ,'#4chon' ,'#circlejerk' , '#games', "#h"]
 channels = ['#h']
 owner = ['Ferus', 'anonymous@the.interwebs', 0]
 
-server = 'localhost'
-proxy = ("127.0.0.1", 3125, "socks5")
+server = 'opsimathia.datnode.net'
+#proxy = ("127.0.0.1", 3125, "socks5")
+proxy = None
 ssl = True
 if ssl:
-	port = 7001
+	port = 6697
 else:
-	port = 7000
+	port = 6667
 
 if __name__ == '__main__':
 	try:
@@ -31,7 +32,8 @@ if __name__ == '__main__':
 		_t.start() 
 
 		while WhergBot.irc._isConnected:
-			WhergBot.Parse(WhergBot.irc.recv(bufferlen=1024))
+			Msg = WhergBot.irc.recv()
+			WhergBot.Parse(Msg)
 			
 	except KeyboardInterrupt:
 		print("\n* [Core] Interrupt Caught; Quitting!")
