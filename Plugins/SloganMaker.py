@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 import requests
 def get_slogan(text):
 	r = requests.post('http://www.sloganmaker.com/sloganmaker.php', data={'user':text})

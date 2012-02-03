@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 # InsultGenerator.py - Pulls an 'insult' from http://www.insultgenerator.org/
 
 import requests

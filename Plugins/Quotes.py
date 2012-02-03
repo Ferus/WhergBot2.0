@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 from random import choice
 import cPickle as pickle
 import os, re

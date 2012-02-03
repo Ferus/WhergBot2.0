@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # Wikipedia article retriever plugin for WhergBot
 # 1.0; 01.01.2012; Edza
 
@@ -27,8 +29,8 @@ def getArticleByName(articleName):
 	return "{0} - {1}".format(getArticleByUrl(Url), Url)
 
 def getArticleByUrl(articleUrl):
-	if not articleUrl.startswith("http://"):
-		articleUrl = "http://{0}".format(articleUrl)
+	if not articleUrl.startswith("http://") and not articleUrl.startswith("https://"):
+		articleUrl = "https://{0}".format(articleUrl)
 	try:
 		articleHtml = requests.get(articleUrl).content
 	except:

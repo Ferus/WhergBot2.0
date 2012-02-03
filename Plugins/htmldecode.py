@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 #Taken from http://www.evaisse.net/2008/python-html-entities-decode-cgi-unescape-7002 
 #because Python can't into having some decode function to do it.
 

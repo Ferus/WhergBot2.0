@@ -1,7 +1,9 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 import random
 import re
 from threading import Timer
+
+from CommandLock import Locker
 
 class Plinko(object):
 	def __init__(self):
@@ -10,13 +12,12 @@ class Plinko(object):
 		A great game from The Price Is Right.
 		However, I'm fairly sure this will be pretty spammy.
 		'''
-		random.seed(__import__("os").urandom(30))
+		random.seed(__import__("os").urandom(30)) #Don't do this ok.
 		self.Head = "|_._._._._._._._._|"
 		self.Tail = "|._._._._._._._._.|"
 		self.End = "|_|_|_|_|_|_|_|_|_|"
 		self.isHead = True
 		self.Location = None
-		self.Locked = False
 		
 		self.GoLeftHead = {
 			"1":"1", #Cant go left.
@@ -103,15 +104,6 @@ class Plinko(object):
 			self.isHead = False
 		else:
 			self.isHead = True
-			
-	def Lock(self):
-		if not self.Locked:
-			self.Locked = True
-			t = Timer(5, self.UnLock, ())
-			t.daemon = True
-			t.start()
-	def UnLock(self):
-		self.Locked = False
 
 	def Start(self, StartLocation):
 		if type(StartLocation) != int:
@@ -133,12 +125,13 @@ class Plinko(object):
 		return Game
 
 Pl = Plinko()
+Locker = Locker()
 
 def Parse(Msg, Sock, Users, Allowed):
 	if Msg[3] not in chans:
 		Sock.notice(Msg[0], "Go back to #games faggot.")
 		return None
-	if Pl.Locked:
+	if Locker.Locked:
 		Sock.notice(Msg[0], "Locked. Try again in a few seconds.")
 		return None
 	try:
@@ -156,7 +149,7 @@ def Parse(Msg, Sock, Users, Allowed):
 		x = 5
 	for line in Pl.Start(x):
 		Sock.say(Msg[3], line)
-	Pl.Lock()
+	Locker.Lock()
 	try:
 		for x in prizes[str(Pl.Location)]:
 			exec(x)
@@ -177,7 +170,7 @@ prizes = {
 	'2' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
 	'3' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
 	'4' : ["Sock.say(Msg[3], '!tkb {0} 2m You fucking suck.'.format(Msg[0]))", "t = Timer(125, Sock.invite, (Msg[0], Msg[3],))", "t.daemon = True", "t.start()"],
-	'5' : ["Sock.say(Msg[3], '!access add {0} 5'.format(Msg[0]))", "t = Timer(300, Sock.say, (Msg[3], '!access del {0}'.format(Msg[0]),))", "t.daemon = True", "t.start()"],
+	'5' : ["Sock.op(Msg[3], Msg[0])", "t = Timer(300, Sock.deop, (Msg[3], Msg[0],))", "t.daemon = True", "t.start()"],
 	'6' : ["Sock.say(Msg[3], '!tkb {0} 2m You fucking suck.'.format(Msg[0]))", "t = Timer(125, Sock.invite, (Msg[0], Msg[3],))", "t.daemon = True", "t.start()"],
 	'7' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],
 	'8' : ["Sock.say(Msg[3], '{0}'.format(random.choice(phrases)))"],

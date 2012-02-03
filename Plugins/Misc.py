@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 '''This module will contain misc commands so they are not scattered around.'''
 from threading import Timer
 from random import randint

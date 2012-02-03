@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 class wordnikObj(object):
 	def __init__(self, apiFile):
 		try:

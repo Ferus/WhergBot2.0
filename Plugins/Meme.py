@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 import requests
 '''
 Poll automeme.net for a 'meme'.

@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 #Tinyboard thread stats checker. 
 
 import re
