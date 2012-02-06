@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import random
+from random import randint, choice
 
 try:
 	with open("Plugins/AslPlaces.txt", "r") as _f:
@@ -15,10 +15,10 @@ except:
 		'Virgin Islands', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming']
 
 def asl(msg, sock, users, allowed):
-	sock.say(msg[3], "{0}/{1}/{2}".format(random.randint(1,80), random.choice(['m','f','trans']), random.choice(locations)))
+	sock.say(msg[3], "{0}/{1}/{2}".format(randint(1,80), choice(['m','f','trans']), choice(locations)))
 
 hooks = {
-	'(?:\s+?|^)asl(?:\s+?|$)': [asl, 5, False],	
+	'(?:\s+?|^)asl(?:\s+?|$)': [asl, 5, False],
 		}
 
 helpstring = "Uses a regex to find \"asl\" in a message, sends a \"random\" asl."
