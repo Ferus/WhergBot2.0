@@ -9,7 +9,7 @@ from Services import Users as _U
 class Parse():
 	def __init__(self, sock=None, allowed=None, nick=None):
 		self.sock = sock
-		self.allowed = allowed	
+		self.allowed = allowed
 		self.nickname = nick
 		self.Buffer = u''
 
@@ -69,7 +69,7 @@ class Parse():
 		#...this should really catch the end of the buffer if it didnt recv all of it. :|
 		#somehow it derps.
 		self.Buffer = u''
-		
+
 		for line in msg:
 			if not line:
 				continue
@@ -81,10 +81,10 @@ class Parse():
 
 			if line.split()[1] in self.Actions.keys():
 				self.Actions[line.split()[1]](line)
-				
+
 			elif line.startswith("PING"):
 				print(u"* [IRC] Ping from {0}, ponging back.".format(line.split(u":")[1]))
-				
+
 			else:
 				print(u"* [DERP] {0}".format(line.split()))
 
@@ -137,12 +137,12 @@ class Parse():
 
 			else:
 				'''
-				If a command is called, check the hostname and access level of the person who called it, 
+				If a command is called, check the hostname and access level of the person who called it,
 				and if they have access, execute the command. Regex based commands too. :)
 				'''
 				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
 				for comm in self._commands: #Loop through every one.
-					if re.search(comm, Text): #If we match a command
+					if re.search(comm+"[\s|$]", Text): #If we match a command
 						check = self.allowed.levelCheck(Nick)[1] #Start an access check
 						if check[1] <= self.command.cmds[comm][1]: #Check access level
 							if self.command.cmds[comm][2]: #Is a hostcheck needed?
@@ -179,7 +179,7 @@ class Parse():
 			if self.allowed.db[person][0] == host:
 				chan = msg[3][1:]
 				self.sock.join(chan)
-			print(u"* [IRC] Invited to {0}, by {1}. Attempting to join.".format(chan, person))	
+			print(u"* [IRC] Invited to {0}, by {1}. Attempting to join.".format(chan, person))
 		except:
 			pass
 
@@ -196,7 +196,7 @@ class Parse():
 		msg = msg.split()
 		person, host = msg[0].split(u"!")
 		chan = msg[2].strip(u":")
-		print(u"* [IRC] {0} ({1}) joined {2}.".format(person, host, chan))		
+		print(u"* [IRC] {0} ({1}) joined {2}.".format(person, host, chan))
 		try:
 			if person not in self.allowed.keys:
 				self.allowed.db[person] = [None, 5]
@@ -288,11 +288,12 @@ class Parse():
 		msg = msg.split()
 		nameslist = []
 		for x in msg[5:]:
-			x = x.replace(u":",u"").replace(u"~",u"").replace(u"&",u"").replace(u"@",u"").replace(u"%",u"").replace(u"+",u"")
+			x = re.sub(u"[:|~|&|@|%|+]", u"", x) #Testing l0l
+			#x = x.replace(u":",u"").replace(u"~",u"").replace(u"&",u"").replace(u"@",u"").replace(u"%",u"").replace(u"+",u"")
 			nameslist.append(x)
 			if x not in self.allowed.db.keys():
 				self.allowed.db[x] = [None, 5]
-		self.Users.Userlist[msg[4]] = nameslist	
+		self.Users.Userlist[msg[4]] = nameslist
 		print(u"* [IRC] Users on {0}: {1}".format(msg[4], u" ".join(nameslist)))
 
 	def MOTD(self, msg):
