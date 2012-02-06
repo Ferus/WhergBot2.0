@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-import requests
-import re
+import requests, re
+
+from CommandLock import Locker
+Lock = Locker(5)
 
 def get_fml():
 	fml_db = []
@@ -30,7 +32,11 @@ def fml():
 FmlGen = fml()
 def FMLString(msg, sock, users, allowed):
 	try:
-		sock.say(msg[3], next(FmlGen))
+		if not Lock.Locked:
+			sock.say(msg[3], next(FmlGen))
+			Lock.Lock()
+		else:
+			sock.notice(msg[0], "Please wait a little longer before using this command again.")
 	except Exception, e:
 		print("* [FML] Error:\n* [FML] {0}".format(str(e)))
 
@@ -38,4 +44,4 @@ hooks = {
 	'^@fml': [FMLString, 5, False],
 	}
 
-helpstring = """Polls FML's from fmylife.com/random"""
+helpstring = """@fml - Polls FML's from fmylife.com/random"""
