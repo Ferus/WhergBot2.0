@@ -3,6 +3,8 @@
 import requests
 import os, re
 from htmldecode import convert
+from CommandLock import Locker
+Locker = Locker(5)
 # http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
 
 def request(word):
@@ -22,7 +24,7 @@ def request(word):
 		escapes = re.compile(r'[\r\n\t]')
 		try:
 			result = content.match(escapes.sub('', html.replace("<br/>", " ").strip())).groups()[1]
-		except: 
+		except:
 			result = None
 		if not result or result is None or result == '':
 			return "\x02[UrbanDict]\x02 {0} has not yet been defined.".format(word)
@@ -42,7 +44,7 @@ def cached(word):
 				return False
 	except:
 		return False
-				
+
 def add_cache(word, definition=''):
 	if os.access('./Plugins/UrbanDict_Cache.txt', 6):
 		with open('./Plugins/UrbanDict_Cache.txt','a') as c:
@@ -53,15 +55,19 @@ def add_cache(word, definition=''):
 			print('* [UrbanDict] Cache => Creating Cache')
 			print('* [UrbanDict] Cache => Adding word {0}'.format(word))
 			c.write("{0} : {1}\n".format(word, definition))
-			
+
 def UD(msg, sock, users, allowed):
 	try:
-		sock.say(msg[3], request(" ".join(msg[4].split()[1:])))
+		if not Locker.Locked:
+			sock.say(msg[3], request(" ".join(msg[4].split()[1:])))
+			Locker.Lock()
+		else:
+			sock.notice(msg[0], "Please wait a little bit longer before using this command")
 	except Exception, e:
 		print("* [UrbanDict] Error:\n* [UrbanDict] {0}".format(str(e)))
 
 hooks = {
-	'^@ud': [UD, 5, False],	
+	'^@ud': [UD, 5, False],
 		}
 
-helpstring = "Polls UrbanDictionary for a word if that word is not already in the local cache"
+helpstring = "@ud <Word>: Polls UrbanDictionary for a word if that word is not already in the local cache"
