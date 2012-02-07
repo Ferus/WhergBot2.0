@@ -48,6 +48,8 @@ class Commands():
 					 show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.
 					 """,
 			"cmdedit" : "Used to change access of a plugin. Format is `command [access/host] [level/True/False]`"
+			"lock" : "Used to lock all commands to owner."
+			"unlock" : "Used to reset all commands back to previous state."
 			}
 
 		self.loadedplugins = []
