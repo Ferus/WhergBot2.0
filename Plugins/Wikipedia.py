@@ -16,6 +16,8 @@
 import requests
 import os, re
 from htmldecode import convert
+from CommandLock import Locker
+Locker = Locker(5)
 
 def truncate(content, length=300, suffix='...'):
 	if len(content) <= length:
@@ -36,29 +38,29 @@ def getArticleByUrl(articleUrl):
 	except:
 		print("* [Wikipedia] Error => Failed to connect.")
 		return "Failed to connect to Wikipedia."
-			
+
 	titleRegex = re.compile("<title>(.*?) -")
 	firstParaRegex = re.compile("<p>(.*?)[\r\n]?<\/p>")
 	footnoteRegex = re.compile("\[[0-9]{1,3}\]")
-	
+
 	# Special cases
 	disambRegex = re.compile('may refer to:$')
 	notfoundRegex = re.compile('Other reasons this message may be displayed:')
-	
+
 	try:
 		title = re.sub('<[^<]+?>', '', titleRegex.search(articleHtml).group())
 		text = re.sub('<[^<]+?>', '', firstParaRegex.search(articleHtml).group())
 		text = footnoteRegex.sub('', text)
-		
+
 		text = truncate(text).encode("utf-8")
 
 		if disambRegex.search(text):
 			text = "Disambiguations are not yet supported."
 		elif notfoundRegex.search(text):
 			text = "Article not found."
-					
+
 		result = "{0} {1}".format(title, text)
-	except: 
+	except:
 		result = "Failed to retrieve the Wikipedia article."
 
 	return result
@@ -74,8 +76,12 @@ def wikiUrl(msg, sock, users, allowed):
 
 def wikiName(msg, sock, users, allowed):
 	try:
-		article = " ".join(msg[4].split()[1:])
-		sock.say(msg[3], "\x02[Wikipedia]\x02 {0}".format(getArticleByName(article)))
+		if not Locker.Locked:
+			article = " ".join(msg[4].split()[1:])
+			sock.say(msg[3], "\x02[Wikipedia]\x02 {0}".format(getArticleByName(article)))
+			Locker.Lock()
+		else:
+			sock.notice(msg[0], "Please wait a little longer before using this command again.")
 	except Exception, e:
 		print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
