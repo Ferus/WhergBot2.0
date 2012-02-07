@@ -27,7 +27,7 @@ class Commands():
 			,"^@access": [self.Access, 0, True]
 			,"^@cmdedit": [self.commandchange, 0, True]
 			,"^@lock": [self.Lock, 0, True]
-			,"^@unlock": [self.Unlock, 0 True]
+			,"^@unlock": [self.Unlock, 0, True]
 			,
 			}
 
