@@ -8,6 +8,7 @@
 
 # This is a very simple initial version.
 
+# Feb 06 - Added a Command Locker
 # Jan 11 - Removed Footnotes from text
 # Jan 11 - Fixed a bug with missing 'http://' for requests
 # Jan 11 - Removed Unicode bug
