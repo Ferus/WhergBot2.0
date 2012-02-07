@@ -44,7 +44,7 @@ class wordnikObj(object):
 					sock.say(msg[3], "\x02[WordNik]\x02 {0}: {1}".format(w, defs.pop(0)))
 			Lock.Lock()
 		else:
-			sock.say(msg[3], "Please tell {0} to install the python wordnik API and get a developers API key. http://developer.wordnik.com/libraries#python".format(allowed.Owner[0])
+			sock.say(msg[3], "Please tell {0} to install the python wordnik API and get a developers API key. http://developer.wordnik.com/libraries#python".format(allowed.Owner[0]))
 
 W = wordnikObj("Plugins/DictionaryAPIKey.txt")
 

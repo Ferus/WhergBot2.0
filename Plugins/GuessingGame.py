@@ -199,7 +199,6 @@ class GuessingGame(object):
 				x = msg[4].split()[1]
 			try:
 				sock.say(msg[3], self.Stats.GetStatsPlayer(x if x else msg[3]))
-				else:
 			except:
 				sock.say(msg[3], "I'm sorry {0}, but I couldn't find anything for '{1}'".format(msg[0], x if x else msg[0]))
 		else:

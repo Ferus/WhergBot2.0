@@ -74,7 +74,7 @@ def ImgurStats(msg, sock, users, allowed):
 		x += " - Dislikes: \x02{0}\x02/\x02{1}\x02%".format(stats['dislikes'],stats['dislikespercent']) \
 			if stats['dislikes'] and stats['dislikespercent'] else ''
 
-		sock.say(msg[3], x
+		sock.say(msg[3], x)
 
 hooks = {
 	'(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?': [ImgurStats, 5, False],
