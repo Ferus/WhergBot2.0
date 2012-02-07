@@ -9,36 +9,36 @@ def Act(msg, sock, users, allowed):
 		sock.action(msg[3], "slaps {0} upside the head".format(msg[0]))
 	else:
 		sock.action(msg[3], x)
-	
+
 def Oven(msg, sock, users, allowed):
 	person = " ".join(msg[4].split()[1:])
-	sock.send("PRIVMSG {0} :\x01ACTION prepares his ovens\x01".format(msg[3]))
-	t = Timer(randint(7,11), sock.send, ("PRIVMSG {0} :\x01ACTION ovens {1}\x01".format(msg[3], person), ))
+	sock.action(msg[3], "prepares his ovens")
+	t = Timer(randint(7,11), sock.action, (msg[3], "ovens {0}".format(person)))
 	t.daemon = True
 	t.start()
-		
+
 def Next(msg, sock, users, allowed):
 	sock.say(msg[3], "Another satisfied customer! Next!")
-		
+
 def Bacon(msg, sock, users, allowed):
 	person = " ".join(msg[4].split()[1:])
 	if person == '':
 		person = 'Ferus'
-	sock.send("PRIVMSG {0} :\x01ACTION cooks up some fancy bacon for {1}\x01".format(msg[3], person))
-		
+	sock.action(msg[3], "cooks up some fancy bacon for {0}".format(person))
+
 def Hug(msg, sock, users, allowed):
 	access = allowed.levelCheck(msg[0])[1][1]
 	if access <= 4:
-		sock.say(msg[3], "\x01ACTION hugs {0}.\x01".format(msg[0]))
+		sock.action(msg[3], "hugs {0}.".format(msg[0]))
 	else:
-		sock.say(msg[3], "\x01ACTION kicks {0} in the balls for not being a man.\x01".format(msg[0]))	
-	
+		sock.action(msg[3], "kicks {0} in the balls for not being a man.".format(msg[0]))
+
 def Echo(msg, sock, users, allowed):
 	sock.say(msg[3], msg[4][6:])
 
 def Raw(msg, sock, users, allowed):
 	sock.send(msg[4][5:])
-	
+
 hooks = {
 	'^@oven': [Oven, 5, False],
 	'^@next': [Next, 5, False],
