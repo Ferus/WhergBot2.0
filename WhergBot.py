@@ -61,7 +61,7 @@ def MakeConfig(AddNewProfile=False):
 		Prof.set('WhergBot', 'Logging', GetAnswer(Prompt="Enter choice for logging (True/False) >> ", isBool=True))
 		with open("./Config.ini", 'wb') as C:
 			Prof.write(C)
-		print("* [Config] Wrote config file to Config.ini, Please restart WhergBot.")
+		print("* [Config] Wrote config file to Config.ini.")
 		return Prof
 
 	else:
@@ -97,7 +97,7 @@ def MakeConfig(AddNewProfile=False):
 		Prof.set(NewConfig, 'Logging', GetAnswer(Prompt="Enter choice for logging (True/False) >> ", isBool=True))
 		with open("./Config.ini", 'wb') as C:
 			Prof.write(C)
-		print("* [Config] New profile has been written, re-run WhergBot with `WhergBot.py -p {0}`".format(NewConfig))
+		print("* [Config] New profile has been written, Be sure to specify it when running with `WhergBot.py -p {0}`".format(NewConfig))
 		return Prof
 
 
