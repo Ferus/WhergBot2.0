@@ -121,21 +121,34 @@ def GetAnswer(Prompt=">> ", isStr=False, isInt=False, isBool=False):
 
 
 if __name__ == '__main__':
-	try:
-		#Parse CLI options here.
-		# -r regenerates new default profile for config
-		# -p specifies specific profile; ommited == 'WhergBot'
+	from optparse import OptionParser
+	parser = OptionParser()
+	parser.add_option("-r", "--regenerate", dest="Newfile", action="store_true", default=False, help="Generate a new config file")
+	parser.add_option("-p", "--profile", dest="Profile", help="Specify a profile")
+	(options, args) = parser.parse_args()
 
-		Profile='WhergBot'
+	if options.Newfile and options.Profile:
+		import sys
+		sys.exit("You cannot specify both flags.")
+
+	if options.Newfile:
+		if os.access("./Config.ini", 6):
+			os.rename("./Config.ini", "./Config.ini.bak")
+		Profile = 'WhergBot'
+
+	if options.Profile:
+		Profile = options.Profile
+
+	try:
 		Config = LoadConfig(Profile)
-		WhergBot = Core.Bot(nickname = Config.get(Profile, "nick")
-			,realname = Config.get(Profile, "real")
-			,ident = Config.get(Profile, "ident")
-			,owner = [Config.get(Profile, "ownernick"), Config.get(Profile, "ownerhost"), Config.getint(Profile, "owneraccess")]
-			,ssl = Config.getboolean(Profile, "usessl")
-			,proxy = None
-			,logging = Config.getboolean(Profile, "logging")
-			,)
+		WhergBot = Core.Bot(
+			nickname = Config.get(Profile, "nick"),
+			realname = Config.get(Profile, "real"),
+			ident = Config.get(Profile, "ident"),
+			owner = [Config.get(Profile, "ownernick"), Config.get(Profile, "ownerhost"), Config.getint(Profile, "owneraccess")],
+			ssl = Config.getboolean(Profile, "usessl"),
+			proxy = None,
+			logging = Config.getboolean(Profile, "logging"))
 
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=Config.getint(Profile, "sslport"))
 		#	Config.getint(Profile, "port") - Non-SSL
