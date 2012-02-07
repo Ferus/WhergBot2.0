@@ -46,7 +46,7 @@ class Slap(object):
 				#No random
 				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], " ".join(tmp[1:])))
 
-		except IndexError:
+		except:
 			Sock.notice(Msg[0], "@slap takes two arguments. The person and the object. Either can be 'random'")
 
 S = Slap("Plugins/Fish.txt")

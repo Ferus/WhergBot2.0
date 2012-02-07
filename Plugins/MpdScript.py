@@ -5,7 +5,7 @@ import time
 try:
 	import mpd
 except ImportError:
-	print("Please install python-mpd to use this plugin or remove/rename it. ./Plugins/MpdScript.py")
+	print("* [Mpd] Please install python-mpd to use this plugin or remove/rename it. ./Plugins/MpdScript.py")
 
 
 hostname = "localhost"
@@ -13,20 +13,20 @@ port = 6601
 
 client = mpd.MPDClient()
 #	client.currentsong() will return a dictionary with song info
-#	'album'			# The album the song is from
-#	'composer'		# The composer
-#	'artist'		# The artist
-#	'track'			# The track
-#	'title'			# The title
-#	'pos'			# The position in the playlist
-#	'id'			# The id
+#	'album'					# The album the song is from
+#	'composer'			# The composer
+#	'artist'				# The artist
+#	'track'					# The track
+#	'title'					# The title
+#	'pos'						# The position in the playlist
+#	'id'						# The id
 #	'last-modified'	# The last time the file was modified
-#	'albumartist'	# The album artist
-#	'file'			# The full path of the file
-#	'time'			# The current time of the song
-#	'date'			# Date of the song/album
-#	'genre'			# Genre of song
-#	'disc'			# Disc number
+#	'albumartist'		# The album artist
+#	'file'					# The full path of the file
+#	'time'					# The current time of the song
+#	'date'					# Date of the song/album
+#	'genre'					# Genre of song
+#	'disc'					# Disc number
 
 def mpd_connect():
 	try:
@@ -42,7 +42,7 @@ def mpd_disconnect():
 		client.disconnect()		# disconnect from the server
 	except:
 		print("* [MPD] Couldn't disconnect from MPD server.")
-		
+
 def mpdshow_cb(t=True):
 	if mpd_connect():
 		current_song = client.currentsong()
@@ -50,17 +50,17 @@ def mpdshow_cb(t=True):
 		song_filename = os.path.basename(current_song["file"])
 		(song_shortname, song_extension) = os.path.splitext(song_filename)
 		(song_pos,song_length) = current_status["time"].split(":")
-	
+
 		song_pos = time.strftime('%M:%S', time.gmtime(float(song_pos)))
 		song_length = time.strftime('%M:%S', time.gmtime(float(song_length)))
-		
+
 		if t:
 			song_s = "({0}/{1})".format(song_pos, song_length)
 		else:
 			song_s = ''
-			
+
 		mpd_disconnect()
-		try:	
+		try:
 			return "Now Playing: {0} - {1} - {2} {3}".format(current_song["artist"], current_song["album"], current_song["title"], song_s)
 		except:
 			return "Now Playing: {0} {1}".format(song_shortname,song_s)
@@ -70,7 +70,7 @@ def mpdshow_cb(t=True):
 def mpdprev_cb():
 	mpd_connect()
 	client.previous()
-	mpd_disconnect() 
+	mpd_disconnect()
 	return mpdshow_cb(t=False)
 
 def mpdnext_cb():
@@ -93,9 +93,9 @@ def Music(msg, sock, users, allowed):
 			sock.say(msg[3], mpdprev_cb())
 	except Exception, e:
 		print("* [MPD] Error:\n* [MPD] {0}".format(str(e)))
-		
+
 hooks = {
-	'^@mpd': [Music, 0, True],	
+	'^@mpd': [Music, 0, True],
 		}
 
 helpstring = """Gives the owner control over MPD, a music playing daemon.
