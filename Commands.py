@@ -8,7 +8,7 @@ class Commands():
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
 		Each command receives the raw message in a list (msg object).
 		Every function defined in each command has to receive a 'msg', 'sock', 'allowed', and 'users' object.
-				
+
 		['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$quit Some quit message.', '$quit']
 		msg[4][6:] == "Some quit message."
 		'''
@@ -17,15 +17,18 @@ class Commands():
 		self.parser = parser
 		self.allowed = allowed
 
-		self.cmds = {
-			# Command name to be called : Block of code to execute, Access level, Hostcheck
-			"^@help": [self.Help, 5, False],
-			"^@plugins": [self.Plugins, 5, False],
-			"^@quit": [self.Quit, 0, True],
-			"^@join": [self.Join, 3, True],
-			"^@part": [self.Part, 3, True],
-			"^@access": [self.Access, 0, True],
-			"^@cmdedit": [self.commandchange, 0, True]
+		self.Locked = False
+
+		self.cmds = {"^@help": [self.Help, 5, False]
+			,"^@plugins": [self.Plugins, 5, False]
+			,"^@quit": [self.Quit, 0, True]
+			,"^@join": [self.Join, 3, True]
+			,"^@part": [self.Part, 3, True]
+			,"^@access": [self.Access, 0, True]
+			,"^@cmdedit": [self.commandchange, 0, True]
+			,"^@lock": [self.Lock, 0, True]
+			,"^@unlock": [self.Unlock, 0 True]
+			,
 			}
 
 		self.helpstrings = {
@@ -48,7 +51,7 @@ class Commands():
 			}
 
 		self.loadedplugins = []
-					
+
 		#Load 'Plugins'
 		plugins = pL.load("Plugins")
 		for key in plugins.keys():
@@ -86,10 +89,10 @@ class Commands():
 
 	def Plugins(self, msg, sock, users, _allowed):
 		sock.notice(msg[0], ", ".join(self.helpstrings.keys()))
-				
+
 	def Join(self, msg, sock, users, _allowed):
 		sock.join(msg[4][6:])
-			
+
 	def Part(self, msg, sock, users, _allowed):
 		if not msg[4][6:]:
 			sock.part(msg[3])
@@ -98,8 +101,8 @@ class Commands():
 			sock.part(msg[4][6:])
 			for x in msg[4][6:].split():
 				del users.Userlist[x]
-				
-	
+
+
 	def Quit(self, msg, sock, users, _allowed):
 		if type(msg) == list:
 			msg = msg[4][6:]
@@ -112,7 +115,7 @@ class Commands():
 		sock.close()
 		print("* [IRC] Closing Socket.")
 		quit()
-	
+
 	def Access(self, msg, sock, users, _allowed):
 		Nick = msg[0]
 		Host = msg[1]
@@ -121,25 +124,25 @@ class Commands():
 		Text = msg[4]
 		try:
 			tmp = Text.split()[1:]
-			
+
 			if tmp[0] == 'add':
 				if tmp[2].lower() == 'none':
 					tmp[2] = None
-					
+
 				if tmp[1] == self.allowed.Owner[0]:
 					sock.say(Location, "You cannot change your access.")
 					print("* [Access] Denied changing owners access.")
 					return None
 
 				try:
-					self.allowed.Add(tmp[1], tmp[2], int(tmp[3]))		
+					self.allowed.Add(tmp[1], tmp[2], int(tmp[3]))
 					sock.say(Location, "{0}, {1} added at level {2}".format(tmp[1], tmp[2], tmp[3]))
 					print("* [Access] {0}, {1} added at level {2}.".format(tmp[1], tmp[2], tmp[3]))
 					self.allowed.Save()
 				except:
 					sock.say(Location, "Failed to update access for '{0}'".format(tmp[1]))
 					print("* [Access] Failed to update access for '{0}'".format(tmp[1]))
-						
+
 			elif tmp[0] == 'del':
 				if self.allowed.levelCheck(tmp[1]):
 					if tmp[1] != self.allowed.Owner[0]:
@@ -151,21 +154,21 @@ class Commands():
 						sock.say(Location, "Access for {0} cannot be deleted.".format(tmp[1]))
 				else:
 					sock.say(Location, "No access level found for {0}".format(tmp[1]))
-				
+
 			elif tmp[0] == 'show':
-				try:								
+				try:
 					sock.say(Location, str(self.allowed.db[tmp[1]]))
 				except Exception, e:
 					print(e)
 		except Exception, e:
-			sock.send("NOTICE {0} :{1}".format(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`"))
+			sock.notice(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`")
 			print("* [Access] Error:\n* [Access] {0}".format(str(e)))
 
 	def commandchange(self, msg, sock, users, _allowed):
 		'''
 		A command to edit access values in the cmds dict
 		@cmdedit command access/host level/True/False
-		
+
 		Be careful not to change an important commands access level
 		'''
 		tmp = msg[4].split()[1:]
@@ -177,7 +180,7 @@ class Commands():
 			if tmp[0] not in self.cmds.keys():
 				sock.say(msg[3], "Could not find that command.")
 				return None
-				
+
 			if tmp[1] == 'access':
 				if tmp[2].isdigit():
 					self.cmds[tmp[0]][1] = int(tmp[2])
@@ -196,4 +199,23 @@ class Commands():
 				return None
 		except Exception, e:
 			print("* [Access] Error: {0}".format(repr(e)))
-					
+
+	def Lock(self, msg, sock, users, _allowed):
+		if self.Locked:
+			sock.notice(msg[0], "I am already locked.")
+		else:
+			self.Locked = True
+			self._cmds = self.cmds
+			for k, v in self.cmds.items():
+				x[k][1] = 0
+				x[k][2] = True
+			sock.say(msg[3], "Locking down, successful.")
+
+	def Unlock(self, msg, sock, users, _allowed):
+		if not self.Locked:
+			sock.notice(msg[0], "I am already unlocked.")
+		else:
+			self.cmds = self._cmds
+			del self._cmds
+			self.Locked = False
+			sock.say(msg[3], "Unlocking successful.")
