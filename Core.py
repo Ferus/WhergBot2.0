@@ -58,6 +58,8 @@ class Bot():
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
+		if self.NickServ.password != '':
+			self.Identify()
 
 	def Identify(self):
 		self.Nickserv.Identify()

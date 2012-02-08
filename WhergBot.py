@@ -160,11 +160,6 @@ if __name__ == '__main__':
 
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=Config.getint(Profile, "sslport"))
 		#	Config.getint(Profile, "port") - Non-SSL
-
-		if WhergBot.Nickserv.password != '':
-			_p = Timer(3, WhergBot.Identify, ())
-			_p.daemon = True
-			_p.start()
 		_t = Timer(5, WhergBot.irc.join, (Config.get(Profile, "Channels"),))
 		_t.daemon = True
 		_t.start()
