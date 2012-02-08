@@ -25,7 +25,7 @@ def LoadConfig(Profile='WhergBot'):
 		print("* [Config] No Config.ini file found. Would you like to create one now?")
 		if raw_input("[Y/N] >> ").lower() not in ('y', 'yes'):
 			import sys
-			sys.exit("You have chosen not to create a config file now. Run WhergBot.py with the -r flag to regenerate a config.")
+			sys.exit("* [Config] You have chosen not to create a config file now. Run WhergBot.py with the -r flag to regenerate a config.")
 		else:
 			return MakeConfig()
 
@@ -121,6 +121,9 @@ def GetAnswer(Prompt=">> ", isStr=False, isInt=False, isBool=False):
 
 
 if __name__ == '__main__':
+	import sys
+	if not sys.stdout.isatty():
+		sys.exit('Not a terminal bud.')
 	from optparse import OptionParser
 	parser = OptionParser()
 	parser.add_option("-r", "--regenerate", dest="Newfile", action="store_true", default=False, help="Generate a new config file")
@@ -128,16 +131,21 @@ if __name__ == '__main__':
 	(options, args) = parser.parse_args()
 
 	if options.Newfile and options.Profile:
-		import sys
 		sys.exit("You cannot specify both flags.")
-
-	if options.Newfile:
-		if os.access("./Config.ini", 6):
-			os.rename("./Config.ini", "./Config.ini.bak")
-		Profile = 'WhergBot'
 
 	if options.Profile:
 		Profile = options.Profile
+
+	if options.Newfile:
+		if os.access("./Config.ini", 6):
+			while True:
+				if raw_input("* [Config] Would you like to backup the old config file?\n[Y/N] >> ").lower() in ("y","yes"):
+					os.rename("./Config.ini", "./Config.ini.bak")
+					print("* [Config] backed up the old config file.")
+					break
+				else:
+					print("* [Config] We will not backup the old config file.")
+		Profile = 'WhergBot'
 
 	try:
 		Config = LoadConfig(Profile)
