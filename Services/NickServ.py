@@ -4,8 +4,11 @@ from getpass import getpass
 class NickServ(object):
 	'''Nickserv controls.'''
 	def __init__(self, sock=None):
-		self.password = getpass("* [NickServ] Enter bot's NickServ pass. (Blank for no pass): ")
-		
+		try:
+			self.password = getpass("* [NickServ] Enter bot's NickServ pass. (Blank for no pass): ")
+		except EOFError:
+			self.password = ''
+
 		if sock:
 			self.sock = sock
 
