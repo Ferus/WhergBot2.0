@@ -1,12 +1,16 @@
 #!/usr/bin/env python
 
-from blackbox import blackbox
+try:
+	from blackbox import blackbox
+except ImportError:
+	import sys
+	sys.exit("* [Core] WhergBot needs the blackbox IRC macros module to run.")
 from time import sleep
 
 import Parser
 from Services import NickServ, HostServ, Allowed
 
-class Bot():
+class Bot(object):
 	def __init__(self, nickname='', realname='', ident='', owner=[], ssl=True, proxy=None, logging=False):
 		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
 		self.irc = blackbox.IRC(logging=logging, ssl=ssl)
