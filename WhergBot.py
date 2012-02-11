@@ -7,6 +7,7 @@ from threading import Timer
 from ConfigParser import ConfigParser
 
 CONFIGDEFAULTS = {
+# Default variables for configparser objects.
 # Feel free to edit these.
 	"nick" : "WhergBot"
 	,"real" : "Wherg"
@@ -23,92 +24,95 @@ CONFIGDEFAULTS = {
 	,}
 
 def LoadConfig(Profile='WhergBot'):
+	"""Load the config file (If we can access it)
+	If we can't, we make one."""
 	if os.access("./Config.ini", 6):
 		Config = ConfigParser(defaults=CONFIGDEFAULTS)
 		Config.read("./Config.ini")
 		print("* [Config] Config file found. Loading config.")
 		if not Config.has_section(Profile):
 			import sys
-			sys.exit("* [Config] No profile found with the name '{0}'. Please re-run WhergBot with the -r flag to make it.".format(Profile))
+			sys.exit("* [Config] No profile found with the name '{0}'. Please re-run WhergBot with the -n flag to make it.".format(Profile))
 		return Config
 	else:
 		print("* [Config] No Config.ini file found. Would you like to create one now?")
 		if raw_input("[Y/N] >> ").lower() not in ('y', 'yes'):
 			import sys
-			sys.exit("* [Config] You have chosen not to create a config file now. Run WhergBot.py with the -r flag to regenerate a config.")
+			sys.exit("* [Config] You have chosen not to create a config file now. Run WhergBot.py with the -n flag to regenerate a config.")
 		else:
 			return MakeConfig()
 
-def MakeConfig(AddNewProfile=False):
-	if not AddNewProfile:
-		print("* [Config] You have chosen to (re-)create the config file.")
-		Prof = ConfigParser(defaults=CONFIGDEFAULTS)
-		Prof.add_section('WhergBot')
-		Prof = SetConfig(Prof, 'WhergBot')
+def MakeConfig():
+	"""Makes a new config.ini / Profile"""
+	print("* [Config] You have chosen to (re-)create the config file.")
+	Prof = ConfigParser(defaults=CONFIGDEFAULTS)
+	Prof.add_section('WhergBot')
+	Prof = SetConfig(Prof, 'WhergBot')
 
-		with open("./Config.ini", 'wb') as C:
-			Prof.write(C)
-		print("* [Config] Wrote config file to Config.ini.")
-		return Prof
+	with open("./Config.ini", 'wb') as C:
+		Prof.write(C)
+	print("* [Config] Wrote config file to Config.ini.")
+	return Prof
 
-	else:
-		Prof = ConfigParser(defaults=CONFIGDEFAULTS)
-		Prof.read("./Config.ini")
-		print("* [Config] First off, what would you like to name the new profile?")
+def NewProfile():
+	Prof = ConfigParser(defaults=CONFIGDEFAULTS)
+	Prof.read("./Config.ini")
+	print("* [Config] First off, what would you like to name the new profile?")
 
-		NewConfig = GetAnswer(Prompt="New profile name >> ", isStr=True)
-		print("* [Config] You have chosen to name the profile '{0}'.".format(NewConfig))
+	NewConfig = GetAnswer(Prompt="New profile name >> ", isStr=True)
+	print("* [Config] You have chosen to name the profile '{0}'.".format(NewConfig))
 
-		Prof.add_section(NewConfig)
-		Prof = SetConfig(Prof, NewConfig)
+	Prof.add_section(NewConfig)
+	Prof = SetConfig(Prof, NewConfig)
 
-		with open("./Config.ini", 'wb') as C:
-			Prof.write(C)
+	with open("./Config.ini", 'wb') as C:
+		Prof.write(C)
 
-		print("* [Config] New profile has been written, Be sure to specify it when running with `WhergBot.py -p {0}`".format(NewConfig))
-
-		return Prof
+	print("* [Config] New profile has been written, Be sure to specify it when running with `WhergBot.py -p {0}`".format(NewConfig))
+	return NewConfig
 
 def SetConfig(Prof=None, ProfileName=''):
-		print("* [Config] What will the bots' nickname be?")
-		Prof.set(ProfileName, 'Nick', GetAnswer(Prompt="Enter Bots' Name >> "))
+	"""Ask the user for profile options"""
+	print("* [Config] What will the bots' nickname be?")
+	Prof.set(ProfileName, 'Nick', GetAnswer(Prompt="Enter Bots' Name >> "))
 
-		print("* [Config] What will the bots' realname be?")
-		Prof.set(ProfileName, 'Real', GetAnswer(Prompt="Enter Bots' Realname >> "))
+	print("* [Config] What will the bots' realname be?")
+	Prof.set(ProfileName, 'Real', GetAnswer(Prompt="Enter Bots' Realname >> "))
 
-		print("* [Config] What will the bots' ident be?")
-		Prof.set(ProfileName, 'Ident', GetAnswer(Prompt="Enter Bots' Ident >> "))
+	print("* [Config] What will the bots' ident be?")
+	Prof.set(ProfileName, 'Ident', GetAnswer(Prompt="Enter Bots' Ident >> "))
 
-		print("* [Config] What channels will the bot join on start? (Separate with a comma)")
-		Prof.set(ProfileName, 'Channels', GetAnswer(Prompt="Enter Channels (IE: `#lobby,#bots`) >> "))
+	print("* [Config] What channels will the bot join on start? (Separate with a comma)")
+	Prof.set(ProfileName, 'Channels', GetAnswer(Prompt="Enter Channels (IE: `#lobby,#bots`) >> "))
 
-		print("* [Config] What is the name of the bots' Owner? (Likely your nick.)")
-		Prof.set(ProfileName, 'OwnerNick', GetAnswer(Prompt="Enter Owners IRC Nick >> "))
+	print("* [Config] What is the name of the bots' Owner? (Likely your nick.)")
+	Prof.set(ProfileName, 'OwnerNick', GetAnswer(Prompt="Enter Owners IRC Nick >> "))
 
-		print("* [Config] What is the hostmask of the bots' Owner? (Likely your hostmask.)")
-		Prof.set(ProfileName, 'OwnerHost', GetAnswer(Prompt="Enter Owners Hostmask >> "))
+	print("* [Config] What is the hostmask of the bots' Owner? (Likely your hostmask.)")
+	Prof.set(ProfileName, 'OwnerHost', GetAnswer(Prompt="Enter Owners Hostmask >> "))
 
-		print("* [Config] What is the default access level of the owner? (If unsure, enter 0)")
-		Prof.set(ProfileName, 'OwnerAccess', GetAnswer(Prompt="Enter Owners Access Level >> "))
+	print("* [Config] What is the default access level of the owner? (If unsure, enter 0)")
+	Prof.set(ProfileName, 'OwnerAccess', GetAnswer(Prompt="Enter Owners Access Level >> "))
 
-		print("* [Config] What server will we be connecting to on start?")
-		Prof.set(ProfileName, 'Server', GetAnswer(Prompt="Enter Server Address >> "))
+	print("* [Config] What server will we be connecting to on start?")
+	Prof.set(ProfileName, 'Server', GetAnswer(Prompt="Enter Server Address >> "))
 
-		print("* [Config] Will we be using SSL to connect? (If unsure, enter 'False')")
-		Prof.set(ProfileName, 'UseSSL', GetAnswer(Prompt="Enter SSL choice (True/False) >> ", isBool=True))
+	print("* [Config] Will we be using SSL to connect? (If unsure, enter 'False')")
+	Prof.set(ProfileName, 'UseSSL', GetAnswer(Prompt="Enter SSL choice (True/False) >> ", isBool=True))
 
-		print("* [Config] What port will be used with SSL? (Default 6697)")
-		Prof.set(ProfileName, 'SSLPort', GetAnswer(Prompt="Enter default SSL port >> ", isInt=True))
+	print("* [Config] What port will be used with SSL? (Default 6697)")
+	Prof.set(ProfileName, 'SSLPort', GetAnswer(Prompt="Enter default SSL port >> ", isInt=True))
 
-		print("* [Config] What port will be used without SSL? (Default 6667)")
-		Prof.set(ProfileName, 'Port', GetAnswer(Prompt="Enter default Non-SSL port >> ", isInt=True))
+	print("* [Config] What port will be used without SSL? (Default 6667)")
+	Prof.set(ProfileName, 'Port', GetAnswer(Prompt="Enter default Non-SSL port >> ", isInt=True))
 
-		print("* [Config] Will we be logging connections? (Default False)")
-		Prof.set(ProfileName, 'Logging', GetAnswer(Prompt="Enter choice for logging (True/False) >> ", isBool=True))
-		return Prof
+	print("* [Config] Will we be logging connections? (Default False)")
+	Prof.set(ProfileName, 'Logging', GetAnswer(Prompt="Enter choice for logging (True/False) >> ", isBool=True))
+	return Prof
 
 
 def GetAnswer(Prompt=">> ", isInt=False, isBool=False):
+	"""DrunkCode.py"""
 	try:
 		x = raw_input(Prompt)
 		if not x or len(x) == 0:
@@ -132,27 +136,28 @@ def GetAnswer(Prompt=">> ", isInt=False, isBool=False):
 		return x
 	except EOFError:
 		print("\n* [Config] That input was not valid.")
-		return GetAnswer(isStr=isStr, isInt=isInt, isBool=isBool)
+		return GetAnswer(isInt=isInt, isBool=isBool)
 
 
 if __name__ == '__main__':
 	import sys
 	if not sys.stdout.isatty():
-		sys.exit('Not a terminal bud.')
+		sys.exit("Not a terminal bud. Don't have a GUI made yet. ;)")
 	from optparse import OptionParser
 	parser = OptionParser()
-	parser.add_option("-r", "--regenerate", dest="Newfile", action="store_true", default=False, help="Generate a new config file")
+	parser.add_option("-n", "--new-config", dest="Newfile", action="store_true", default=False, help="Generate a new config file")
+	parser.add_option("-r", "--new-profile", dest="Newprof", action="store_true", default=False, help="Add a new profile to the config")
 	parser.add_option("-p", "--profile", dest="Profile", help="Specify a profile")
 	(options, args) = parser.parse_args()
 
-	if options.Newfile and options.Profile:
-		sys.exit("You cannot specify both flags.")
+	if options.Newfile and options.Profile and options.Newprof:
+		sys.exit("You cannot specify multiple flags.")
 
 	if options.Profile:
 		Profile = options.Profile
-	else:
-		if not options.Newfile:
-			sys.exit("You must specify a profile to use.")
+
+	if options.Newprof:
+		Profile = NewProfile()
 
 	if options.Newfile:
 		if os.access("./Config.ini", 6):
@@ -167,6 +172,8 @@ if __name__ == '__main__':
 		Profile = 'WhergBot'
 
 	Config = LoadConfig(Profile)
+
+	# There has to be a cleaner way to do this.
 	if not Config.has_option(Profile, "nick") \
 		or not Config.has_option(Profile, "real") \
 		or not Config.has_option(Profile, "ident") \
