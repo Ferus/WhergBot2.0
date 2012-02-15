@@ -6,9 +6,7 @@ import os
 from threading import Timer
 from ConfigParser import ConfigParser
 
-CONFIGDEFAULTS = {
-# Default variables for configparser objects.
-# Feel free to edit these.
+_CONFIGDEFAULTS = {
 	"nick" : "WhergBot"
 	,"real" : "Wherg"
 	,"ident" : "Wherg"
@@ -27,7 +25,7 @@ def LoadConfig(Profile='WhergBot'):
 	"""Load the config file (If we can access it)
 	If we can't, we make one."""
 	if os.access("./Config.ini", 6):
-		Config = ConfigParser(defaults=CONFIGDEFAULTS)
+		Config = ConfigParser(defaults=_CONFIGDEFAULTS)
 		Config.read("./Config.ini")
 		print("* [Config] Config file found. Loading config.")
 		if not Config.has_section(Profile):
@@ -45,7 +43,7 @@ def LoadConfig(Profile='WhergBot'):
 def MakeConfig():
 	"""Makes a new config.ini / Profile"""
 	print("* [Config] You have chosen to (re-)create the config file.")
-	Prof = ConfigParser(defaults=CONFIGDEFAULTS)
+	Prof = ConfigParser(defaults=_CONFIGDEFAULTS)
 	Prof.add_section('WhergBot')
 	Prof = SetConfig(Prof, 'WhergBot')
 
@@ -55,7 +53,7 @@ def MakeConfig():
 	return Prof
 
 def NewProfile():
-	Prof = ConfigParser(defaults=CONFIGDEFAULTS)
+	Prof = ConfigParser(defaults=_CONFIGDEFAULTS)
 	Prof.read("./Config.ini")
 	print("* [Config] First off, what would you like to name the new profile?")
 
@@ -172,8 +170,9 @@ if __name__ == '__main__':
 		Profile = 'WhergBot'
 
 	Config = LoadConfig(Profile)
+	print("* [Config] Using profile '{0}'.".format(Profile))
 
-	for key in CONFIGDEFAULTS.keys():
+	for key in _CONFIGDEFAULTS.keys():
 		if not Config.has_option(Profile, key):
 			sys.exit("* [Config] Missing option in config file, '{0}'.".format(key))
 
