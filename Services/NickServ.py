@@ -7,7 +7,7 @@ class NickServ(object):
 		try:
 			self.password = getpass("* [NickServ] Enter bot's NickServ pass. (Blank for no pass): ")
 		except EOFError:
-			print("\n")
+			print("")
 			self.password = ''
 
 		if sock:
