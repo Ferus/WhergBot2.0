@@ -6,11 +6,12 @@ import pluginLoader as pL
 class Commands():
 	def __init__(self, nick=None, parser=None, allowed=None):
 		'''Here we define a dictionary of commands with access levels, and what to do if they are called.
-		Each command receives the raw message in a list (msg object).
-		Every function defined in each command has to receive a 'msg', 'sock', 'allowed', and 'users' object.
+		Every function defined for command has to receive a 'msg', 'sock', 'allowed', and 'users' object.
 
 		['Ferus', 'anonymous@the.interwebs', 'PRIVMSG', '#hacking', '$quit Some quit message.', '$quit']
 		msg[4][6:] == "Some quit message."
+
+		sock.say("#channel", "Hi!")
 		'''
 		self.nick = nick
 
@@ -25,7 +26,6 @@ class Commands():
 			,"^@join": [self.Join, 3, True]
 			,"^@part": [self.Part, 3, True]
 			,"^@access": [self.Access, 0, True]
-			,"^@cmdedit": [self.commandchange, 0, True]
 			,"^@lock": [self.Lock, 0, True]
 			,"^@unlock": [self.Unlock, 0, True]
 			,
@@ -42,12 +42,11 @@ class Commands():
 			"part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
 			"quit" : "Tells {0} to shutdown.".format(self.nick),
 			"access":"""Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
-					 The default level for ignore is anything above 5, but this can be changed easily.
+					 The default level for ignore is anything above 5, but this can be changed.
 					 add:	Used to add/change access of a person. Takes 3 arguments, Nick, Host (or 'none'), and an Access Level.
 					 del:	Used to revoke access from a user. Takes 1 argument, Nick.
 					 show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.
 					 """,
-			"cmdedit" : "Used to change access of a plugin. Format is `command [access/host] [level/True/False]`",
 			"lock" : "Used to lock all commands to owner.",
 			"unlock" : "Used to reset all commands back to previous state.",
 			}
@@ -165,42 +164,6 @@ class Commands():
 		except Exception, e:
 			sock.notice(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`")
 			print("* [Access] Error:\n* [Access] {0}".format(str(e)))
-
-	def commandchange(self, msg, sock, users, _allowed):
-		'''
-		A command to edit access values in the cmds dict
-		@cmdedit command access/host level/True/False
-
-		Be careful not to change an important commands access level
-		'''
-		tmp = msg[4].split()[1:]
-		if len(tmp) != 3:
-			sock.say(msg[3], "Format is `{0} command [access/host] [level/True/False]`".format(msg[-1]))
-			return None
-		try:
-			#[command, tochange, value]
-			if tmp[0] not in self.cmds.keys():
-				sock.say(msg[3], "Could not find that command.")
-				return None
-
-			if tmp[1] == 'access':
-				if tmp[2].isdigit():
-					self.cmds[tmp[0]][1] = int(tmp[2])
-					sock.say(msg[3], "Changed level access of {0} to {1}.".format(tmp[0], tmp[2]))
-				else:
-					sock.say(msg[3], "{0} is not a number.".format(tmp[2]))
-
-			elif tmp[1] == 'host':
-				_tf = {'true':True, 'false':False}
-				if tmp[2].lower() in _tf.keys():
-					self.cmds[tmp[0]][2] = _tf[tmp[2].lower()]
-					sock.say(msg[3], "Changed hostcheck of {0} to {1}.".format(tmp[0], tmp[2]))
-				else:
-					sock.say(msg[3], "{0} is not True or False.".format(tmp[2]))
-			else:
-				return None
-		except Exception, e:
-			print("* [Access] Error: {0}".format(repr(e)))
 
 	def Lock(self, msg, sock, users, _allowed):
 		if self.Locked:

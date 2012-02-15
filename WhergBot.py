@@ -159,14 +159,12 @@ if __name__ == '__main__':
 
 	if options.Newfile:
 		if os.access("./Config.ini", 6):
-			while True:
-				if raw_input("* [Config] Would you like to backup the old config file?\n[Y/N] >> ").lower() in ("y","yes"):
-					os.rename("./Config.ini", "./Config.ini.bak")
-					print("* [Config] Backed up the old config file.")
-					break
-				else:
-					os.remove("./Config.ini")
-					print("* [Config] We will not backup the old config file.")
+			if raw_input("* [Config] Would you like to backup the old config file?\n[Y/N] >> ").lower() in ("y","yes"):
+				os.rename("./Config.ini", "./Config.ini.bak")
+				print("* [Config] Backed up the old config file.")
+			else:
+				os.remove("./Config.ini")
+				print("* [Config] We will not backup the old config file.")
 		Profile = 'WhergBot'
 
 	Config = LoadConfig(Profile)

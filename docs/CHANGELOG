@@ -1,3 +1,5 @@
+=== Feb 15 ===
++ i am git and wat is dis
 === Feb 03 ===
 + Some changes reflecting upon latest requests and blackbox
 + #!/usr/bin/python2 -> #!/usr/bin/env python
@@ -28,7 +30,7 @@
 === Dec 01 ===
 + Plugins now take the non-optional 'users' and 'allowed' in the called functions
 	+'users' is an Users.Users() object that holds the userlist for each channel.
-	+'allowed' is an Allowed.Users() object that holds access levels, allowing each 
+	+'allowed' is an Allowed.Users() object that holds access levels, allowing each
 		plugin to 'bypass' set access levels.
 + A Services folder, used for network Services like NickServ and HostServ
 + Optional NickServ pass on start.

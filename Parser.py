@@ -18,9 +18,9 @@ class Parse():
 		self.command = Commands.Commands(parser=self, nick=self.nickname, allowed=self.allowed)
 		self._commands = self.command.cmds.keys()
 
-		self.ctcpReplies = {u"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot.",
-			u"\x01TIME\x01" : "The local time here is {0}",
-			u"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot",
+		self.ctcpReplies = {u"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot."
+			,u"\x01TIME\x01" : "The local time here is {0}"
+			,u"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot"
 			}
 
 
@@ -75,6 +75,7 @@ class Parse():
 				continue
 
 			line = re.sub(u"\x03(?:[0-9]{1,2})?(?:,[0-9]{1,2})?|\x02|\x07", u"", line)
+			#Unwanted Chars, like color, bold, underline, etc.
 
 			if line.startswith(u":"):
 				line = line[1:]
@@ -288,8 +289,7 @@ class Parse():
 		msg = msg.split()
 		nameslist = []
 		for x in msg[5:]:
-			x = re.sub(u"[:|~|&|@|%|+]", u"", x) #Testing l0l
-			#x = x.replace(u":",u"").replace(u"~",u"").replace(u"&",u"").replace(u"@",u"").replace(u"%",u"").replace(u"+",u"")
+			x = re.sub(u"[:|~|&|@|%|+]", u"", x)
 			nameslist.append(x)
 			if x not in self.allowed.db.keys():
 				self.allowed.db[x] = [None, 5]
