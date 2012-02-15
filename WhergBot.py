@@ -148,7 +148,9 @@ if __name__ == '__main__':
 	parser.add_option("-p", "--profile", dest="Profile", help="Specify a profile")
 	(options, args) = parser.parse_args()
 
-	if options.Newfile and options.Profile and options.Newprof:
+	if options.Newfile and options.Profile or \
+		options.Newfile and options.Newprof or \
+			options.Profile and options.Newprof:
 		sys.exit("You cannot specify multiple flags.")
 
 	if options.Profile:
