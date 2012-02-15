@@ -173,20 +173,9 @@ if __name__ == '__main__':
 
 	Config = LoadConfig(Profile)
 
-	# There has to be a cleaner way to do this.
-	if not Config.has_option(Profile, "nick") \
-		or not Config.has_option(Profile, "real") \
-		or not Config.has_option(Profile, "ident") \
-		or not Config.has_option(Profile, "ownernick") \
-		or not Config.has_option(Profile, "ownerhost") \
-		or not Config.has_option(Profile, "owneraccess") \
-		or not Config.has_option(Profile, "usessl") \
-		or not Config.has_option(Profile, "logging") \
-		or not Config.has_option(Profile, "server") \
-		or not Config.has_option(Profile, "port") \
-		or not Config.has_option(Profile, "sslport") \
-		or not Config.has_option(Profile, "channels"):
-			sys.exit("* [Config] Missing option in config file.")
+	for key in CONFIGDEFAULTS.keys():
+		if not Config.has_option(Profile, key):
+			sys.exit("* [Config] Missing option in config file, '{0}'.".format(key))
 
 	WhergBot = Core.Bot(
 		nickname = Config.get(Profile, "nick"),
