@@ -3,5 +3,5 @@
 *.txt
 *.shelve
 Pickle_Quotes.pkl
-Loader.py
 *.py.*
+*.ini

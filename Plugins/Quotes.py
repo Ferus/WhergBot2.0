@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 from random import choice
 import cPickle as pickle
 import os, re
@@ -108,12 +108,13 @@ class IRCQuotes(object):
 			if re.search(msg, quote, re.IGNORECASE):
 				_quotenums.append(str(num+1))
 				
-		if len(_quotenums) == 1:
-			return "I found 1 quote matching the string '{0}': Quote number {1}".format(msg, _quotenums[0])
-			
-		elif len(_quotenums) > 1:
-			return "I found {0} quotes matching the string '{1}': Quote numbers {2}".format(len(_quotenums), msg, ", ".join(_quotenums))
-				
+		if len(_quotenums) >= 1:
+			return "I found {0} quote{1} matching the string '{2}': Quote number{1} {3}".format(
+				len(_quotenums),
+				"s" if len(_quotenums) > 1 else "",
+				msg,
+				", ".join(_quotenums))
+		
 		elif len(_quotenums) == 0:
 			return "I did not find any quotes matching the string '{0}': Please redefine your search.".format(msg)
 			

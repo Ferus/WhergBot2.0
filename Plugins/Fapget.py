@@ -1,6 +1,8 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 from random import choice
+from CommandLock import Locker
+Lock = Locker()
 
 faps = [
 	"seisatsu.png",
@@ -98,10 +100,13 @@ faps = [
 	]
 
 def Fapget(Msg, Sock, Users, Allowed):
-	Sock.say(Msg[3], "\x02{0}\x02 has to fap to \x02{1}\x02!".format(Msg[0], choice(faps)))
-
+	if not Lock.Locked:
+		Sock.say(Msg[3], "\x02{0}\x02 has to fap to \x02{1}\x02!".format(Msg[0], choice(faps)))
+		Lock.Lock()
+	else:
+		Sock.notice(Msg[0], "Please wait a little longer before using this command again.")
 hooks = {
 	"^@fapget" : [Fapget, 5, False]
 	}
 
-helpstring = """Returns a random philia/etc for one to fap to."""
+helpstring = """@fapget - Returns a random philia/etc for one to fap to."""

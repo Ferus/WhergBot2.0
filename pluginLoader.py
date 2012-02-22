@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # This program is Free Software under the terms of
 # the Do What The Fuck You Want To Public License (WTFPL)
 # See wtfpl.txt or http://sam.zoy.org/wtfpl/COPYING
@@ -44,8 +46,7 @@ def load(folder):
                 [module])
         except Exception as e:
             print("=================================")
-            print("An error occured trying to import {0}:"
-                    .format(module))
+            print("An error occured trying to import {0}:".format(module))
             print(repr(e))
             print("Ignored. Fix this shit bro.")
             print("Moving on...")

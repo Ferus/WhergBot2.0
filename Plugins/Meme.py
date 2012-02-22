@@ -1,5 +1,7 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 import requests
+from CommandLocker import Locker
+Locker = Locker(3)
 '''
 Poll automeme.net for a 'meme'.
 Usage: import Meme, m = Meme.meme(), next(m)
@@ -25,7 +27,7 @@ def get_meme(t):
 		meme_db.append(meme)
 	meme_db.pop()
 	return meme_db
-	
+
 def meme(t):
 	'''Returns a meme from the list'''
 	meme_db = []
@@ -42,13 +44,21 @@ HipsterMeme = meme(t='hipster')
 
 def RegMeme(msg, sock, users, allowed):
 	try:
-		sock.say(msg[3], next(RegularMeme))
+		if not Locker.Locked:
+			sock.say(msg[3], next(RegularMeme))
+			Locker.Lock()
+		else:
+			sock.notice(msg[0], "Please wait a little longer and try again")
 	except Exception, e:
 		print("* [AutoMeme] Error:\n* [AutoMeme] {0}".format(str(e)))
 
 def HipMeme(msg, sock, users, allowed):
 	try:
-		sock.say(msg[3], next(HipsterMeme))
+		if not Locker.Locked:
+			sock.say(msg[3], next(HipsterMeme))
+			Locker.Lock()
+		else:
+			sock.notice(msg[0], "Please wait a little longer and try again")
 	except Exception, e:
 		print("* [AutoMeme] Error:\n* [AutoMeme] {0}".format(str(e)))
 

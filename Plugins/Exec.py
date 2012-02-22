@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 
 def _Exec(Message, Sock, Users, Allowed):
 	x = " ".join(Message[4].split()[1:])

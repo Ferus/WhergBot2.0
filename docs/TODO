@@ -1,12 +1,12 @@
-1: Change how the parser handles messages, and more options
+1: Define more hooks for the parser
 
-2: Move everything to a config file?
-
-3: Woll Smoth mode.
-	Override blackbox.send()
+2: Woll Smoth mode.
+	Override blackbox.send()?
 	Use regex to replace all vowels in recv'd lines with o
 
-4: Fix CTCP printing, apparently started since the parser was revamped
+3: Fix CTCP printing, apparently started since the parser was revamped
+
+4: Change Owner to a list/dict to allow multiple owners.
 
 #### PLUGINS ####
 

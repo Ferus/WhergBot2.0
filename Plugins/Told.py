@@ -1,4 +1,4 @@
-#!/usr/bin/python2
+#!/usr/bin/env python
 from random import choice
 
 class Told(object):
@@ -6,13 +6,13 @@ class Told(object):
 		if ToldFile:
 			with open(ToldFile, "r") as Tolds:
 				self.ToldList = Tolds.readlines()
-	
+
 	def ReturnTold(self, msg, sock, users, allowed):
-		 sock.send("PRIVMSG {0} :{1}".format(msg[3], choice(self.ToldList)))
+		 sock.say(msg[3], choice(self.ToldList))
 
 t = Told("Plugins/Told.txt")
 hooks = {
-	'^@told': [t.ReturnTold, 5, False],	
+	'^@told': [t.ReturnTold, 5, False],
 		}
 
-helpstring = "Sends a random 'Told' string"
+helpstring = "@told: Sends a random 'Told' string"
