@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 
-import Core
-
 import os
-from threading import Timer
 from ConfigParser import ConfigParser
 
 _CONFIGDEFAULTS = {
@@ -30,7 +27,7 @@ def LoadConfig(Profile='WhergBot'):
 		print("* [Config] Config file found. Loading config.")
 		if not Config.has_section(Profile):
 			import sys
-			sys.exit("* [Config] No profile found with the name '{0}'. Please re-run WhergBot with the -n flag to make it.".format(Profile))
+			sys.exit("* [Config] No profile found with the name '{0}'. Please re-run WhergBot with the -r flag to make it.".format(Profile))
 		return Config
 	else:
 		print("* [Config] No Config.ini file found. Would you like to create one now?")
@@ -176,6 +173,8 @@ if __name__ == '__main__':
 		if not Config.has_option(Profile, key):
 			sys.exit("* [Config] Missing option in config file, '{0}'.".format(key))
 
+	import Core
+	from threading import Timer
 	WhergBot = Core.Bot(
 		nickname = Config.get(Profile, "nick"),
 		realname = Config.get(Profile, "real"),

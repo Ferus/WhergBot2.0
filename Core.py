@@ -45,8 +45,8 @@ class Bot(object):
 		self.ident = ident if ident else 'Wherg'
 
 
-	def Connect(self, server, port=6697):
-		'''Connect to the server, default the port to 6697 because SSL'''
+	def Connect(self, server, port=6667):
+		'''Connect to the server'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
 		try:
@@ -63,10 +63,7 @@ class Bot(object):
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
 		if self.NickServ.password != '':
-			self.Identify()
-
-	def Identify(self):
-		self.Nickserv.Identify()
+			self.Nickserv.Identify()
 		sleep(.3)
 
 	def Parse(self, msg):
