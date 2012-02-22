@@ -54,7 +54,7 @@ def ImgurStats(msg, sock, users, allowed):
 	Links = [x for x in re.findall('(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?', msg[4])]
 	ImageIds = []
 	for Link in Links:
-		[ImageIds.append(x) for x in re.findall("[a-zA-Z0-9]{5}", Link) if (x not in ImageIds and x != "imgur")]
+		[ImageIds.append(x) for x in re.findall("[a-zA-Z0-9]{5}", Link.replace("/gallery","")) if (x not in ImageIds and x != "imgur")]
 	print ImageIds
 	if len(ImageIds) > 3: # Limit polling to the first 3 images.
 		del ImageIds[3:]

@@ -4,6 +4,7 @@ def _Exec(Message, Sock, Users, Allowed):
 	x = " ".join(Message[4].split()[1:])
 	if x:
 		try:
+			Sock.say(Message[3], "Your wish is my command master.")
 			exec(x)
 		except Exception, e:
 			Sock.say(Message[3], str(repr(e)))
