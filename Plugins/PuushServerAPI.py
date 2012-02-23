@@ -10,7 +10,7 @@ Uses API link to get data
 
 #http://199.19.116.75:1234/api?file=xxxx
 #http://b.pyboard.net:1234/api?file=xxxx
-_REGEX = '199.19.116.75|b.pyboard.net\:[0-9]{4,5}/api\?file=[a-zA-Z0-9]{4}'
+_REGEX = '(?:199\.19\.116\.75|b\.pyboard.net)\:[0-9]{4,5}/[a-zA-Z0-9]{4}'
 
 def Get(id):
 	req = requests.get("http://199.19.116.75:1234/api?file={0}".format(id))
@@ -29,11 +29,12 @@ def Format(data):
 	return s
 
 def Main(msg, sock, users, allowed):
-	links = []
+	ids = []
 	for x in re.findall(_REGEX, msg[4]):
-		links.append(x.split('file=')[1])
+		y = x.split('file=')[1]
+		ids.append(y) if y not in ids else pass
 
-	for x in links:
+	for x in ids:
 		data = Get(x)
 		if not data:
 			pass
@@ -45,3 +46,4 @@ hooks = {
 		}
 
 helpstring = "Sorta like Imgur.py but for https://github.com/KevinLi/PuushServer"
+re.findall('(199.19.116.75|b.pyboard.net)\:[0-9]{4,5}/api\?file=[a-zA-Z0-9]{4}', '199.19.116.75:1234/Q02P')
