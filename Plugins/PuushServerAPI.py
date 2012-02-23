@@ -10,10 +10,13 @@ Uses API link to get data
 
 #http://199.19.116.75:1234/api?file=xxxx
 #http://b.pyboard.net:1234/api?file=xxxx
-_REGEX = '(?:199\.19\.116\.75|b\.pyboard.net)\:[0-9]{4,5}/[a-zA-Z0-9]{4}'
+_REGEX = '(?:199\.19\.116\.75|b\.pyboard.net)(\:[0-9]{4,5}/[a-zA-Z0-9]{4})'
 
 def Get(id):
-	req = requests.get("http://199.19.116.75:1234/api?file={0}".format(id))
+	try:
+		req = requests.get("http://199.19.116.75:1234/api?file={0}".format(id))
+	except requests.ConnectionError:
+		return None
 	if not req.status_code == 200:
 		return None
 	data = json.loads(req.content)
@@ -30,9 +33,11 @@ def Format(data):
 
 def Main(msg, sock, users, allowed):
 	ids = []
+
 	for x in re.findall(_REGEX, msg[4]):
-		y = x.split('file=')[1]
-		ids.append(y) if y not in ids else pass
+		y = x.split('/')[1]
+		if y not in ids:
+			ids.append(y)
 
 	for x in ids:
 		data = Get(x)
