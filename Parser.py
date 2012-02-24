@@ -107,15 +107,18 @@ class Parse():
 			else:
 				Location = tmp[2]
 			Msg = [Nick, Host, Action, Location, Text, Cmd]
+		except Exception, e:
+			print("* [Privmsg Error] {0}".format(repr(e)))
 
-			if Nick == Location:
-				Location = self.nickname
+		if Nick == Location:
+			Location = self.nickname
 
+		try:
 			if Text.startswith(u"\x01"):
 				if Cmd in self.ctcpReplies.keys():
 					'''The message received was a CTCP'''
 					if Cmd.strip(u"\x01") == u'TIME':
-						ti = self.ctcpReplies[Cmd].format(time.strftime("%c", time.localtime()))
+						ti = self.ctcpReplies[Cmd].format(time.strftime(u"%c", time.localtime()))
 						t = Thread(target=self.CTCP(Cmd.strip(u"\x01"), Nick, ti))
 						t.daemon = True
 						t.start()
@@ -138,9 +141,9 @@ class Parse():
 				If a command is called, check the hostname and access level of the person who called it,
 				and if they have access, execute the command. Regex based commands too. :)
 				'''
-				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
+				print(u"* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
 				for comm in self._commands: #Loop through every one.
-					if re.search(comm+"(\s|$)", Text): #If we match a command
+					if re.search(comm+u"(\s|$)", Text): #If we match a command
 						check = self.allowed.levelCheck(Nick)[1] #Start an access check
 						if check[1] <= self.command.cmds[comm][1]: #Check access level
 							if self.command.cmds[comm][2]: #Is a hostcheck needed?
@@ -157,8 +160,7 @@ class Parse():
 						else: #Doesnt pass access.
 							pass
 		except Exception, e:
-			print("* [Privmsg] Error")
-			print(repr(e))
+			print("* [Privmsg Error] {0}".format(repr(e)))
 
 	def Notice(self, msg):
 		msg = msg.split()
