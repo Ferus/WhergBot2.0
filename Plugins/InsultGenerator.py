@@ -21,7 +21,7 @@ def gen(msg, sock, users, allowed):
 		sock.say(msg[3], _insult)
 		Locker.Lock()
 	else:
-		sock.notice(msg[3], "Please wait a little longer before using this command again.")
+		sock.notice(msg[0], "Please wait a little longer before using this command again.")
 
 
 hooks = {

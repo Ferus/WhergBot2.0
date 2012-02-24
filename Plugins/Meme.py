@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import requests
-from CommandLocker import Locker
+from CommandLock import Locker
 Locker = Locker(3)
 '''
 Poll automeme.net for a 'meme'.

@@ -21,12 +21,13 @@ class Parse():
 		self.ctcpReplies = {u"\x01VERSION\x01" : "I am WhergBot, A Python based IRC bot."
 			,u"\x01TIME\x01" : "The local time here is {0}"
 			,u"\x01SOURCE\x01" : "My latest source can be found at https://github.com/Ferus/WhergBot"
+			,u"\x01H\x01" : "h"
 			}
-
 
 		self.Actions = {
 			u'PRIVMSG': self.Privmsg,
 			u'NOTICE': self.Notice,
+			u'WALLOPS': self.Wallops,
 			u'INVITE': self.Invited,
 			u'TOPIC': self.TopicChange,
 			u'KICK': self.Kicked,
@@ -35,6 +36,7 @@ class Parse():
 			u'QUIT': self.Quitted,
 			u'NICK': self.Nickchange,
 			u'MODE': self.Modechange,
+			u'KILL': self.Killed,
 			u'001': self.Welcome,
 			u'002': self.NormalMsg,
 			u'003': self.NormalMsg,
@@ -43,6 +45,7 @@ class Parse():
 			u'008': self.IgnoreLine,
 			u'251': self.NormalMsg,
 			u'252': self.NormalMsg,
+			u'253': self.NormalMsg,
 			u'254': self.NormalMsg,
 			u'255': self.NormalMsg,
 			u'265': self.NormalMsg,
@@ -59,15 +62,18 @@ class Parse():
 			u'381': self.NormalMsg,
 			u'404': self.BannedVoice,
 			u'422': self.NormalMsg,
+			u'451': self.NormalMsg,
 			u'474': self.Banned,
+
+			u':Closing' : self.IgnoreLine, # HAX
 			}
 
 	def Main(self, msg):
 		'''Main Parser, Here we take raw data, and split at \r\n.'''
 		self.Buffer += msg
 		msg = re.split(u"\r|\r\n|\n", self.Buffer)
-		#...this should really catch the end of the buffer if it didnt recv all of it. :|
-		#somehow it derps.
+		#	...this should really catch the end of the buffer if it didnt recv all of it. :|
+		#	somehow it derps.
 		self.Buffer = u''
 
 		for line in msg:
@@ -75,10 +81,9 @@ class Parse():
 				continue
 
 			line = re.sub(u"\x03(?:[0-9]{1,2})?(?:,[0-9]{1,2})?|\x02|\x07", u"", line)
-			#Unwanted Chars, like color, bold, underline, etc.
+			#	Unwanted Chars, like color, bold, underline, etc.
 
-			if line.startswith(u":"):
-				line = line[1:]
+			line = line.lstrip(":")
 
 			if line.split()[1] in self.Actions.keys():
 				self.Actions[line.split()[1]](line)
@@ -88,14 +93,6 @@ class Parse():
 
 			else:
 				print(u"* [DERP] {0}".format(line.split()))
-
-			line = line.split()
-			if len(line)>7:
-				if line[7] == u'KILL': #lolhax
-					print(u"* [IRC] {0} killed by oper {1}. Reason: {2}".format(line[10], line[12], u" ".join(line[15:])))
-					if line[10] == self.nickname:
-						import sys
-						sys.exit("Killed from IRC server.")
 
 	def Privmsg(self, msg):
 		'''Parse for commands. Etc.'''
@@ -143,7 +140,7 @@ class Parse():
 				'''
 				print("* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
 				for comm in self._commands: #Loop through every one.
-					if re.search(comm+"[\s|$]", Text): #If we match a command
+					if re.search(comm+"(\s|$)", Text): #If we match a command
 						check = self.allowed.levelCheck(Nick)[1] #Start an access check
 						if check[1] <= self.command.cmds[comm][1]: #Check access level
 							if self.command.cmds[comm][2]: #Is a hostcheck needed?
@@ -172,15 +169,20 @@ class Parse():
 		Text = u" ".join(msg[3:]).lstrip(u":")
 		print(u"* [Notice] <{0}> {1}".format(Nick, Text))
 
+	def Wallops(self, msg):
+		msg = msg.split()
+		person, host = msg[0].split("!")
+		print(u"* [WALLOPS] <{0} ({1})> {2}".format(person, host, u" ".join(msg[2:])[1:]))
+
 	def Invited(self, msg):
 		'''Join a channel we were invited to if the person's hostname is defined in allowed.'''
 		msg = msg.split()
 		try:
 			person, host = msg[0].split("!")
+			print(u"* [IRC] Invited to {0}, by {1}. Attempting to join.".format(chan, person))
 			if self.allowed.db[person][0] == host:
 				chan = msg[3][1:]
 				self.sock.join(chan)
-			print(u"* [IRC] Invited to {0}, by {1}. Attempting to join.".format(chan, person))
 		except:
 			pass
 
@@ -204,7 +206,6 @@ class Parse():
 			self.Users.Userlist[chan].append(person)
 		except:
 			pass
-
 
 	def Parted(self, msg):
 		msg = msg.split()
@@ -241,6 +242,10 @@ class Parse():
 				self.allowed.db[new] = [None, 5]
 		except:
 			pass
+
+	def Killed(self, msg):
+		msg = msg.split()
+		print(u"* [IRC] Oper {0} ({1}) KILL'd {2}; Reason: {3}".format(msg[0].split('!')[0], msg[0].split('!')[1], msg[2], msg[-1]))
 
 	def TopicChange(self, msg):
 		msg = msg.split()

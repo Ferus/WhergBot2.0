@@ -9,28 +9,19 @@ class Slap(object):
 		Some of these 'fish' only exist because of a huge slap
 		battle between myself and an IRC friend.
 		'''
+
 		if not FishFile:
 			FishFile = "Fish.txt"
 		with open(FishFile, "r") as F:
-			_Fish = [f for f in F.readlines()]
-		self.Fish = []
-		for f in _Fish:
-			self.Fish.append(f.strip())
-
-	def GetFish(self):
-		return random.choice(self.Fish)
-
-	def GetPerson(self, Channel, Users):
-		return random.choice(Users.GetUserList(Channel))
+			self.Fish = F.read().splitlines()
 
 	def Parse(self, Msg, Sock, Users, Allowed):
 		try:
 			tmp = Msg[4].split()[1:]
 			if tmp[0] == 'random' and tmp[1] == 'random':
 				#All random.
-				Person = self.GetPerson(Msg[3], Users)
-				Fish = self.GetFish()
-				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, Fish))
+				Person = random.choice(Users.GetUserList(Msg[3]))
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(Person, random.choice(self.Fish)))
 
 			elif tmp[0] == 'random' and tmp[1] != 'random':
 				#Random person
@@ -39,8 +30,7 @@ class Slap(object):
 
 			elif tmp[0] != 'random' and tmp[1] == 'random':
 				#Random fish
-				Fish = self.GetFish()
-				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], Fish))
+				Sock.action(Msg[3], "slaps {0} around a bit with {1}.".format(tmp[0], random.choice(self.Fish)))
 
 			elif tmp[0] != 'random' and tmp[1] != 'random':
 				#No random

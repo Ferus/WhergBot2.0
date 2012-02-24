@@ -187,6 +187,10 @@ if __name__ == '__main__':
 	try:
 		port = Config.getint(Profile, 'port') if not Config.getboolean(Profile, 'usessl') else Config.getint(Profile, 'sslport')
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=port)
+		if WhergBot.Nickserv.password != '':
+			_n = Timer(3, WhergBot.Nickserv.Identify, ())
+			_n.daemon = True
+			_n.start()
 		_t = Timer(5, WhergBot.irc.join, (Config.get(Profile, "Channels"),))
 		_t.daemon = True
 		_t.start()

@@ -51,4 +51,3 @@ hooks = {
 		}
 
 helpstring = "Sorta like Imgur.py but for https://github.com/KevinLi/PuushServer"
-re.findall('(199.19.116.75|b.pyboard.net)\:[0-9]{4,5}/api\?file=[a-zA-Z0-9]{4}', '199.19.116.75:1234/Q02P')

@@ -59,8 +59,12 @@ def add_cache(word, definition=''):
 def UD(msg, sock, users, allowed):
 	try:
 		if not Locker.Locked:
-			sock.say(msg[3], request(" ".join(msg[4].split()[1:])))
-			Locker.Lock()
+			x = " ".join(msg[4].split()[1:])
+			if x:
+				sock.say(msg[3], request(x))
+				Locker.Lock()
+			else:
+				sock.notice(msg[0], "Derp!")
 		else:
 			sock.notice(msg[0], "Please wait a little bit longer before using this command")
 	except Exception, e:

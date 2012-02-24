@@ -62,23 +62,14 @@ class Bot(object):
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
 		self.irc.send("MODE {0} +Bs".format(self.nickname))
-		if self.NickServ.password != '':
-			self.Nickserv.Identify()
 		sleep(.3)
 
 	def Parse(self, msg):
 		try:
-			if not msg:
-				self.irc._isConnected = False
-				self.irc.close()
-				raise blackbox.IRCError('Pinged out?')
-			else:
-				self.msg = self.p.Main(msg)
+			self.p.Main(msg)
 		except blackbox.IRCError, e:
 			import sys
 			sys.exit("* [IRC] Error: {0}".format(e))
 		except Exception, e:
 			print("* [Error] {0}, {1}".format(repr(e), e.__class__))
 			print("* [Error] {0}".format([msg]))
-			#self.irc.close()
-			#quit()
