@@ -144,7 +144,8 @@ if __name__ == '__main__':
 	parser.add_option("-r", "--new-profile", dest="Newprof", action="store_true", default=False, help="Add a new profile to the config")
 	parser.add_option("-p", "--profile", dest="Profile", help="Specify a profile")
 	(options, args) = parser.parse_args()
-
+	
+	# im sure this is broken.
 	if options.Newfile and options.Profile or \
 		options.Newfile and options.Newprof or \
 			options.Profile and options.Newprof:
@@ -185,7 +186,12 @@ if __name__ == '__main__':
 		logging = Config.getboolean(Profile, "logging"))
 
 	try:
-		port = Config.getint(Profile, 'port') if not Config.getboolean(Profile, 'usessl') else Config.getint(Profile, 'sslport')
+		if Config.getboolean(Profile, 'usessl'):
+			port = Config.getint(Profile, 'port')
+		else:
+			port = Config.getint(Profile, 'sslport')
+
+		#port = Config.getint(Profile, 'port') if not Config.getboolean(Profile, 'usessl') else Config.getint(Profile, 'sslport')
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=port)
 		if WhergBot.Nickserv.password != '':
 			_n = Timer(3, WhergBot.Nickserv.Identify, ())
