@@ -187,9 +187,9 @@ if __name__ == '__main__':
 
 	try:
 		if Config.getboolean(Profile, 'usessl'):
-			port = Config.getint(Profile, 'port')
-		else:
 			port = Config.getint(Profile, 'sslport')
+		else:
+			port = Config.getint(Profile, 'port')
 
 		#port = Config.getint(Profile, 'port') if not Config.getboolean(Profile, 'usessl') else Config.getint(Profile, 'sslport')
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=port)
