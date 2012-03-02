@@ -42,8 +42,7 @@ def load(folder):
         module = path[len(folder):]
         # Abuses __import__. Don't do this kids, mkay?
         try:
-            imported[module] = __import__(path, {}, {},
-                [module])
+            imported[module] = __import__(path, {}, {},[module])
         except Exception as e:
             print("=================================")
             print("An error occured trying to import {0}:".format(module))

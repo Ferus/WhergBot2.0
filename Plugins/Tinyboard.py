@@ -5,6 +5,8 @@ import re
 import requests
 from htmldecode import convert
 
+#possible bug when polling for locked threads.
+
 class Tinyboard(object):
 	'''
 	A 'simple' module that returns stats of a thread. Post count, Image count, and the OP's text.

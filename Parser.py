@@ -159,6 +159,8 @@ class Parse():
 								t.start()
 						else: #Doesnt pass access.
 							pass
+					#else: #Debugging.
+					#	print(str(re.findall(comm+u"(\s|$)", Text)) +" "+ comm+u"(\s|$)")
 		except Exception, e:
 			print("* [Privmsg Error] {0}".format(repr(e)))
 

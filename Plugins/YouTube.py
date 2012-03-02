@@ -109,7 +109,6 @@ YouTube = YT()
 
 def YouTubeStats(msg, sock, users, allowed):
 	vidIds = list(set(re.findall("v=([a-zA-Z0-9_\-]{11})", msg[4])))
-	print vidIds
 	for vidId in vidIds:
 		x = YouTube.Main(vidId)
 		if x != None:
@@ -141,7 +140,7 @@ def YouTubeGetVids(msg, sock, users, allowed):
 	Lock.Lock()
 
 hooks = {
-	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/': [YouTubeStats, 5, False],
+	'(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*?': [YouTubeStats, 5, False],
 	'^@yt': [YouTubeGetVids, 5, False],
 	}
 

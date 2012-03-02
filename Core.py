@@ -49,24 +49,14 @@ class Bot(object):
 		'''Connect to the server'''
 		self.irc.connect(server, port)
 		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		try:
-			#Unreal has a fucking bug where you have to wait until you
-			#receive a line after registering to continue.
-			while True:
-				if self.irc.recv(1):
-					break
-		except:
-			quit()
 		self.irc.username(self.ident, self.realname)
 		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
 		self.irc.nickname(self.nickname)
 		print("* [IRC] Sending nickname: {0}".format(self.nickname))
-		self.irc.send("MODE {0} +Bs".format(self.nickname))
-		sleep(.3)
 
 	def Parse(self, msg):
 		try:
-			self.p.Main(msg)
+			return self.p.Main(msg)
 		except blackbox.IRCError, e:
 			import sys
 			sys.exit("* [IRC] Error: {0}".format(e))

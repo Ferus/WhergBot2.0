@@ -8,6 +8,7 @@
 
 # This is a very simple initial version.
 
+# Feb 29 - Use requests.url when returning text from getArticleByUrl
 # Feb 06 - Added a Command Locker
 # Jan 11 - Removed Footnotes from text
 # Jan 11 - Fixed a bug with missing 'http://' for requests
@@ -29,16 +30,22 @@ def truncate(content, length=300, suffix='...'):
 
 def getArticleByName(articleName):
 	Url = "http://en.wikipedia.org/wiki/Special:Search?search={0}".format(articleName.strip().replace(" ","%20"))
-	return "{0} - {1}".format(getArticleByUrl(Url), Url)
+	return "{0}".format(getArticleByUrl(Url, returnUrl=True))
 
-def getArticleByUrl(articleUrl):
+def getArticleByUrl(articleUrl, returnUrl=False):
 	if not articleUrl.startswith("http://") and not articleUrl.startswith("https://"):
 		articleUrl = "https://{0}".format(articleUrl)
 	try:
-		articleHtml = requests.get(articleUrl).content
-	except:
-		print("* [Wikipedia] Error => Failed to connect.")
-		return "Failed to connect to Wikipedia."
+		articleReq = requests.get(articleUrl)
+		if articleReq.status_code != 200:
+			raise requests.HTTPError
+		articleHtml = articleReq.content
+	except requests.HTTPError, e:
+		print("* [Wikipedia] Error => {0}".format(repr(e)))
+		return repr(e)
+	except Exception, e:
+		print("* [Wikipedia] Error => {0}".format(repr(e)))
+		return repr(e)
 
 	titleRegex = re.compile("<title>(.*?) -")
 	firstParaRegex = re.compile("<p>(.*?)[\r\n]?<\/p>")
@@ -61,6 +68,9 @@ def getArticleByUrl(articleUrl):
 			text = "Article not found."
 
 		result = "{0} {1}".format(title, text)
+
+		if returnUrl:
+			result += " - {0}".format(articleReq.url)
 	except:
 		result = "Failed to retrieve the Wikipedia article."
 
@@ -87,7 +97,7 @@ def wikiName(msg, sock, users, allowed):
 		print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
 hooks = {
-	'(?:https?:\/\/)?en.wikipedia\.org\/wiki\/': [wikiUrl, 5, False],
+	'(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?': [wikiUrl, 5, False],
 	'^@wiki': [wikiName, 5, False],
 	}
 

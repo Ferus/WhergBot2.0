@@ -187,17 +187,25 @@ if __name__ == '__main__':
 	try:
 		port = Config.getint(Profile, 'port') if not Config.getboolean(Profile, 'usessl') else Config.getint(Profile, 'sslport')
 		WhergBot.Connect(server=Config.get(Profile, "server"), port=port)
+
+		try:
+			#Unreal has a fucking bug where you have to wait until you
+			#receive a line after registering to continue.
+			while True:
+				if '001' in WhergBot.irc.recv():
+					break
+		except:
+			sys.exit("This shouldn't happen...")
+
+		WhergBot.irc.mode(Config.get(Profile, "nick"), "+Bs")
 		if WhergBot.Nickserv.password != '':
-			_n = Timer(3, WhergBot.Nickserv.Identify, ())
-			_n.daemon = True
-			_n.start()
-		_t = Timer(5, WhergBot.irc.join, (Config.get(Profile, "Channels"),))
+			 WhergBot.Nickserv.Identify()
+		_t = Timer(2, WhergBot.irc.join, (Config.get(Profile, "Channels"),))
 		_t.daemon = True
 		_t.start()
 
-		while WhergBot.irc._isConnected:
-			Msg = WhergBot.irc.recv()
-			WhergBot.Parse(Msg)
+		while WhergBot.irc.isConnected():
+			WhergBot.Parse(WhergBot.irc.recv())
 
 	except KeyboardInterrupt:
 		print("\n* [Core] Interrupt Caught; Quitting!")

@@ -26,9 +26,6 @@ class Commands():
 			,"^@join": [self.Join, 3, True]
 			,"^@part": [self.Part, 3, True]
 			,"^@access": [self.Access, 0, True]
-			,"^@lock": [self.Lock, 0, True]
-			,"^@unlock": [self.Unlock, 0, True]
-			,
 			}
 
 		self.helpstrings = {
@@ -47,8 +44,6 @@ class Commands():
 					 del:	Used to revoke access from a user. Takes 1 argument, Nick.
 					 show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.
 					 """,
-			"lock" : "Used to lock all commands to owner.",
-			"unlock" : "Used to reset all commands back to previous state.",
 			}
 
 		self.loadedplugins = []
@@ -164,23 +159,3 @@ class Commands():
 		except Exception, e:
 			sock.notice(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`")
 			print("* [Access] Error:\n* [Access] {0}".format(str(e)))
-
-	def Lock(self, msg, sock, users, _allowed):
-		if self.Locked:
-			sock.notice(msg[0], "I am already locked.")
-		else:
-			self.Locked = True
-			self._cmds = self.cmds
-			for k, v in self.cmds.items():
-				x[k][1] = 0
-				x[k][2] = True
-			sock.say(msg[3], "Locking down, successful.")
-
-	def Unlock(self, msg, sock, users, _allowed):
-		if not self.Locked:
-			sock.notice(msg[0], "I am already unlocked.")
-		else:
-			self.cmds = self._cmds
-			del self._cmds
-			self.Locked = False
-			sock.say(msg[3], "Unlocking successful.")
