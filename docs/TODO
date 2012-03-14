@@ -1,12 +1,8 @@
 1: Define more hooks for the parser
 
-2: Woll Smoth mode.
-	Override blackbox.send()?
-	Use regex to replace all vowels in recv'd lines with o
+2: Invites are broken
 
-3: Fix CTCP printing, apparently started since the parser was revamped
 
-4: Change Owner to a list/dict to allow multiple owners.
 
 #### PLUGINS ####
 

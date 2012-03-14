@@ -1,11 +1,11 @@
-WhergBot.py - A 'simple' Python2.7 based IRC bot.
+WhergBot.py - A 'simple' Python2.7/3.x based IRC bot.
 Copyright (C) 2012 Ferus - irc.datnode.net #hacking
 
 This program is free software: you can redistribute and/or
 modify the code provided that the following conditions are met:
 	- Redistribution of this program in any form must contain this LICENSE file
 	- No monetary profit will be made off of this program
-	- If the code is modified, you will document the changes
+	- h
 
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
