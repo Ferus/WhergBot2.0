@@ -8,6 +8,7 @@ Dependencies
 	Python 2.7.2 or 3.x
 
 	blackbox IRC Macros `(Develop Branch) <https://github.com/proxypoke/blackbox_IRC-macros/>`_
+
 	blackBox is a great module that's built over the IRC protocol. It's used here to manage connections to an IRC server.
 
 Optional Dependencies
@@ -38,26 +39,24 @@ Plugins
 	Each plugin requires a 'hooks' dictionary attribute, which contains a regex of the
 	command as a key and a list containing the command to call, access level required,
 	and a bool for hostchecking.
-	For example:
+	For example::
 
-	hooks = { "^@Hi" : [HelloWorld, 5, False] }
+		hooks = { "^@Hi" : [HelloWorld, 5, False] }
 
 	Will hook a "@Hi" command that calls HelloWorld (example below) only
 	if the user has level 5 or higher access.
 
 	The function to be called should receive 4 objects:
 
-..
-
 	- A message list, which holds the line sent, so you can parse it for data.
 	- A blackbox IRC object, which allows access to sending messages as well as other things.
 	- A users object, which allows access to a userlist dict.
 	- An allowed object, which gives you access to a dict of access levels.
 
-	For example:
+	For example::
 
-	def HelloWorld(Message, IRC, Users, Allowed):
-		IRC.say(Message[3], "Hello {0}!".format(Message[0]))
+		def HelloWorld(Message, IRC, Users, Allowed):
+			IRC.say(Message[3], "Hello {0}!".format(Message[0]))
 
 	This function will send "Hello <Name>" where <Name> is the name of the person who
 	triggered the function.
