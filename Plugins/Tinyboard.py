@@ -21,7 +21,13 @@ class Tinyboard(object):
 				html = requests.get(link)
 				if html.status_code != 200:
 					return None
-				html = html.content.encode("utf8")
+				try:
+					html = html.content.decode("utf8", "replace")
+				except:
+					try:
+						html = html.content.encode("utf8", "replace")
+					except:
+						return None
 				return html
 			except:
 				return None
@@ -125,12 +131,13 @@ class Tinyboard(object):
 		Post_Text = self.smart_truncate(Post_Text)
 		Post_Text = convert(Post_Text)
 
-		if Post_Trip:
-			return "{0}{1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_Trip, postText, imageText, Post_Text, link)
-		elif Post_CapCode:
-			return "{0} {1} ({2}, {3}) posted: {4} - {5}".format(Post_Name, Post_CapCode, postText, imageText, Post_Text, link)
-		else:
-			return "{0} ({1}, {2}) posted: {3} - {4}".format(Post_Name, postText, imageText, Post_Text, link)
+		return "{0}{1}{2}({3}, {4}) posted: {5}\x0f - {6}".format(Post_Name
+			,Post_Trip if Post_Trip else ""
+			," {0} ".format(Post_CapCode) if Post_CapCode else " "
+			,postText
+			,imageText
+			,Post_Text
+			,link)
 
 	def smart_truncate(self, content, length=300, suffix='...'):
 		'''Borrowed from stackoverflow, Credits to 'Adam'. :) '''
