@@ -9,7 +9,7 @@ Dependencies
 
 	blackbox IRC Macros `(Develop Branch) <https://github.com/proxypoke/blackbox_IRC-macros/>`_
 
-	blackBox is a great module that's built over the IRC protocol. It's used here to manage connections to an IRC server.
+	blackbox is a great module that's built over the IRC protocol. It's used here to manage connections to an IRC server.
 
 Optional Dependencies
 =====================
