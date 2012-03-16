@@ -142,6 +142,9 @@ class Parse():
 				and if they have access, execute the command. Regex based commands too. :)
 				'''
 				print(u"* [Privmsg] [{0}] <{1}> {2}".format(Location, Nick, Text))
+				if self.command.Locker.Locked and Nick != self.allowed.Owner[0]:
+					self.sock.notice(Nick, "Sorry but I'm locked bro.")
+					return None
 				for comm in self._commands: #Loop through every one.
 					if re.search(comm+u"(\s|$)", Text): #If we match a command
 						check = self.allowed.levelCheck(Nick)[1] #Start an access check

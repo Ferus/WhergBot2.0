@@ -2,6 +2,7 @@
 
 import re
 import pluginLoader as pL
+from Plugins import CommandLock
 
 class Commands():
 	def __init__(self, nick=None, parser=None, allowed=None):
@@ -18,7 +19,7 @@ class Commands():
 		self.parser = parser
 		self.allowed = allowed
 
-		self.Locked = False
+		self.Locker = CommandLock.Locker(-1)
 
 		self.cmds = {"^@help": [self.Help, 5, False]
 			,"^@plugins": [self.Plugins, 5, False]
@@ -26,6 +27,8 @@ class Commands():
 			,"^@join": [self.Join, 3, True]
 			,"^@part": [self.Part, 3, True]
 			,"^@access": [self.Access, 0, True]
+			,"^@lock": [self.Lock, 0, True]
+			,"^@unlock": [self.Unlock, 0, True]
 			}
 
 		self.helpstrings = {
@@ -33,17 +36,19 @@ class Commands():
 			#@help <ModuleName> will give specific info about a module.
 			"help" : """@help takes one argument, the name of a plugin in which you wish to get help for.
 					 To get a list of loaded plugins, use '@plugins'
-					 """,
-			"plugins" : "Notices the user with a list of plugins available. You can also '@help <PluginName>' for specific info",
-			"join" : "Tells {0} to join one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
-			"part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick),
-			"quit" : "Tells {0} to shutdown.".format(self.nick),
-			"access":"""Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
-					 The default level for ignore is anything above 5, but this can be changed.
-					 add:	Used to add/change access of a person. Takes 3 arguments, Nick, Host (or 'none'), and an Access Level.
-					 del:	Used to revoke access from a user. Takes 1 argument, Nick.
-					 show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.
-					 """,
+					 """
+			,"plugins" : "Notices the user with a list of plugins available. You can also '@help <PluginName>' for specific info"
+			,"join" : "Tells {0} to join one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick)
+			,"part" : "Tells {0} to part one or more channel(s). Takes channels separated by a comma with or without the leading hashtag.".format(self.nick)
+			,"quit" : "Tells {0} to shutdown.".format(self.nick)
+			,"access": """Allows the owner(s) (Access level 0) to modify access levels per user/hostmask
+				The default level for ignore is anything above 5, but this can be changed.
+				add:	Used to add/change access of a person. Takes 3 arguments, Nick, Host (or 'none'), and an Access Level.
+				del:	Used to revoke access from a user. Takes 1 argument, Nick.
+				show:	Used to print the access for a user to a channel. Takes 1 argument, Nick.
+				"""
+			,"lock": "Locks all commands down to Owner access only."
+			,"unlock": "Unlocks all commands."
 			}
 
 		self.loadedplugins = []
@@ -159,3 +164,17 @@ class Commands():
 		except Exception, e:
 			sock.notice(Nick, "Format for 'access' is: `access add/del Nick Ident@host Level`")
 			print("* [Access] Error:\n* [Access] {0}".format(str(e)))
+
+	def Lock(self, msg, sock, users, _allowed):
+		if not self.Locker.Locked:
+			if self.Locker.Lock():
+				sock.say(msg[3], "Locking successful.")
+		else:
+			sock.notice(msg[0], "I'm already locked you derp.")
+
+	def Unlock(self, msg, sock, users, _allowed):
+		if self.Locker.Locked:
+			if not self.Locker.Unlock():
+				sock.say(msg[3], "Unlocking successful.")
+		else:
+			sock.notice(msg[0], "I'm already unlocked you derp.")

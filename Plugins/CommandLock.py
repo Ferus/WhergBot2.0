@@ -15,6 +15,14 @@ else:
 	Do_Something()
 	Locker.Lock()
 '''
+
+'''
+Changelog:
+March 15:
++ Negative integers lock forever until Unlock() is called, Zero defaults to 5.
++ Return self.Locked after calling.
+'''
+
 class Locker(object):
 	def __init__(self, Time=None):
 		self.Time = Time if Time and type(Time) == int else 5
@@ -24,9 +32,12 @@ class Locker(object):
 	def Lock(self):
 		if not self.Locked:
 			self.Locked = True
-			t = Timer(self.Time, self.Unlock, ())
-			t.daemon = True
-			t.start()
+			if self.Time > 0:
+				t = Timer(self.Time, self.Unlock, ())
+				t.daemon = True
+				t.start()
+		return self.Locked
 
 	def Unlock(self):
 		self.Locked = False
+		return self.Locked
