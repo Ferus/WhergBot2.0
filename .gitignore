@@ -2,6 +2,6 @@
 *~
 *.txt
 *.shelve
-Pickle_Quotes.pkl
 *.py.*
 *.ini
+*.db
