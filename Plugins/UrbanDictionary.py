@@ -53,7 +53,7 @@ def UDrequest(msg, sock, users, allowed):
 		results = []
 		for x in re.split("<br/>", result):
 			if x == " " or x == "":
-				pass
+				continue
 			x = x.replace('&quot;', '"').replace('<b>', '\x02').replace('</b>', '\x02').replace('<br/>', '')
 			results.append(x)
 		add_cache(word.lower(), " ".join(results))

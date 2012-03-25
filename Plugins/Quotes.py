@@ -22,7 +22,7 @@ class QuotesDatabase(object):
 		self.QuoteDB = QuoteDB
 		self.Conn = sqlite3.connect(self.QuoteDB)
 		self.Conn.create_function("REGEXP", 2, regexp)
-		
+
 		self.Cursor = self.Conn.cursor()
 		self.Cursor.execute("create table if not exists quotes (id integer primary key autoincrement, quote TEXT)")
 		try:
@@ -37,7 +37,7 @@ class QuotesDatabase(object):
 			print("* [Quotes] Saving database!")
 		except Exception, e:
 			print("* [Quotes] OOPS! {0}".format(repr(e)))
-			
+
 	def Add(self, QuoteString):
 		try:
 			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (QuoteString.decode("utf8"),))
@@ -64,7 +64,7 @@ class QuotesDatabase(object):
 			x = self.Cursor.execute("select quote from quotes where id=?", (QuoteNum,))
 			print("* [Quotes] Sending Quote.")
 			return x.next()[0]
-		
+
 		except StopIteration, e:
 			return "No quotes in database or quote does not exist."
 		except Exception, e:
@@ -110,8 +110,7 @@ class QuotesDatabase(object):
 			return "Created backup file {0}".format(BackupFile)
 		except Exception, e:
 			return "Error: {0}".format(repr(e))
-			
-print(os.access("./Plugins/Quotes.db", 6))
+
 IRCq = QuotesDatabase("./Plugins/Quotes.db")
 
 def Quote(msg, sock, users, allowed):
@@ -135,7 +134,7 @@ def QuoteSearch(msg, sock, users, allowed):
 	else:
 		Text = ''
 	sock.say(msg[3], IRCq.Search(msg=Text))
-	
+
 def QuoteCount(msg, sock, users, allowed):
 	'''Returns the count of total quotes'''
 	sock.say(msg[3], IRCq.Count())
@@ -147,7 +146,7 @@ def QuoteAdd(msg, sock, users, allowed):
 		sock.say(msg[3], IRCq.Add(QuoteString=q))
 	except:
 		sock.notice(msg[0], "I cannot add a null string.")
-			
+
 def QuoteDel(msg, sock, users, allowed):
 	'''Calls the del function to remove a quote'''
 	try:
@@ -155,7 +154,7 @@ def QuoteDel(msg, sock, users, allowed):
 	except:
 		Text = None
 	sock.say(msg[3], IRCq.Delete(QuoteNum=Text))
-	
+
 def QuoteBackup(msg, sock, users, allowed):
 	'''Calls the backup function to backup the pickled quotes file in plaintext'''
 	try:
@@ -163,7 +162,7 @@ def QuoteBackup(msg, sock, users, allowed):
 	except:
 		Text = None
 	sock.say(msg[3], IRCq.Backup(BackupFile=Text))
-	
+
 hooks = {
 	'^@quote': [Quote, 5, False],
 	'^@qsearch': [QuoteSearch, 5, False],
