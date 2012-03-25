@@ -41,7 +41,6 @@ class DefaultDatabase(object):
 
 	def Add(self, String):
 		try:
-<<<<<<< HEAD
 			self.Conn.commit()
 			print("* [Quotes] Saving database!")
 		except Exception, e:
@@ -49,10 +48,7 @@ class DefaultDatabase(object):
 
 	def Add(self, QuoteString):
 		try:
-			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (QuoteString.decode("utf8"),))
-=======
 			x = self.Cursor.execute("insert into {0} values (NULL, ?)".format(self.Table), (String.decode("utf8"),))
->>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 			self.LastID = str(x.lastrowid)
 			print("* [Quotes.py] Added new string to {0}!".format(self.Table))
 			self.Save()
@@ -61,7 +57,6 @@ class DefaultDatabase(object):
 			print("* [Quotes.py] Error 'adding'.\n* [Quotes.py] {0}".format(repr(e)))
 
 class QuotesDatabase(DefaultDatabase):
-
 	def Delete(self, QuoteNum):
 		try:
 			self.Cursor.execute("update quotes set quote='This quote has been deleted.' where id=?", (QuoteNum,))
@@ -125,9 +120,6 @@ class QuotesDatabase(DefaultDatabase):
 		except Exception, e:
 			return "Error: {0}".format(repr(e))
 
-<<<<<<< HEAD
-IRCq = QuotesDatabase("./Plugins/Quotes.db")
-=======
 class RulesDatabase(DefaultDatabase):
 	def Number(self, RuleNum):
 		try:
@@ -145,7 +137,6 @@ class RulesDatabase(DefaultDatabase):
 
 IRCq = QuotesDatabase("./Plugins/Quotes.db", "quotes", "quote")
 IRCr = RulesDatabase("./Plugins/Rules.db", "rules", "rule")
->>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 
 def Quote(msg, sock, users, allowed):
 	'''
@@ -197,8 +188,6 @@ def QuoteBackup(msg, sock, users, allowed):
 		Text = None
 	sock.say(msg[3], IRCq.Backup(BackupFile=Text))
 
-<<<<<<< HEAD
-=======
 def Rule(msg, sock, users, allowed):
 	try:
 		Text = msg[4].split()[1:][0]
@@ -206,7 +195,6 @@ def Rule(msg, sock, users, allowed):
 	except:
 		sock.notice(msg[0], "Supply a rule number!")
 	
->>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 hooks = {
 	'^@quote': [Quote, 5, False],
 	'^@qsearch': [QuoteSearch, 5, False],
