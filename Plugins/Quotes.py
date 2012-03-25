@@ -10,29 +10,38 @@ class NoDatabaseError(Exception):
 	def __str__(self):
 		return repr(self.value)
 
-class QuotesDatabase(object):
-	def __init__(self, QuoteDB=None):
-		if not QuoteDB:
+class DefaultDatabase(object):
+	def __init__(self, Database=None, Table=None, Row=None):
+		if not Database:
 			raise NoDatabaseError("Failed to pass a database name.")
 
 		def regexp(expr, item):
 			reg = re.compile(expr)
 			return reg.search(item, re.IGNORECASE) is not None
-
-		self.QuoteDB = QuoteDB
-		self.Conn = sqlite3.connect(self.QuoteDB)
+		
+		self.Table = Table
+		
+		self.Database = Database
+		self.Conn = sqlite3.connect(self.Database)
 		self.Conn.create_function("REGEXP", 2, regexp)
 
 		self.Cursor = self.Conn.cursor()
-		self.Cursor.execute("create table if not exists quotes (id integer primary key autoincrement, quote TEXT)")
+		self.Cursor.execute(
+			"create table if not exists {0} (id integer primary key autoincrement, {1} TEXT)".format(self.Table, Row))
+
 		try:
-			self.LastID = str(self.Cursor.execute("SELECT * FROM quotes ORDER BY ID DESC LIMIT 1").next()[0])
+			self.LastID = str(self.Cursor.execute("SELECT * FROM {0} ORDER BY ID DESC LIMIT 1".format(self.Table)).next()[0])
 		except StopIteration, e:
 			self.LastID = "0"
-		print("* [Quotes] {0} quotes have been loaded.".format(self.LastID))
+		print("* [Quotes.py] {0} rows from {1} have been loaded.".format(self.LastID, self.Table))
 
 	def Save(self):
+		self.Conn.commit()
+		print("* [Quotes.py] Saving Database!")
+
+	def Add(self, String):
 		try:
+<<<<<<< HEAD
 			self.Conn.commit()
 			print("* [Quotes] Saving database!")
 		except Exception, e:
@@ -41,12 +50,17 @@ class QuotesDatabase(object):
 	def Add(self, QuoteString):
 		try:
 			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (QuoteString.decode("utf8"),))
+=======
+			x = self.Cursor.execute("insert into {0} values (NULL, ?)".format(self.Table), (String.decode("utf8"),))
+>>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 			self.LastID = str(x.lastrowid)
-			print("* [Quotes] Added new quote!")
+			print("* [Quotes.py] Added new string to {0}!".format(self.Table))
 			self.Save()
 			return "Added new quote number {0} successfully!".format(self.LastID)
 		except Exception, e:
-			print("* [Quotes] Error 'adding'.\n* [Quotes] {0}".format(repr(e)))
+			print("* [Quotes.py] Error 'adding'.\n* [Quotes.py] {0}".format(repr(e)))
+
+class QuotesDatabase(DefaultDatabase):
 
 	def Delete(self, QuoteNum):
 		try:
@@ -74,7 +88,7 @@ class QuotesDatabase(object):
 		print("* [Quotes] Sending random Quote.")
 		y = choice(range(1, int(self.LastID)))
 		x = self.Cursor.execute("select quote from quotes where id=?", (str(y),))
-		return x.next()[0]
+		return "Quote {0}: {1}".format(y, x.next()[0])
 
 	def Count(self):
 		return "I currently hold {0} quotes in my database.".format(self.LastID)
@@ -111,7 +125,27 @@ class QuotesDatabase(object):
 		except Exception, e:
 			return "Error: {0}".format(repr(e))
 
+<<<<<<< HEAD
 IRCq = QuotesDatabase("./Plugins/Quotes.db")
+=======
+class RulesDatabase(DefaultDatabase):
+	def Number(self, RuleNum):
+		try:
+			RuleNum = int(RuleNum)
+		except:
+			return "That's not a number!"
+		try:
+			x = self.Cursor.execute("select rule from rules where id=?", (RuleNum,))
+			print("* [Rules] Sending Rule.")
+			return x.next()[0]
+		except StopIteration, e:
+			return "No rules in database or rule does not exist."
+		except Exception, e:
+			return repr(e)
+
+IRCq = QuotesDatabase("./Plugins/Quotes.db", "quotes", "quote")
+IRCr = RulesDatabase("./Plugins/Rules.db", "rules", "rule")
+>>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 
 def Quote(msg, sock, users, allowed):
 	'''
@@ -163,6 +197,16 @@ def QuoteBackup(msg, sock, users, allowed):
 		Text = None
 	sock.say(msg[3], IRCq.Backup(BackupFile=Text))
 
+<<<<<<< HEAD
+=======
+def Rule(msg, sock, users, allowed):
+	try:
+		Text = msg[4].split()[1:][0]
+		sock.say(msg[3], IRCr.Number(Text))
+	except:
+		sock.notice(msg[0], "Supply a rule number!")
+	
+>>>>>>> 52e4a0e0be6019ced5e235fed360a460d7fa843b
 hooks = {
 	'^@quote': [Quote, 5, False],
 	'^@qsearch': [QuoteSearch, 5, False],
@@ -171,6 +215,8 @@ hooks = {
 	'^@qadd': [QuoteAdd, 0, True],
 	'^@qdel': [QuoteDel, 0, True],
 	'^@qbackup': [QuoteBackup, 0, True],
+
+	'^@rule': [Rule, 5, False],
 	}
 
 helpstring = """Stores IRC quotes/`rules` in a pickle file.
