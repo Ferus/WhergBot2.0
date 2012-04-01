@@ -54,7 +54,7 @@ def NewProfile():
 	Prof.read("./Config.ini")
 	print("* [Config] First off, what would you like to name the new profile?")
 
-	NewConfig = GetAnswer(Prompt="New profile name >> ", isStr=True)
+	NewConfig = GetAnswer(Prompt="New profile name >> ")
 	print("* [Config] You have chosen to name the profile '{0}'.".format(NewConfig))
 
 	Prof.add_section(NewConfig)
