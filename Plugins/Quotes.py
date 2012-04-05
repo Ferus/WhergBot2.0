@@ -161,7 +161,7 @@ def QuoteAdd(msg, sock, users, allowed):
 	'''Calls the add function to add a quote'''
 	try:
 		Text = " ".join(msg[4].split()[1:])
-		sock.say(msg[3], IRCq.Add(QuoteString=q))
+		sock.say(msg[3], IRCq.Add(String=Text))
 	except:
 		sock.notice(msg[0], "I cannot add a null string.")
 
