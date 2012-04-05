@@ -41,13 +41,6 @@ class DefaultDatabase(object):
 
 	def Add(self, String):
 		try:
-			self.Conn.commit()
-			print("* [Quotes] Saving database!")
-		except Exception, e:
-			print("* [Quotes] OOPS! {0}".format(repr(e)))
-
-	def Add(self, QuoteString):
-		try:
 			x = self.Cursor.execute("insert into {0} values (NULL, ?)".format(self.Table), (String.decode("utf8"),))
 			self.LastID = str(x.lastrowid)
 			print("* [Quotes.py] Added new string to {0}!".format(self.Table))
