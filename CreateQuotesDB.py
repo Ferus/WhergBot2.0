@@ -13,7 +13,7 @@ if __name__ == '__main__':
 	try:
 		flatfile = sys.argv[-1]
 	except Exception, e:
-		sys.exit(repr(e))
+		sys.exit("Please specify a file.")
 	
 	dbfile = flatfile.split(os.sep)[-1].split('.')[0]+'.db'
 	if raw_input("Create database {0}? Y/N: ".format(dbfile)).lower() not in ('y', 'yes'):
