@@ -1,7 +1,2 @@
 *.pyc
-*~
-*.txt
-*.shelve
-*.py.*
-*.ini
-*.db
+Cleanup.sh

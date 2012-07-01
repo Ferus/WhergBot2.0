@@ -1,65 +1,123 @@
 #!/usr/bin/env python
-
+import sys
+from threading import Thread
+from time import sleep, strftime, time
 try:
 	from blackbox import blackbox
 except ImportError:
-	import sys
-	sys.exit("* [Core] WhergBot needs the blackbox IRC macros module to run.")
-from time import sleep
+	sys.exit("The blackbox IRC Macros module is needed to run.")
 
+import Config
 import Parser
-from Services import NickServ, HostServ, Allowed
 
-class Bot(object):
-	def __init__(self, nickname='', realname='', ident='', owner=[], ssl=True, proxy=None, logging=False):
-		'''Create our bots name, realname, and ident, and create our IRC object, Commands object, Parser object, and users dict'''
-		self.irc = blackbox.IRC(logging=logging, ssl=ssl)
-		if proxy:
-			try:
-				print("* [IRC] Attempting to set proxy to {0} on port {1}".format(proxy[0], proxy[1]))
-				import socks
-				Types = {"http":socks.PROXY_TYPE_HTTP, "socks4":socks.PROXY_TYPE_SOCKS4, "socks5":socks.PROXY_TYPE_SOCKS5}
-				Sock = socks.socksocket()
-				Sock.setproxy(Types[proxy[2]], proxy[0], proxy[1])
-				self.irc._irc = Sock
-				print("* [IRC] Set proxy, if the bot fails to connect, the proxy may be bad.\n* [IRC] This does not set a proxy for any HTTP GET/POST/etc requests.")
-			except Exception, e:
-				print("* [IRC] Failed to set proxy, using none.")
-				print(repr(e))
+class Connection(object):
+	"""A connection instance for a server
+	"""
+	def __init__(self, name, conf, Connections, Processes):
+		self.__time__ = time()
+		self.__name__ = name
+		self.Connections = Connections
+		self.Processes = Processes
+		self.Config = conf
+		self.IRC = blackbox.IRC(logging=self.Config.get('logging', False)
+			,logfile=self.Config.get('logfile', "{0}.log".format(self.__name__))
+			,ssl=self.Config.get('ssl', False))
+		self.Parser = Parser.Parser(self)
+		self.shuttingDown = False
 
-		self.Nickserv = NickServ.NickServ(sock=self.irc)
-		self.Hostserv = HostServ.HostServ(sock=self.irc)
-
-		self.allowed = Allowed.Allowed("Services/AllowedUsers.shelve")
-
-		if owner:
-			self.Owner = owner
-			self.allowed.Owner = self.Owner
-			self.allowed.db[self.Owner[0]] = [self.Owner[1], self.Owner[2]] #Reset the owner. Just in case the config changed.
-			print("* [Access] Setting owner to {0}, with hostmask {1}".format(self.Owner[0], self.Owner[1]))
-
-		self.p = Parser.Parse(sock=self.irc, allowed=self.allowed, nick=nickname)
-
-		self.nickname = nickname if nickname else 'WhergBot2'
-		self.realname = realname if realname else 'WhergBot [Ferus]'
-		self.ident = ident if ident else 'Wherg'
-
-
-	def Connect(self, server, port=6667):
-		'''Connect to the server'''
-		self.irc.connect(server, port)
-		print("* [IRC] Connecting to {0} on port {1}".format(server, port))
-		self.irc.username(self.ident, self.realname)
-		print("* [IRC] Sending username: {0} and realname: {1}".format(self.ident, self.realname))
-		self.irc.nickname(self.nickname)
-		print("* [IRC] Sending nickname: {0}".format(self.nickname))
-
-	def Parse(self, msg):
+	def makeConnection(self):
 		try:
-			return self.p.Main(msg)
-		except blackbox.IRCError, e:
-			import sys
-			sys.exit("* [IRC] Error: {0}".format(e))
+			self.IRC.connect(self.Config.get('host'), self.Config.get('port'))
+			print("{0} Initializing connection for server {1}.".format(strftime(Config.Global['timeformat']), self.__name__))
+			self.IRC.nickname(self.Config.get('nick'))
+			print("{0} Sending Nickname to server {1}.".format(strftime(Config.Global['timeformat']), self.__name__))
+			self.IRC.username(self.Config.get('ident'), self.Config.get('realname'))
+			print("{0} Sending Ident and Realname to server {1}.".format(strftime(Config.Global['timeformat']), self.__name__))
 		except Exception, e:
-			print("* [Error] {0}, {1}".format(repr(e), e.__class__))
-			print("* [Error] {0}".format([msg]))
+			print("{0} Exception when making connection to server {1}:".format(strftime(Config.Global['timeformat']), self.__name__))
+			print("{0} {1}".format(strftime(Config.Global['timeformat']), repr(e)))
+			sleep(1)
+			self.makeConnection()
+	
+	def quitConnection(self):
+		self.shuttingDown = True
+		for Plugin, Values in self.Parser.loadedPlugins.items():
+			Values[5]()
+			print("* Running Unload on plugin '{0}'".format(Plugin))
+		self.IRC.quit(self.Config.get('quitmessage', 'KeyboardInterrupt raised; Quitting!'))
+		print("{0} {1}: Quitting Server!".format(strftime(Config.Global['timeformat']), self.__name__))
+		return True
+	
+	def parseData(self, data=None):
+		if data:
+			self.Parser.Parse(data)
+		else:
+			while not self.shuttingDown:
+				try:
+					self.Parser.Parse(self.IRC.recv().encode('utf8'))
+				except blackbox.IRCError, e:
+					print("{0} IRCError on connection '{1}': {2}".format(strftime(Config.Global['timeformat']), self.__name__, repr(e)))
+					self.Connections.remove(self)
+					print("{0} Connection '{1}' removed.".format(strftime(Config.Global['timeformat']), self.__name__))
+					if not self.shuttingDown:
+						print("{0} Attempting to reconnect.".format(strftime(Config.Global['timeformat'])))
+						run([self.__name__])
+					return None
+				except Exception, e:
+					print("{0} Exception caught on connection '{1}': {2}".format(strftime(Config.Global['timeformat']), self.__name__, repr(e)))
+			return None
+
+def run(servers):
+	Conns = []
+	Processes = []
+	for Server in servers:
+		if not Config.Servers[Server]['enabled']:
+			print("{0} Skipping disabled server {1}".format(strftime(Config.Global['timeformat']), Server))
+			continue
+		print("{0} Loading Config for server '{1}'".format(strftime(Config.Global['timeformat']), Server))
+
+		C = Connection(name=Server, conf=Config.Servers[Server], Connections=Conns, Processes=Processes)
+		Conns.append(C)
+	[x.makeConnection() for x in Conns]
+
+	for Conn in Conns:
+		try:
+			while True:
+				tempData = Conn.IRC.recv()
+				Conn.parseData(tempData)
+				if '001' in tempData:
+					break
+			while Conn.Parser._onConnect:
+				try:
+					Conn.Parser._onConnect.pop(0)()
+				except Exception, e:
+					print("{0} Error with function in _onConnect: {1}".format(strftime(Config.Global['timeformat']), repr(e)))
+			sleep(1)
+			Conn.IRC.join(Conn.Config.get('channels'))
+		except blackbox.IRCError, e:
+			print("{0} Removing Conn {1}: {2}".format(strftime(Config.Global['timeformat']), Conn.__name__, repr(e)))
+			Conns.remove(Conn)
+		except Exception, e:
+			print(repr(e))
+		
+		p = Thread(target=Conn.parseData)
+		p.name = Conn.__name__
+		p.daemon = True
+		p.start()
+		Processes.append(p)
+	try:
+		while len(Processes) > 0:
+			Processes = [p for p in Processes if p.is_alive()]
+			sleep(5)
+	except KeyboardInterrupt:
+		print('\n')
+		for Conn in Conns:
+			Conn.quitConnection()
+		while len(Processes) > 0:
+			Processes = [p for p in Processes if p.is_alive()]
+			sleep(1)
+	finally:
+		sys.exit()
+
+if __name__ == '__main__':
+	run(Config.Servers.keys())
