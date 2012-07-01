@@ -1,0 +1,3 @@
+Weather
+Cleverbot
+Markov

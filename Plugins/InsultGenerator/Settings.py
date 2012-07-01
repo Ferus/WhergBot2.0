@@ -1,0 +1,3 @@
+Settings = {
+	'locktime': 3
+}
