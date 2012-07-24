@@ -1,3 +1,13 @@
 Weather
 Cleverbot
 Markov
+General
+Logging
+
+Web Interface?
+	Plugins should be able to hook into this if needed.
+	from Plugins import WebInterface ?
+	Modular, has an add_page/tab() or similar
+	html templates?
+	
+Sending Buffer/Queue

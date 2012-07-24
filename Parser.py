@@ -225,9 +225,9 @@ class Parser(object):
 	
 	def unLoadPlugins(self, data):
 		Nick, Ident, Host = re.split("!|@", data[0])
-		if (Nick not in Config.Global['owner']['nicks'] or
-			Ident not in Config.Global['owner']['idents'] or
-				Host not in Config.Global['owner']['hosts']):
+		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
+			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
+				Host not in Config.Servers[self.Connection.__name__]['owner']['hosts']):
 					return None
 		module = data[4]
 		try:
@@ -262,7 +262,7 @@ class Parser(object):
 			for plugin, instance in loaded.items():
 				self.loadedPlugins[plugin] = [instance, instance.Main(plugin, self)]
 				self.loadedPlugins[plugin][1].Load()
-			self.IRC.say(data[2], "Reloaded Plugin!")
+			self.IRC.say(data[2], "Reloaded {0}".format(plugin))
 		except Exception, e:
 			del self.loadedPlugins[plugin]
 			print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
@@ -273,9 +273,9 @@ class Parser(object):
 	
 	def Shutdown(self, data):
 		Nick, Ident, Host = re.split("!|@", data[0])
-		if (Nick not in Config.Global['owner']['nicks'] or
-			Ident not in Config.Global['owner']['idents'] or
-				Host not in Config.Global['owner']['hosts']):
+		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
+			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
+				Host not in Config.Servers[self.Connection.__name__]['owner']['hosts']):
 					return None
 
 		for Conn in self.Connection.Connections:

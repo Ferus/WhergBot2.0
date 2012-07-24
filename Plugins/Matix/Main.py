@@ -12,6 +12,8 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 		self.Dir = Settings.get("dir")
 		self.Files = os.listdir(self.Dir)
+		self.MusicDir = Settings.get("musicdir")
+		self.MusicFiles = os.listdir(self.MusicDir)
 
 	def Matix(self, data):
 		if data[0] not in Settings['allowed']:
@@ -24,9 +26,22 @@ class Main(object):
 				except UnicodeDecodeError:
 					pass
 		return
+	
+	def Lyric(self, data):
+		if data[0] not in Settings['allowed']:
+			return None
+		f = choice(self.MusicFiles)
+		with open("{0}/{1}".format(self.MusicDir, f)) as _f:
+			for line in _f.readlines():
+				try:
+					self.IRC.say(data[2], line)
+				except UnicodeDecodeError:
+					pass
+		return
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@matix", self.Matix)
+		self.Parser.hookCommand('PRIVMSG', "^@lyric", self.Lyric)
 		self.Parser.loadedPlugins[self.__name__].append(Settings)
 		self.Parser.loadedPlugins[self.__name__].append(self.Load)
 		self.Parser.loadedPlugins[self.__name__].append(self.Unload)

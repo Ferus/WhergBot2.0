@@ -46,13 +46,17 @@ class Main(object):
 		h = re.sub("</a>(:?</span>)?", "", h)
 		h = re.sub("\s{2,}", " ", h).strip(" ")
 		self.IRC.say(data[2], "\x02[ISUP]\x02 {0}".format(h))
+		
+	def Police(self, data):
+		self.IRC.say(data[2], "Fuck da police!")
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", '^@oven(?: .*?)?$', self.Oven)
 		self.Parser.hookCommand("PRIVMSG", '^@next$', self.Next)
 		self.Parser.hookCommand("PRIVMSG", '^@bacon(?: .*?)?$', self.Bacon)
-		self.Parser.hookCommand("PRIVMSG", '(^|\s+);[_-]{1};(\s|$)', self.Hug)
+		self.Parser.hookCommand("PRIVMSG", '(^|\s+);[_-~]{1};(\s|$)', self.Hug)
 		self.Parser.hookCommand("PRIVMSG", '^@isup(?: .*?)?$', self.isup)
+		self.Parser.hookCommand("PRIVMSG", "^!police$", self.Police)
 		self.Parser.loadedPlugins[self.__name__].append(Settings)
 		self.Parser.loadedPlugins[self.__name__].append(self.Load)
 		self.Parser.loadedPlugins[self.__name__].append(self.Unload)

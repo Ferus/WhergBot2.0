@@ -14,5 +14,6 @@ Settings = {'ovenmintime': 7
 		,'doradus!dora@dat-5C2B8FE8.staffs.ac.uk'
 		,'Eutectic!yiffer@jewishfurries.org'
 		,'Buggles!Buggles@buggles.com'
+		,'viracocha!chatzilla@dat-260DA75A.hsd1.ga.comcast.net'
 		]
 }
