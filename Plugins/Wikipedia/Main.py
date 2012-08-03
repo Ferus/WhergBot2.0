@@ -107,7 +107,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 	def wikiUrl(self, data):
 		urls = re.findall("(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?(?:\s|$)", ' '.join(data[3:]))
 		for url in urls:
@@ -115,7 +115,7 @@ class Main(object):
 				self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(getArticleByUrl(url)))
 			except Exception, e:
 				print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
-	
+
 	def wikiName(self, data):
 		try:
 			if not Locker.Locked:
@@ -130,10 +130,7 @@ class Main(object):
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@wiki .*?$", self.wikiName)
 		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?", self.wikiUrl)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

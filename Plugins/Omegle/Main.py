@@ -10,9 +10,9 @@ class Main():
 		self.IRC = self.Parser.IRC
 		self.Running = False
 		self.Omegle = None
-	
+
 		self.activeChannel = ''
-	
+
 	def createOmegleConnection(self, data):
 		"""Called on :omegle"""
 		self.Omegle = omegle.Omegle()
@@ -22,7 +22,7 @@ class Main():
 
 		self.addOmegleHooks()
 		self.Omegle.mainLoop()
-	
+
 	def addOmegleHooks(self):
 		cb = [['strangerDisconnected', self.strangerDisconnected]
 			,['waiting', self.waiting]
@@ -35,7 +35,7 @@ class Main():
 			,['recaptchaRequired', self.recaptchaRequired]
 			,['technical reasons', self.technicalReasons]
 			]
-		
+
 		scb = [['win', self.win]
 			,['fail', self.fail]
 			]
@@ -45,38 +45,38 @@ class Main():
 		for x, y in scb:
 			self.Omegle.hookSCallback(x, y)
 
-	
+
 	def strangerDisconnected(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger\x03 has disconnected.")
 		self.cleanup()
-		
+
 	def waiting(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Waiting for \x0302Stranger\x03.")
-	
+
 	def clientID(self, msg):
 		pass
-	
+
 	def gotMessage(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger:\x03 {0}".format(msg))
-	
+
 	def typing(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302Stranger\x03 is typing.")
-	
+
 	def stoppedTyping(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302Stranger\x03 stopped typing.")
-	
+
 	def connected(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Connected to Omegle!")
-	
+
 	def count(self, msg):
 		pass
-	
+
 	def recaptchaRequired(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Omegle has put up a captcha! :(")
-	
+
 	def technicalReasons(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Error: technical reasons (Captcha) :(")
-	
+
 	def win(self, msg):
 		pass
 	def fail(self, msg):
@@ -95,7 +95,7 @@ class Main():
 			return None
 		if self.createOmegleConnection(data) == None:
 			self.IRC.say(data[2], "\x02[Omegle]\x02 Creating Connection to Omegle.")
-	
+
 	def sendMessage(self, data):
 		if data[2] not in Settings.get('allowedChans'):
 			return None
@@ -105,7 +105,7 @@ class Main():
 		msg = ' '.join(data[3:])[2:]
 		print("* [Omegle] Sending Message: '{0}'".format(msg))
 		self.Omegle.sendMessage(msg)
-	
+
 	def makeDisconnect(self, data):
 		if data[2] not in Settings.get('allowedChans'):
 			return None
@@ -119,12 +119,9 @@ class Main():
 		self.Parser.hookCommand("PRIVMSG", "^~.*?$", self.sendMessage)
 		self.Parser.hookCommand("PRIVMSG", "^`.*?$", self.sendMessage)
 		self.Parser.hookCommand("PRIVMSG", "^@disconnect$", self.makeDisconnect)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
-	
+
 	def Unload(self):
 		pass
 	def Reload(self):

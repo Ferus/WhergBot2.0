@@ -214,7 +214,7 @@ class Parser(object):
 			if data:
 				self.IRC.say(data[2], "Loaded Plugin!")
 			else:
-				print("Loaded Plugins!")
+				print("{0} {1}: Loaded Plugins!".format(strftime(Config.Global['timeformat']), self.Connection.__name__))
 		except Exception, e:
 			del self.loadedPlugins[plugin]
 			print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
@@ -267,9 +267,14 @@ class Parser(object):
 			del self.loadedPlugins[plugin]
 			print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
 			self.IRC.say(data[2], "Error: {0}".format(repr(e)))
+
 	
 	def hookCommand(self, command, regex, callback):
 		self.Commands[command][1][regex] = callback
+
+	def hookPlugin(self, Name, Settings, Load, Unload, Reload):
+		for x in (Settings, Load, Unload, Reload):
+			self.loadedPlugins[Name].append(x)
 	
 	def Shutdown(self, data):
 		Nick, Ident, Host = re.split("!|@", data[0])

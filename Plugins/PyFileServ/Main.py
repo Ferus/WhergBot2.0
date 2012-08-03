@@ -33,7 +33,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 	def Parse(self, data):
 		ids = []
 		for x in Settings.get('links'):
@@ -52,10 +52,7 @@ class Main(object):
 		for regex in Settings.get('links'):
 			self.Parser.hookCommand('PRIVMSG', regex, self.Parse)
 
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

@@ -26,7 +26,7 @@ class Main(object):
 				except UnicodeDecodeError:
 					pass
 		return
-	
+
 	def Lyric(self, data):
 		if data[0] not in Settings['allowed']:
 			return None
@@ -42,10 +42,7 @@ class Main(object):
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@matix", self.Matix)
 		self.Parser.hookCommand('PRIVMSG', "^@lyric", self.Lyric)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

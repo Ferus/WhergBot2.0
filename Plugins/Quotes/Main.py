@@ -22,9 +22,9 @@ class DefaultDatabase(object):
 		def regexp(expr, item):
 			reg = re.compile(expr)
 			return reg.search(item, re.IGNORECASE) is not None
-		
+
 		self.Table = Table
-		
+
 		self.Database = Database
 		self.Conn = sqlite3.connect(self.Database, check_same_thread = False)
 		self.Conn.create_function("REGEXP", 2, regexp)
@@ -140,7 +140,7 @@ class Main(object):
 
 		self.Quotes = QuotesDatabase("./Plugins/Quotes/Quotes.db", "quotes", "quote")
 		self.Rules = RulesDatabase("./Plugins/Quotes/Rules.db", "rules", "rule")
-	
+
 	def Quote(self, data):
 		'''
 		The main quote command. We check for any other data in the data sent.
@@ -151,7 +151,7 @@ class Main(object):
 		except:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Number(QuoteNum=Text))
-	
+
 	def QuoteSearch(self, data):
 		'''Call the Search function of Quotes.py which uses re to find a quote'''
 		if data[4:]:
@@ -159,11 +159,11 @@ class Main(object):
 		else:
 			Text = ''
 		self.IRC.say(data[2], self.Quotes.Search(msg=Text))
-	
+
 	def QuoteCount(self, data):
 		'''Returns the count of total quotes'''
 		self.IRC.say(data[2], self.Quotes.Count())
-	
+
 	def QuoteAdd(self, data):
 		'''Calls the add function to add a quote'''
 		if not data[0] in Settings.get('allowed'): return None
@@ -172,7 +172,7 @@ class Main(object):
 			self.IRC.say(data[2], self.Quotes.Add(String=Text))
 		except:
 			self.IRC.notice(data[0], "I cannot add a null string.")
-	
+
 	def QuoteDel(self, data):
 		'''Calls the del function to remove a quote'''
 		if not data[0] in Settings.get('allowed'): return None
@@ -181,7 +181,7 @@ class Main(object):
 		except:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Delete(QuoteNum=Text))
-	
+
 	def QuoteBackup(self, data):
 		'''Calls the backup function to backup the pickled quotes file in plaintext'''
 		if not data[0] in Settings.get('allowed'): return None
@@ -190,14 +190,14 @@ class Main(object):
 		except:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Backup(BackupFile=Text))
-	
+
 	def Rule(self, data):
 		try:
 			Text = int(data[4])
 			self.IRC.say(data[2], self.Rules.Number(Text))
 		except:
 			self.IRC.notice(data[0].split('!')[0], "Supply a rule number!")
-	
+
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@quote(?: \d{1,})?$", self.Quote)
 		self.Parser.hookCommand("PRIVMSG", "^@qsearch .*?$", self.QuoteSearch)
@@ -208,10 +208,7 @@ class Main(object):
 		self.Parser.hookCommand("PRIVMSG", "^@qbackup(?: \W)?$", self.QuoteBackup)
 		self.Parser.hookCommand("PRIVMSG", "^@rule \d{1,}$", self.Rule)
 
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		self.Quotes.Save()
@@ -219,6 +216,6 @@ class Main(object):
 		del self.Quotes
 		del self.Rules
 		del self
-	
+
 	def Reload(self):
 		pass

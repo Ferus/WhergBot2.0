@@ -84,7 +84,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-		
+
 	def Music(self, data):
 		if data[0] not in Settings.get('allowedusers'):
 			return None
@@ -101,10 +101,7 @@ class Main(object):
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', '^@mpd(?: \W)?$', self.Music)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

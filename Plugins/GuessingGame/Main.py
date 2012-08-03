@@ -211,10 +211,7 @@ class Main(GuessingGame):
 		self.Parser.hookCommand("PRIVMSG", "^@setguess \d{1,}$", self.SetMaxNum)
 		self.Parser.hookCommand("PRIVMSG", "^@checkstats", self.GetStat)
 		self.Parser.hookCommand("PRIVMSG", "^@globalstats", self.GetGlobalStat)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		self.Stats.Save()

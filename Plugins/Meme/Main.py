@@ -68,10 +68,7 @@ class Main(object):
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@meme$", self.RegMeme)
 		self.Parser.hookCommand('PRIVMSG', "^@hipmeme$", self.HipMeme)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		del self.Parser.loadedPlugins[self.__name__]

@@ -40,7 +40,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 		self.CacheFile = Settings.get("CacheFile", "Plugins/UrbanDictionary/Cache.txt")
 
 
@@ -63,7 +63,7 @@ class Main(object):
 				print('* [UrbanDict] Cache => Creating Cache')
 				print('* [UrbanDict] Cache => Adding word {0}'.format(word))
 				c.write("{0} : {1}\n".format(word, definition))
-	
+
 	def Main(self, data):
 		if Locker.Locked:
 			self.IRC.notice(data[0], "Please wait a little bit longer before using this command.")
@@ -107,14 +107,11 @@ class Main(object):
 			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1}".format(word, x))
 		Locker.Lock()
 		self.addWordToCache(word.lower(), " ".join(results))
-	
+
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@ud .*?$", self.Main)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
-	
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+
 	def Unload(self):
 		pass
 	def Reload(self):

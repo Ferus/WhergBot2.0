@@ -18,20 +18,20 @@ class Main(object):
 		t = Timer(randint(Settings.get('ovenmintime'), Settings.get('ovenmaxtime')), self.IRC.action, (data[2], "ovens {0}".format(target)))
 		t.daemon = True
 		t.start()
-	
+
 	def Next(self, data):
 		self.IRC.say(data[2], "Another satisfied customer! Next!")
-	
+
 	def Bacon(self, data):
 		target = data[4] if data[4] else 'Ferus'
 		self.IRC.action(data[2], "cooks up some fancy bacon for {0}".format(target))
-	
+
 	def Hug(self, data):
 		if data[0] in Settings.get('hugallowed'):
 			self.IRC.action(data[2], "hugs {0}.".format(data[0].split('!')[0]))
 		else:
 			self.IRC.action(data[2], "kicks {0} in the balls for not being a man.".format(data[0].split('!')[0]))
-	
+
 	def isup(self, data):
 		if not data[4]:
 			return None
@@ -46,9 +46,6 @@ class Main(object):
 		h = re.sub("</a>(:?</span>)?", "", h)
 		h = re.sub("\s{2,}", " ", h).strip(" ")
 		self.IRC.say(data[2], "\x02[ISUP]\x02 {0}".format(h))
-		
-	def Police(self, data):
-		self.IRC.say(data[2], "Fuck da police!")
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", '^@oven(?: .*?)?$', self.Oven)
@@ -56,11 +53,7 @@ class Main(object):
 		self.Parser.hookCommand("PRIVMSG", '^@bacon(?: .*?)?$', self.Bacon)
 		self.Parser.hookCommand("PRIVMSG", '(^|\s+);[_-~]{1};(\s|$)', self.Hug)
 		self.Parser.hookCommand("PRIVMSG", '^@isup(?: .*?)?$', self.isup)
-		self.Parser.hookCommand("PRIVMSG", "^!police$", self.Police)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

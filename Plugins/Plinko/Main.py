@@ -21,7 +21,7 @@ class Plinko(object):
 		self.End = "|_|_|_|_|_|_|_|_|_|"
 		self.isHead = True
 		self.Location = None
-		
+
 		self.GoLeftHead = {
 			"1":"1", #Cant go left.
 			"2":"1",
@@ -114,7 +114,7 @@ class Plinko(object):
 		if StartLocation not in range(1,10):
 			return None
 		self.Location = StartLocation
-			
+
 		Game = []
 		Game.append(self.Replace(self.Head, self.Location))
 		for x in range(12):
@@ -132,7 +132,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-		
+
 		self.Plinko = Plinko()
 
 	def Parse(self, data):
@@ -166,10 +166,8 @@ class Main(object):
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', '^@plinko(?: \d{1})?$', self.Parse)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+
 	def Unload(self):
 		pass
 	def Reload(self):

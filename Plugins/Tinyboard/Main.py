@@ -188,14 +188,11 @@ class Main(Tinyboard):
 			[links.append(y) for y in re.findall(x, ' '.join(data[3:])) if y not in links]
 		for link in links:
 			self.IRC.say(data[2], self.Main(link))
-	
+
 	def Load(self):
 		for regex in Settings.get('links'):
 			self.Parser.hookCommand("PRIVMSG", regex, self.TinyboardLink)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
 		pass

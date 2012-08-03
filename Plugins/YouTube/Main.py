@@ -135,7 +135,7 @@ class Main(YT):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 	def YouTubeStats(self, data):
 		vidIds = list(set(re.findall("v=([a-zA-Z0-9_\-]{11})", ' '.join(data[3:]) )))
 		for vidId in vidIds:
@@ -146,7 +146,7 @@ class Main(YT):
 				info += " [\x02{0}\x02]".format(x['duration']) if x['duration'] else ''
 				info += " \x02{0}\x02/\x02{1}\x02 (\x02{2}%\x02)".format(x['averagerating'], x['maxrating'], x['percentrating']) \
 					if x['averagerating'] and x['maxrating'] and x['percentrating'] else ''
-	
+
 				info += " \x02{0}\x02 Views".format(x['viewcount']) if x['viewcount'] else ''
 				info += " \x02{0}\x02 Likes".format(x['likes']) if x['likes'] else ''
 				info += " \x02{0}\x02 Dislikes".format(x['dislikes']) if x['dislikes'] else ''
@@ -154,7 +154,7 @@ class Main(YT):
 				self.IRC.say(data[2], info)
 			else:
 				pass
-	
+
 	def YouTubeGetVids(self, data):
 		if Lock.Locked:
 			self.IRC.notice(data[0].split('!')[0], "Please wait a few seconds before using this command again.")
@@ -170,12 +170,8 @@ class Main(YT):
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*?", self.YouTubeStats)
 		self.Parser.hookCommand("PRIVMSG", "^@yt .*?$", self.YouTubeGetVids)
-		self.Parser.loadedPlugins[self.__name__].append(Settings)
-		self.Parser.loadedPlugins[self.__name__].append(self.Load)
-		self.Parser.loadedPlugins[self.__name__].append(self.Unload)
-		self.Parser.loadedPlugins[self.__name__].append(self.Reload)
+		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
-	
 	def Unload(self):
 		pass
 	def Reload(self):
