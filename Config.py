@@ -8,12 +8,10 @@ Servers = {
 	"DatNode":
 		{"host": "opsimathia.datnode.net"
 		,"port": 6697
-		,"nick": "WhergBot"
+		,"nick": "WhergBot|T"
 		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "Wherg"
 		,"channels": "#hacking,#4chon,#feels,#bots,#omegle,#games"
-		,"logging": False
-		,"logfile": "DatNode.log"
 		,"ssl": True
 		,"enabled": True
 		,"quitmessage": "h"
@@ -30,9 +28,6 @@ Servers = {
 		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "Wherg"
 		,"channels": "#bots,#omegle"
-
-		,"logging": False
-		,"logfile": "n0v4.log"
 		,"ssl": True
 		,"enabled": False
 		,"quitmessage": "h"

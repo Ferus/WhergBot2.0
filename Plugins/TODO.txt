@@ -11,3 +11,6 @@ Web Interface?
 	html templates?
 	
 Sending Buffer/Queue
+
+Wikipedia.py:
+	check for subheader if # is present in URL

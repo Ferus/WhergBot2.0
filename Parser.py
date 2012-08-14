@@ -32,6 +32,7 @@ class Parser(object):
 			,"KILL": [self.KILL, {}]
 			,"MODE": [self.MODE, {}]
 			,"NICK": [self.NICK, {}]
+			,"KICK": [self.KICK, {}]
 			,"WALLOPS": [self.WALLOPS, {}]
 
 			# COMMAND responses
@@ -191,10 +192,9 @@ class Parser(object):
 			path = f[8:-3].replace(os.sep, '.')
 			modules.append(path)
 		return modules
-	
+
 	def loadPlugins(self, data=None):
 		modules = self.getPluginList()
-
 		loaded = {}
 		for path in modules:
 			module = path.split('.')[0]
@@ -209,19 +209,24 @@ class Parser(object):
 				print("{0} {1}: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
 		try:
 			for plugin, instance in loaded.items():
-				self.loadedPlugins[plugin] = [instance, instance.Main(plugin, self)]
-				self.loadedPlugins[plugin][1].Load()
+				try:
+					_i = instance.Main(plugin, self)
+					self.loadedPlugins[plugin] = [instance, _i]
+					self.loadedPlugins[plugin][1].Load()
+				except Exception as e:
+					print("Error: {0}".format(repr(e)))
+					continue
 			if data:
 				self.IRC.say(data[2], "Loaded Plugin!")
 			else:
 				print("{0} {1}: Loaded Plugins!".format(strftime(Config.Global['timeformat']), self.Connection.__name__))
 		except Exception, e:
-			del self.loadedPlugins[plugin]
-			print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
+			if self.loadedPlugins.get(plugin):
+				del self.loadedPlugins[plugin]
 			if data:
 				self.IRC.say(data[2], "Error: {0}".format(repr(e)))
 			else:
-				print("Error: {0}".format(repr(e)))
+				print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
 	
 	def unLoadPlugins(self, data):
 		Nick, Ident, Host = re.split("!|@", data[0])
@@ -339,6 +344,16 @@ class Parser(object):
 		pass
 	def NICK(self, data):
 		pass
+	
+	def KICK(self, data):
+		#2 => channel
+		#3 => person
+		#4 => :reason
+		for k, v in self.Commands['KICK'][1].items():
+			if re.search(k, " ".join(data)):
+				v(data)
+			
+
 	def WALLOPS(self, data):
 		pass
 
