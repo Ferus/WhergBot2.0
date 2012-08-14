@@ -67,20 +67,17 @@ class Connection(object):
 					print("{0} Exception caught on connection '{1}': {2}".format(strftime(Config.Global['timeformat']), self.__name__, repr(e)))
 			return None
 
-def run(servers):
-	Conns = []
-	Processes = []
-	for Server in servers:
-		if not Config.Servers[Server]['enabled']:
-			print("{0} Skipping disabled server {1}".format(strftime(Config.Global['timeformat']), Server))
-			continue
-		print("{0} Loading Config for server '{1}'".format(strftime(Config.Global['timeformat']), Server))
+def run(Name, Server): #change to allow passing of one dictionary and name rather than the name of the dictionary
+	if not Server['enabled']:
+		print("{0} Skipping disabled server {1}".format(strftime(Config.Global['timeformat']), Name))
+		return
+	print("{0} Loading Config for server '{1}'".format(strftime(Config.Global['timeformat']), Name))
 
-		C = Connection(name=Server, conf=Config.Servers[Server], Connections=Conns, Processes=Processes)
-		Conns.append(C)
-	[x.makeConnection() for x in Conns]
+	C = Connection(name=Name, conf=Server, Connections=Connections, Processes=Processes)
+	Connections.append(C)
+	[x.makeConnection() for x in Connections]
 
-	for Conn in Conns:
+	for Conn in Connections:
 		try:
 			while True:
 				tempData = Conn.IRC.recv()
@@ -93,7 +90,7 @@ def run(servers):
 				except Exception, e:
 					print("{0} Error with function in _onConnect: {1}".format(strftime(Config.Global['timeformat']), repr(e)))
 			sleep(1)
-			Conn.IRC.join(Conn.Config.get('channels'))
+			Conn.IRC.join(Server.get('channels'))
 		except blackbox.IRCError, e:
 			print("{0} Removing Conn {1}: {2}".format(strftime(Config.Global['timeformat']), Conn.__name__, repr(e)))
 			Conns.remove(Conn)
@@ -105,13 +102,20 @@ def run(servers):
 		p.daemon = True
 		p.start()
 		Processes.append(p)
+
+if __name__ == '__main__':
+	Connections = []
+	Processes = []
+	for Name, Server in Config.Servers.items():
+		run(Name, Server)
+
 	try:
 		while len(Processes) > 0:
 			Processes = [p for p in Processes if p.is_alive()]
 			sleep(5)
 	except KeyboardInterrupt:
 		print('\n')
-		for Conn in Conns:
+		for Conn in Connections:
 			Conn.quitConnection()
 		while len(Processes) > 0:
 			Processes = [p for p in Processes if p.is_alive()]
@@ -119,5 +123,3 @@ def run(servers):
 	finally:
 		sys.exit()
 
-if __name__ == '__main__':
-	run(Config.Servers.keys())
