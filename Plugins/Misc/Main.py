@@ -40,7 +40,7 @@ class Main(object):
 		if html.status_code != 200:
 			self.IRC.say(data[2], "I couldn't connect to isup.me.")
 			return None
-		html = re.sub("\t|\n", "", html.content)
+		html = re.sub("\t|\n", "", html.text)
 		h = re.findall("<div id=\"container\">(.*?)<p>.*?</div>", html)[0]
 		h = re.sub("<a href=\".*?\" class=\"domain\">", "", h)
 		h = re.sub("</a>(:?</span>)?", "", h)

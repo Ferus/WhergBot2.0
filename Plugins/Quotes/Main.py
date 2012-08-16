@@ -6,16 +6,9 @@ from random import choice
 
 from .Settings import Settings
 
-class NoDatabaseError(Exception):
-	def __init__(self, value):
-		self.value = value
-	def __str__(self):
-		return repr(self.value)
-	def __unicode__(self):
-		return repr(self.value.encode('utf8'))
-
-class DefaultDatabase(object):
-	def __init__(self, Database=None, Table=None, Row=None):
+class QuotesDatabase(object):
+	def __init__(self, Database=None):
+		#quotes, quote
 		if not Database:
 			raise NoDatabaseError("Failed to pass a database name.")
 
@@ -23,64 +16,58 @@ class DefaultDatabase(object):
 			reg = re.compile(expr)
 			return reg.search(item, re.IGNORECASE) is not None
 
-		self.Table = Table
-
 		self.Database = Database
 		self.Conn = sqlite3.connect(self.Database, check_same_thread = False)
 		self.Conn.create_function("REGEXP", 2, regexp)
 
 		self.Cursor = self.Conn.cursor()
-		self.Cursor.execute(
-			"create table if not exists {0} (id integer primary key autoincrement, {1} TEXT)".format(self.Table, Row))
+		self.Cursor.execute("create table if not exists quotes (id integer primary key autoincrement, quote TEXT)")
 
 		try:
-			self.LastID = str(self.Cursor.execute("SELECT * FROM {0} ORDER BY ID DESC LIMIT 1".format(self.Table)).next()[0])
-		except StopIteration, e:
+			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM quotes").fetchone()[0]
+		except StopIteration as e:
 			self.LastID = "0"
-		print("* [Quotes.py] {0} rows from {1} have been loaded.".format(self.LastID, self.Table))
+		print(">>> [Quotes => __init__] {0} rows have been loaded.".format(self.LastID))
 
 	def Save(self):
 		self.Conn.commit()
-		print("* [Quotes.py] Saving Database!")
+		print(">>> [Quotes => Save] Saving Database!")
 
 	def Add(self, String):
 		try:
-			x = self.Cursor.execute("insert into {0} values (NULL, ?)".format(self.Table), (String.decode("utf8"),))
+			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (String.decode('utf8'),))
 			self.LastID = str(x.lastrowid)
-			print("* [Quotes.py] Added new string to {0}!".format(self.Table))
 			self.Save()
 			return "Added new quote number {0} successfully!".format(self.LastID)
-		except Exception, e:
-			print("* [Quotes.py] Error 'adding'.\n* [Quotes.py] {0}".format(repr(e)))
+		except Exception as e:
+			print(">>> [Quotes => Add] Error: {0}\n>>> [Quotes => Add] {1}".format(repr(e), String))
 
-class QuotesDatabase(DefaultDatabase):
 	def Delete(self, QuoteNum):
 		try:
 			self.Cursor.execute("update quotes set quote='This quote has been deleted.' where id=?", (QuoteNum,))
-			print("* [Quotes] Deleted quote number {0}".format(QuoteNum))
+			print(">>> [Quotes => Delete] Deleted quote number {0}".format(QuoteNum))
 			self.Save()
 			return "Deleted quote number {0} successfully".format(QuoteNum)
-		except Exception, e:
-			print("* [Quotes] Error 'deleting'.\n* [Quotes] {0}".format(repr(e)))
+		except Exception as e:
+			print(">>> [Quotes => Delete] Error: {0}".format(repr(e)))
 
 	def Number(self, QuoteNum):
 		if type(QuoteNum) != int:
 			return self.Random()
 		try:
 			x = self.Cursor.execute("select quote from quotes where id=?", (QuoteNum,))
-			print("* [Quotes] Sending Quote.")
+			print(">>> [Quotes => Number] Sending Quote.")
 			return x.next()[0]
 
-		except StopIteration, e:
+		except StopIteration as e:
 			return "No quotes in database or quote does not exist."
-		except Exception, e:
+		except Exception as e:
 			return repr(e)
 
 	def Random(self):
-		print("* [Quotes] Sending random Quote.")
-		y = choice(range(1, int(self.LastID)))
-		x = self.Cursor.execute("select quote from quotes where id=?", (str(y),))
-		return "Quote {0}: {1}".format(y, x.next()[0])
+		print(">>> [Quotes => Random] Sending random Quote.")
+		x = self.Cursor.execute("SELECT * FROM quotes ORDER BY RANDOM () LIMIT 1").fetchone()
+		return "Quote {0}: {1}".format(x[0], x[1])
 
 	def Count(self):
 		return "I currently hold {0} quotes in my database.".format(self.LastID)
@@ -108,16 +95,38 @@ class QuotesDatabase(DefaultDatabase):
 			BackupFile = "./Plugins/Quotes/IRCQuotes.txt"
 		try:
 			os.unlink(BackupFile) #Remove the old one
-			print("* [Quotes] Removing old quotes file.")
+			print(">>> [Quotes => Backup] Removing old quotes file.")
 			with open(BackupFile, "wb") as BFile:
 				for q in self.Cursor.execute("select quote from quotes").fetchall():
-					BFile.write(q[0].encode('utf8')+"\n")
-			print("* [Quotes] Created backup quotes file at {0}".format(str(BackupFile)))
+					BFile.write(q[0]+"\n")
+			print(">>> [Quotes => Backup] Created backup quotes file at {0}".format(str(BackupFile)))
 			return "Created backup file {0}".format(BackupFile)
-		except Exception, e:
+		except Exception as e:
 			return "Error: {0}".format(repr(e))
 
-class RulesDatabase(DefaultDatabase):
+class RulesDatabase(object):
+	def __init__(self, Database=None):
+		#rules, rule
+		if not Database:
+			raise NoDatabaseError("Failed to pass a database name.")
+
+		def regexp(expr, item):
+			reg = re.compile(expr)
+			return reg.search(item, re.IGNORECASE) is not None
+
+		self.Database = Database
+		self.Conn = sqlite3.connect(self.Database, check_same_thread = False)
+		self.Conn.create_function("REGEXP", 2, regexp)
+
+		self.Cursor = self.Conn.cursor()
+		self.Cursor.execute("create table if not exists rules (id integer primary key autoincrement, rule TEXT)")
+
+		try:
+			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM rules").fetchone()[0]
+		except StopIteration as e:
+			self.LastID = "0"
+		print(">>> [Rules => __init__] {0} rows have been loaded.".format(self.LastID))
+
 	def Number(self, RuleNum):
 		try:
 			RuleNum = int(RuleNum)
@@ -125,11 +134,11 @@ class RulesDatabase(DefaultDatabase):
 			return "That's not a number!"
 		try:
 			x = self.Cursor.execute("select rule from rules where id=?", (RuleNum,))
-			print("* [Rules] Sending Rule.")
+			print(">>> [Rules => Number] Sending Rule.")
 			return x.next()[0]
-		except StopIteration, e:
+		except StopIteration as e:
 			return "No rules in database or rule does not exist."
-		except Exception, e:
+		except Exception as e:
 			return repr(e)
 
 class Main(object):
@@ -138,8 +147,8 @@ class Main(object):
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
 
-		self.Quotes = QuotesDatabase("./Plugins/Quotes/Quotes.db", "quotes", "quote")
-		self.Rules = RulesDatabase("./Plugins/Quotes/Rules.db", "rules", "rule")
+		self.Quotes = QuotesDatabase("./Plugins/Quotes/Quotes.db")
+		self.Rules = RulesDatabase("./Plugins/Quotes/Rules.db")
 
 	def Quote(self, data):
 		'''

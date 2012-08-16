@@ -10,7 +10,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 		self.fml_Generator = self.fml()
 
 	def get_fml(self):
@@ -19,7 +19,7 @@ class Main(object):
 		_html = requests.get(url)
 		if _html.status_code != 200:
 			return False #Error
-		_html = _html.content #Page HTML
+		_html = _html.text #Page HTML
 		comp = "<div class=\"post article\" id=\"[0-9]{1,}\"><p><a href=\"\/[a-zA-Z0-9_-]{1,}\/[0-9]{1,}\" class=\"fmllink\">.*?</a></p>"
 		tmp = re.findall(comp, _html)
 		for x in tmp:
@@ -45,7 +45,7 @@ class Main(object):
 				Lock.Lock()
 			else:
 				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer before using this command again.")
-		except Exception, e:
+		except Exception as e:
 			print("* [FML] Error:\n* [FML] {0}".format(str(e)))
 
 	def Load(self):

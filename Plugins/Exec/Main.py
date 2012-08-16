@@ -13,7 +13,7 @@ class Main(object):
 			return None
 		try:
 			exec(" ".join(data[3:]).replace(":@exec ", ""))
-		except SyntaxError, e:
+		except SyntaxError as e:
 			self.IRC.say(data[2], repr(e))
 
 	def Load(self):

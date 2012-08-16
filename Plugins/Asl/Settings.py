@@ -8,7 +8,7 @@ Settings = {
 		,'kangaroo'
 		,'asexual'
 		]
-	,'ages': range(5, 100)
+	,'ages': list(range(5, 100))
 	,'locations': ['Alabama'
 		,'Alaska'
 		,'American Samoa'

@@ -1,2 +1,5 @@
 *.pyc
 Cleanup.sh
+*.txt
+
+mkQuotesDB.py

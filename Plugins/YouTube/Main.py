@@ -14,10 +14,10 @@ from .Settings import Settings
 def convert(text):
 	"""Decode HTML entities in the given text."""
 	try:
-		if type(text) is unicode:
-			uchr = unichr
+		if type(text) is str:
+			uchr = chr
 		else:
-			uchr = lambda value: value > 255 and unichr(value) or chr(value)
+			uchr = lambda value: value > 255 and chr(value) or chr(value)
 		def entitydecode(match, uchr=uchr):
 			entity = match.group(1)
 			if entity.startswith('#x'):
@@ -31,7 +31,7 @@ def convert(text):
 		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
 		text = charrefpat.sub(entitydecode, text)
 		return text
-	except Exception, e:
+	except Exception as e:
 		print("* [YouTube] Error: {0}".format(repr(e)))
 		return text
 
@@ -44,9 +44,9 @@ class YT(object):
 			jsonReply = requests.get(jsonLink)
 			if jsonReply.status_code != 200:
 				return None
-			jsonReply = json.loads(jsonReply.content)
+			jsonReply = json.loads(jsonReply.text)
 			return self.Parse(jsonReply)
-		except Exception, e:
+		except Exception as e:
 			print("* [YouTube] Error: {0}".format(repr(e)))
 			return None
 
@@ -99,8 +99,8 @@ class YT(object):
 			req = requests.get(link)
 			if req.status_code != 200:
 				return None #Error'd Wat.
-			jsonReply = json.loads(req.content)['feed']['entry']
-		except Exception, e:
+			jsonReply = json.loads(req.text)['feed']['entry']
+		except Exception as e:
 			print("* [YouTube] Error:\n* [YouTube] {0}".format(repr(e)))
 			return ['\x02[YouTube]\x02 Failed to get info.']
 

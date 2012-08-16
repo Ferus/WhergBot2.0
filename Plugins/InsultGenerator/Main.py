@@ -11,7 +11,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 	def generateInsult(self, data):
 		if Locker.Locked:
 			self.IRC.notice(data[0].split('!')[0], "Wait a bit longer, faggot.")
@@ -20,8 +20,8 @@ class Main(object):
 		html = requests.get("http://insultgenerator.org/")
 		if html.status_code != 200:
 			self.IRC.say(data[2], "{0}: I couldn't connect to InsultGenerator faggot.".format(data[0].split('!')[0]))
-			
-		insult = html.content.split("<TR align=center><TD>")[1].split("</TD></TR>")[0]
+
+		insult = html.text.split("<TR align=center><TD>")[1].split("</TD></TR>")[0]
 		try:
 			self.IRC.say(data[2], "{0}: {1}".format(data[4], insult))
 		except IndexError:

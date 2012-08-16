@@ -14,10 +14,10 @@ def get_meme(url):
 	'''
 	meme_db = []
 	try:
-		memes = requests.get(url).content.replace('_','\x02').split("\n")
-	except:
+		memes = requests.get(url).text.replace('_','\x02').split("\n")
+	except Exception as e:
 		print("{0} [AutoMeme] Error requesting new memes.".format(strftime(Config.Global['timeformat'])))
-		return get_meme()
+		return
 	for meme in memes:
 		meme_db.append(meme)
 	meme_db.pop()
@@ -40,8 +40,8 @@ class Main(object):
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
 
-		self.RegularMeme = meme(url=Settings.get('urls').get('regular').format(Settings.get('lines')))
-		self.HipsterMeme = meme(url=Settings.get('urls').get('hipster').format(Settings.get('lines')))
+		self.RegularMeme = meme("http://api.automeme.net/text?lines={0}".format(Settings.get('lines')))
+		self.HipsterMeme = meme("http://api.automeme.net/text?lines={0}&vocab=hipster".format(Settings.get('lines')))
 
 	def RegMeme(self, data):
 		try:
@@ -51,7 +51,7 @@ class Main(object):
 				return
 			else:
 				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
-		except Exception, e:
+		except Exception as e:
 			print("{0} [AutoMeme] Error:\n{0} [AutoMeme] {1}".format(strftime(Config.Global['timeformat']), str(e)))
 
 	def HipMeme(self, data):
@@ -62,7 +62,7 @@ class Main(object):
 				return
 			else:
 				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
-		except Exception, e:
+		except Exception as e:
 			print("{0} [AutoMeme] Error:\n{0} [AutoMeme] {1}".format(strftime(Config.Global['timeformat']), str(e)))
 
 	def Load(self):

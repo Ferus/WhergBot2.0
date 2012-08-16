@@ -55,27 +55,27 @@ class GuessingStats(object):
 		self.StatsDB = self.Load(_db)
 		_db.close()
 
-		if 'Players' not in self.StatsDB.keys():
+		if 'Players' not in list(self.StatsDB.keys()):
 			self.StatsDB['Players'] = {}
 
 	def Load(self, _db):
 		x = {}
-		for key in _db.keys():
+		for key in list(_db.keys()):
 			x[key] = _db[key]
 		for k in ('GlobalWins', 'totalWins', 'totalPlayers'):
-			if not x.has_key(k):
+			if k not in x:
 				x[k] = 0
-		print("* [Guess] Loaded stats database.")
+		print(">>> [GuessingGame => Load] Loaded stats database.")
 		return x
 
 	def Save(self):
 		try:
 			_db = shelve.open(self._StatsDB)
-			for key in self.StatsDB.keys():
+			for key in list(self.StatsDB.keys()):
 				_db[key] = self.StatsDB[key]
 			_db.close()
-			print("* [Guess] Saving stats database")
-		except Exception, e:
+			print(">>> [GuessingGame => Save] Saving stats database")
+		except Exception as e:
 			print(repr(e))
 
 	def AddStats(self, Player=None, Stat=None, Value=None):
@@ -84,7 +84,7 @@ class GuessingStats(object):
 		If we are not, we fall back to globals.
 		'''
 		if Player:
-			if Player not in self.StatsDB['Players'].keys():
+			if Player not in list(self.StatsDB['Players'].keys()):
 				self.StatsDB['Players'][Player] = {'overMax':0
 					,'underMin':0
 					,'tooHigh':0
@@ -135,8 +135,12 @@ class GuessingGame(object):
 		self.GenNumber()
 		self._stats = Settings.get("UseStats", False)
 		if self._stats:
-			print("* [Guess] Enabling stats.")
-			self.Stats = GuessingStats()
+			try:
+				self.Stats = GuessingStats()
+				print(">>> [GuessingGame => __init__] Enabling stats.")
+			except Exception as e:
+				print(">>> [GuessingGame => __init__] Stats enable error.")
+				print(">>> [GuessingGame => __init__] {0}".format(repr(e)))
 
 	def GenNumber(self, location=None):
 		self.CurrentNumber = randint(1, self.MaxNum)

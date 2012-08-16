@@ -111,7 +111,7 @@ class Plinko(object):
 	def Start(self, StartLocation):
 		if type(StartLocation) != int:
 			return None
-		if StartLocation not in range(1,10):
+		if StartLocation not in list(range(1,10)):
 			return None
 		self.Location = StartLocation
 
@@ -161,7 +161,7 @@ class Main(object):
 		try:
 			for x in Settings.get('prizes')[str(self.Plinko.Location)]:
 				exec(x)
-		except Exception, e:
+		except Exception as e:
 			self.IRC.say(data[2], "\x02[Plinko]\x02 Error: {0}".format(str(repr(e))))
 
 	def Load(self):

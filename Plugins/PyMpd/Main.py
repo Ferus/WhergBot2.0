@@ -75,7 +75,7 @@ def mpdprev_cb():
 
 def mpdnext_cb():
 	mpd_connect()
-	client.next()
+	next(client)
 	mpd_disconnect()
 	return mpdshow_cb(t=False)
 

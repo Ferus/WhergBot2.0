@@ -16,7 +16,7 @@ def Get(url, id):
 		return None
 	if not req.status_code == 200:
 		return None
-	data = json.loads(req.content)
+	data = json.loads(req.text)
 	return data
 
 def Format(data):
@@ -40,7 +40,6 @@ class Main(object):
 			for y in re.findall(x, ' '.join(data[4:])):
 				ids.append((x, y))
 		ids = list(set(ids)) # Remove Dupes
-		print ids
 		for x in ids:
 			info = Get(x[0], x[1])
 			if not info:

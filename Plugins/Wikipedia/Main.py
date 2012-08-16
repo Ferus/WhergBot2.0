@@ -26,10 +26,10 @@ Locker = Locker(5)
 def convert(text):
 	"""Decode HTML entities in the given text."""
 	try:
-		if type(text) is unicode:
-			uchr = unichr
+		if type(text) is str:
+			uchr = chr
 		else:
-			uchr = lambda value: value > 255 and unichr(value) or chr(value)
+			uchr = lambda value: value > 255 and chr(value) or chr(value)
 		def entitydecode(match, uchr=uchr):
 			entity = match.group(1)
 			if entity.startswith('#x'):
@@ -43,7 +43,7 @@ def convert(text):
 		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
 		text = charrefpat.sub(entitydecode, text)
 		return text
-	except Exception, e:
+	except Exception as e:
 		print("* [UrbanDict] Error: {0}".format(repr(e)))
 		return text
 
@@ -51,7 +51,7 @@ def truncate(content, length=300, suffix='...'):
 	if len(content) <= length:
 		return content
 	else:
-		x = u' '.join(content[:length+1].split(u' ')[0:-1]) + u"{0}".format(suffix)
+		x = ' '.join(content[:length+1].split(' ')[0:-1]) + "{0}".format(suffix)
 		return x
 
 def getArticleByName(articleName):
@@ -60,16 +60,16 @@ def getArticleByName(articleName):
 
 def getArticleByUrl(articleUrl, returnUrl=False):
 	if not articleUrl.startswith("http://") and not articleUrl.startswith("https://"):
-		articleUrl = "https://{0}".format(articleUrl)
+		articleUrl = "http://{0}".format(articleUrl)
 	try:
 		articleReq = requests.get(articleUrl)
 		if articleReq.status_code != 200:
 			raise requests.HTTPError
-		articleHtml = articleReq.content
-	except requests.HTTPError, e:
+		articleHtml = articleReq.text
+	except requests.HTTPError as e:
 		print("* [Wikipedia] Error => {0}".format(repr(e)))
 		return repr(e)
-	except Exception, e:
+	except Exception as e:
 		print("* [Wikipedia] Error => {0}".format(repr(e)))
 		return repr(e)
 
@@ -113,7 +113,7 @@ class Main(object):
 		for url in urls:
 			try:
 				self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(getArticleByUrl(url)))
-			except Exception, e:
+			except Exception as e:
 				print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
 	def wikiName(self, data):
@@ -124,7 +124,7 @@ class Main(object):
 				Locker.Lock()
 			else:
 				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer before using this command again.")
-		except Exception, e:
+		except Exception as e:
 			print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
 
 	def Load(self):

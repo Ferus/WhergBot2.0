@@ -27,13 +27,13 @@ class Main(object):
 
 	def getWordEtymology(self, word):
 		try:
-			info = requests.get("http://www.etymonline.com/index.php?term={0}".format(word)).content
-		except requests.HTTPError, e:
+			info = requests.get("http://www.etymonline.com/index.php?term={0}".format(word)).text
+		except requests.HTTPError as e:
 			return None
 		info = re.sub("[\r\n\t]", "", info)
 		try:
 			info = re.findall("<dd class=\"highlight\">(.*?)<\/dd>", info)[0]
-		except IndexError, e:
+		except IndexError as e:
 			return ["Word origin not found!"]
 
 		Spans = re.findall("<span .*?>(.*?)<\/span>", info)

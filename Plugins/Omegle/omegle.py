@@ -74,13 +74,13 @@ class Omegle(object):
 			return self.post(page, isSending, data)
 		except Exception as e:
 			print(repr(e))
-		return request.content
+		return request.text
 	
 	def start(self):
 		request = self.post("start?rcs=1&firstevents=1&spid=", False, {})
 		res = json.loads(request)
 		self.sid = res['clientID']
-		for x in res.items():
+		for x in list(res.items()):
 			if x[0] == 'events':
 				for y in x[1]:
 					self.handleEvent(str(y[0]), y[1] if len(y) > 1 else '')
@@ -105,7 +105,7 @@ class Omegle(object):
 				self.handleEvent(str(x[0]), x[1] if len(x) > 1 else '')
 	
 	def handleEvent(self, event, msg=''):
-		if event in self.callbacks.keys():
+		if event in list(self.callbacks.keys()):
 			for x in self.callbacks[event]:
 				x(msg)
 		else:
@@ -113,12 +113,12 @@ class Omegle(object):
 			print(event, msg)
 	
 	def hookCallback(self, event, callback):
-		if event in self.callbacks.keys():
+		if event in list(self.callbacks.keys()):
 			#print("* [Omegle] Hooking function {0} into callback {1}".format(callback, event))
 			self.callbacks[event].append(callback)
 
 	def hookSCallback(self, event, callback):
-		if event in self.scallbacks.keys():
+		if event in list(self.scallbacks.keys()):
 			#print("* [Omegle] Hooking function {0} into scallback {1}".format(callback, event))
 			self.scallbacks[event].append(callback)
 
@@ -126,7 +126,7 @@ class Omegle(object):
 	def sendMessage(self, msg):
 		self.post("typing", True, {'id': self.sid})
 		request = self.post("send", True, {'msg': msg, 'id': self.sid})
-		if request in self.scallbacks.keys():
+		if request in list(self.scallbacks.keys()):
 			for x in self.scallbacks[request]:
 				x(msg)
 		else:

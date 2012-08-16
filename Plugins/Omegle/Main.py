@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import omegle
+from . import omegle
 from .Settings import Settings
 
 class Main():

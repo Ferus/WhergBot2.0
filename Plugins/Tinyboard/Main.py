@@ -1,31 +1,31 @@
 #!/usr/bin/env python
 import re
 import requests
-import htmlentitydefs
+import html.entities
 
 from .Settings import Settings
 
 def convert(text):
 	"""Decode HTML entities in the given text."""
 	try:
-		if type(text) is unicode:
-			uchr = unichr
+		if type(text) is str:
+			uchr = chr
 		else:
-			uchr = lambda value: value > 255 and unichr(value) or chr(value)
+			uchr = lambda value: value > 255 and chr(value) or chr(value)
 		def entitydecode(match, uchr=uchr):
 			entity = match.group(1)
 			if entity.startswith('#x'):
 				return uchr(int(entity[2:], 16))
 			elif entity.startswith('#'):
 				return uchr(int(entity[1:]))
-			elif entity in htmlentitydefs.name2codepoint:
-				return uchr(htmlentitydefs.name2codepoint[entity])
+			elif entity in html.entities.name2codepoint:
+				return uchr(html.entities.name2codepoint[entity])
 			else:
 				return match.group(0)
 		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
 		text = charrefpat.sub(entitydecode, text)
 		return text
-	except Exception, e:
+	except Exception as e:
 		print("* [Tinyboard] Error: {0}".format(repr(e)))
 		return text
 
@@ -44,10 +44,10 @@ class Tinyboard(object):
 				if html.status_code != 200:
 					return None
 				try:
-					html = html.content.decode("utf8", "replace")
+					html = html.text.decode("utf8", "replace")
 				except:
 					try:
-						html = html.content.encode("utf8", "replace")
+						html = html.text.encode("utf8", "replace")
 					except:
 						return None
 				return convert(html)

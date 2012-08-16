@@ -1,4 +1,4 @@
 Settings = {
-	"password": "LOLiTROLLu"
+	"password": open('Plugins/Services/nspassword.txt', 'r').read().strip()
 	,"modes": "+ksBp"
 }

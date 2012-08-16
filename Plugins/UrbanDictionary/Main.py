@@ -12,10 +12,10 @@ from .Settings import Settings
 def convert(text):
 	"""Decode HTML entities in the given text."""
 	try:
-		if type(text) is unicode:
-			uchr = unichr
+		if type(text) is str:
+			uchr = chr
 		else:
-			uchr = lambda value: value > 255 and unichr(value) or chr(value)
+			uchr = lambda value: value > 255 and chr(value) or chr(value)
 		def entitydecode(match, uchr=uchr):
 			entity = match.group(1)
 			if entity.startswith('#x'):
@@ -29,7 +29,7 @@ def convert(text):
 		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
 		text = charrefpat.sub(entitydecode, text)
 		return text
-	except Exception, e:
+	except Exception as e:
 		print("* [UrbanDict] Error: {0}".format(repr(e)))
 		return text
 
@@ -79,7 +79,7 @@ class Main(object):
 		print("* [UrbanDict] => Polling UrbanDictionary.")
 		url = "http://www.urbandictionary.com/tooltip.php?term={0}".format(word.replace(" ","%20"))
 		try:
-			html = requests.get(url).content
+			html = requests.get(url).text
 		except requests.HTTPError:
 			print("* [UrbanDict] Error => Failed to connect.")
 			self.IRC.say(data[2], "Failed to connect to Urban Dictionary.")
@@ -91,7 +91,7 @@ class Main(object):
 		try:
 			result = re.sub(r'[\r\n\t]', "", html)
 			result, other = re.search("<div>\s*<b>.*?</b></div><div>\s*(?:.*?<br/><br/>)?(.*?)</div>(?:<div class='others'>\s*(.*?)</div>)?", result).groups()
-		except Exception, e:
+		except Exception as e:
 			print("* [UrbanDict] Error: {0}".format(repr(e)))
 			result = None
 		if not result or result is None or result == '':

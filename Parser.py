@@ -11,6 +11,9 @@ from time import strftime
 from blackbox.blackbox import IRCError
 import Config
 
+def formattime():
+	return strftime(Config.Global['timeformat'])
+
 class Parser(object):
 	def __init__(self, Connection):
 		self.Connection = Connection
@@ -180,35 +183,50 @@ class Parser(object):
 			#PluginName: [PluginInstance, MainInstance, ConfigInstance, LoadFunction, UnloadFunction, ReloadFunction]
 		}
 		self.loadPlugins()
-	
+
 	def onConnect(self, function):
 		"""Hook a function to run when connecting."""
 		self._onConnect.append(function)
 
+	def hasAccess(self, hostmask):
+		Nick, Ident, Host = re.split("!|@", hostmask)
+		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
+			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
+				Host not in Config.Servers[self.Connection.__name__]['owner']['hosts']):
+					return False
+		return True
+
 	def getPluginList(self):
+		if self.Connection.Config['plugins'] is None:
+			return []
 		files = [f for f in glob.glob("Plugins/*/Main.py")]
 		modules = []
 		for f in files:
 			path = f[8:-3].replace(os.sep, '.')
-			modules.append(path)
+			if path.split(".")[0] in self.Connection.Config['plugins']:
+				modules.append(path)
+			else:
+				pass
 		return modules
 
 	def loadPlugins(self, data=None):
+		if data != None and self.hasAccess(data[0]) == False:
+			return None
 		modules = self.getPluginList()
 		loaded = {}
 		for path in modules:
 			module = path.split('.')[0]
 			try:
-				print("{0} {1}: Trying to import {2}.".format(strftime(Config.Global['timeformat']), self.Connection.__name__, module))
+				print("{0} {1}: Trying to import {2}.".format(formattime(), self.Connection.__name__, module))
 				loaded[module] = __import__("Plugins.{0}.Main".format(module), {}, {}, [module])
 			except ImportError as e:
-				print("{0} {1}: Error importing '{2}'; Is there a Main.py?".format(strftime(Config.Global['timeformat']), self.Connection.__name__, module))
+				print("{0} {1}: Error importing '{2}'; Is there a Main.py?".format(formattime(), self.Connection.__name__, module))
 				print(repr(e))
-			except Exception, e:
-				print("{0} {1}: An Error occured trying to import {2}:".format(strftime(Config.Global['timeformat']), self.Connection.__name__, module))
-				print("{0} {1}: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
+			except Exception as e:
+				print("{0} {1}: An Error occured trying to import {2}:".format(formattime(), self.Connection.__name__, module))
+				print("{0} {1}: {2}".format(formattime(), self.Connection.__name__, repr(e)))
 		try:
-			for plugin, instance in loaded.items():
+			for plugin, instance in list(loaded.items()):
 				try:
 					_i = instance.Main(plugin, self)
 					self.loadedPlugins[plugin] = [instance, _i]
@@ -219,31 +237,30 @@ class Parser(object):
 			if data:
 				self.IRC.say(data[2], "Loaded Plugin!")
 			else:
-				print("{0} {1}: Loaded Plugins!".format(strftime(Config.Global['timeformat']), self.Connection.__name__))
-		except Exception, e:
+				print("{0} {1}: Loaded Plugins!".format(formattime(), self.Connection.__name__))
+		except Exception as e:
 			if self.loadedPlugins.get(plugin):
 				del self.loadedPlugins[plugin]
 			if data:
 				self.IRC.say(data[2], "Error: {0}".format(repr(e)))
 			else:
-				print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
-	
+				print("{0} {1}: Error: {2}".format(formattime(), self.Connection.__name__, repr(e)))
+
 	def unLoadPlugins(self, data):
-		Nick, Ident, Host = re.split("!|@", data[0])
-		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
-			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
-				Host not in Config.Servers[self.Connection.__name__]['owner']['hosts']):
-					return None
+		if self.hasAccess(data[0]) == False:
+			return None
 		module = data[4]
 		try:
 			self.loadedPlugins[module][1].Unload()
 			self.IRC.say(data[2], "Unloaded {0}".format(module))
 		except KeyError:
 			pass
-		except Exception, e:
+		except Exception as e:
 			self.IRC.say(data[2], repr(e))
-	
+
 	def reLoadPlugins(self, data):
+		if self.hasAccess(data[0]) == False:
+			return None
 		module = data[4]
 		self.unLoadPlugins(data)
 		modules = self.getPluginList()
@@ -253,7 +270,7 @@ class Parser(object):
 			if module != _module:
 				continue
 			try:
-				print("{0} {1}: Trying to import {2}.".format(strftime(Config.Global['timeformat']), self.Connection.__name__, module))
+				print("{0} {1}: Trying to import {2}.".format(formattime(), self.Connection.__name__, module))
 				imp.reload(sys.modules["Plugins.{0}.Settings".format(module)])
 				loaded[module] = imp.reload(sys.modules["Plugins.{0}.Main".format(module)])
 			except KeyError:
@@ -264,45 +281,40 @@ class Parser(object):
 				except Exception as e:
 					self.IRC.say(data[2], repr(e))
 		try:
-			for plugin, instance in loaded.items():
+			for plugin, instance in list(loaded.items()):
 				self.loadedPlugins[plugin] = [instance, instance.Main(plugin, self)]
 				self.loadedPlugins[plugin][1].Load()
 			self.IRC.say(data[2], "Reloaded {0}".format(plugin))
-		except Exception, e:
+		except Exception as e:
 			del self.loadedPlugins[plugin]
-			print("{0} {1}: Error: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, repr(e)))
+			print("{0} {1}: Error: {2}".format(formattime(), self.Connection.__name__, repr(e)))
 			self.IRC.say(data[2], "Error: {0}".format(repr(e)))
 
-	
+
 	def hookCommand(self, command, regex, callback):
 		self.Commands[command][1][regex] = callback
 
 	def hookPlugin(self, Name, Settings, Load, Unload, Reload):
 		for x in (Settings, Load, Unload, Reload):
 			self.loadedPlugins[Name].append(x)
-	
-	def Shutdown(self, data):
-		Nick, Ident, Host = re.split("!|@", data[0])
-		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
-			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
-				Host not in Config.Servers[self.Connection.__name__]['owner']['hosts']):
-					return None
 
+	def Shutdown(self, data):
+		if self.hasAccess(data[0]) == False:
+			return None
 		for Conn in self.Connection.Connections:
 			Conn.quitConnection()
-	
+
 	def Parse(self, data):
-		data = re.sub(Config.Global['unwantedchars'], '', data)
-		print("{0} {1}: {2}".format(strftime(Config.Global['timeformat']), self.Connection.__name__, data))
+		data = str(re.sub(Config.Global['unwantedchars'], '', data))
+		print("{0} {1}: {2}".format(formattime(), self.Connection.__name__, data))
 		if data.startswith("PING"):
 			return None # blackbox handles PONG replies for us
 		elif data.startswith("ERROR"):
 			raise IRCError(data) # Oh, look, an error!
-		
+
 		data = data[1:].split()
-		if data[1] in self.Commands.keys():
+		if data[1] in list(self.Commands.keys()):
 			self.Commands[data[1]][0](data)
-		
 
 	def PRIVMSG(self, data):
 		try:
@@ -313,7 +325,7 @@ class Parser(object):
 		if data[2] == Config.Servers[self.Connection.__name__]['nick']: # This is a PM
 			data[2] = Nick
 
-		for k, v in self.Commands['PRIVMSG'][1].items():
+		for k, v in list(self.Commands['PRIVMSG'][1].items()):
 			if re.search(k, " ".join(data[3:])[1:]):
 				v(data)
 
@@ -323,18 +335,18 @@ class Parser(object):
 		except ValueError:
 			Server = data[0][1:]
 
-		for k, v in self.Commands['NOTICE'][1].items():
+		for k, v in list(self.Commands['NOTICE'][1].items()):
 			if re.search(k, " ".join(data[3:])[1:]):
 				v(data)
 
 	def JOIN(self, data):
-		for k, v in self.Commands['JOIN'][1].items():
+		for k, v in list(self.Commands['JOIN'][1].items()):
 			v(data)
 	def PART(self, data):
 		pass
 	def QUIT(self, data):
 		# :user!ident@host QUIT :Reason #Covers /kill too.
-		for k, v in self.Commands['QUIT'][1].items():
+		for k, v in list(self.Commands['QUIT'][1].items()):
 			if re.search(k, " ".join(data)):
 				v(data)
 
@@ -344,15 +356,12 @@ class Parser(object):
 		pass
 	def NICK(self, data):
 		pass
-	
+
 	def KICK(self, data):
-		#2 => channel
-		#3 => person
-		#4 => :reason
-		for k, v in self.Commands['KICK'][1].items():
+		for k, v in list(self.Commands['KICK'][1].items()):
 			if re.search(k, " ".join(data)):
 				v(data)
-			
+
 
 	def WALLOPS(self, data):
 		pass

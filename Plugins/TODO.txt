@@ -1,7 +1,5 @@
-Weather
 Cleverbot
 Markov
-General
 Logging
 
 Web Interface?
@@ -9,7 +7,7 @@ Web Interface?
 	from Plugins import WebInterface ?
 	Modular, has an add_page/tab() or similar
 	html templates?
-	
+
 Sending Buffer/Queue
 
 Wikipedia.py:

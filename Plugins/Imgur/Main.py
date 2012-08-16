@@ -47,7 +47,7 @@ class Imgur(object):
 		html = requests.get(link)
 		if html.status_code != 200:
 			return "Couldn't connect to Imgur"
-		return self.ImgurParser(html.content, link)
+		return self.ImgurParser(html.text, link)
 
 class Main(Imgur):
 	def __init__(self, Name, Parser):
