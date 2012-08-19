@@ -119,7 +119,6 @@ class Tinyboard(object):
 			Post_Text = re.sub("<a onclick=\"highlightReply\('[0-9]{1,}'\);\" href=\".*?\.html#[0-9]{1,}\">>>[0-9]{1,}</a>", Link_Num, Post_Text)
 
 		Post_Text = self.smart_truncate(Post_Text)
-		Post_Text = convert(Post_Text)
 
 		return "{0}{1}{2}({3}, {4}) posted: {5}\x0f - {6}".format(Post_Name
 			,Post_Trip if Post_Trip else ""
@@ -140,8 +139,8 @@ class Tinyboard(object):
 	def Main(self, link=None):
 		try:
 			return self.Parse(link)
-		except:
-			return None
+		except Exception as e:
+			return repr(e)
 
 
 class Main(Tinyboard):
