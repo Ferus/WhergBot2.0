@@ -12,36 +12,25 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 		self.Dir = Settings.get("dir")
 		self.Files = os.listdir(self.Dir)
-		self.MusicDir = Settings.get("musicdir")
-		self.MusicFiles = os.listdir(self.MusicDir)
 
 	def Matix(self, data):
 		if data[0] not in Settings['allowed']:
 			return None
-		f = data[4] if len(data) >=4 and data[4] in self.Files else choice(self.Files)
-		with open("{0}/{1}".format(self.Dir, f)) as _f:
-			for line in _f.readlines():
-				try:
+		try:
+			File = data[4] if data[4] in self.Files else choice(self.Files)
+		except IndexError:
+			File = choice(self.Files)
+		with open("{0}/{1}".format(self.Dir, File)) as f:
+			try:
+				for line in f.readlines():
 					self.IRC.say(data[2], line)
-				except UnicodeDecodeError:
-					pass
-		return
-
-	def Lyric(self, data):
-		if data[0] not in Settings['allowed']:
-			return None
-		f = choice(self.MusicFiles)
-		with open("{0}/{1}".format(self.MusicDir, f)) as _f:
-			for line in _f.readlines():
-				try:
-					self.IRC.say(data[2], line)
-				except UnicodeDecodeError:
-					pass
-		return
+			except UnicodeDecodeError:
+				self.Files.remove(File)
+				os.unlink(self.Dir + os.sep + File)
+				self.IRC.say(data[2], "Removed invalid unicode file: {0}".format(File))
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@matix", self.Matix)
-		self.Parser.hookCommand('PRIVMSG', "^@lyric", self.Lyric)
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
