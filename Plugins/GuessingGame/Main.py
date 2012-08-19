@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from random import randint
 import shelve
+import os
 
 from .Settings import Settings
 
@@ -50,6 +51,11 @@ class GuessingStats(object):
 			self._StatsDB = _StatsDB
 		else:
 			self._StatsDB = "Plugins/GuessingGame/GuessingGameStats.shelve"
+
+		# Check if a shelve file exists, if not, create a blank one.
+		if not os.access(self._StatsDB, 6):
+			with open(self._StatsDB, 'w'):
+				pass
 
 		_db = shelve.open(self._StatsDB)
 		self.StatsDB = self.Load(_db)
