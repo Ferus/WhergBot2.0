@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 import sys
+import traceback
 from threading import Thread
 from time import sleep, strftime, time
+import logging
 try:
 	from blackbox import blackbox
 except ImportError:
@@ -66,6 +68,9 @@ class Connection(object):
 					return None
 				except Exception as e:
 					print("{0} Exception caught on connection '{1}': {2}".format(formattime(), self.__name__, repr(e)))
+					for line in traceback.format_exc().split("\n"):
+						if line.strip():
+							print("{0} > {1}".format(formattime(), line))
 			return None
 
 def run(Name, Server): #change to allow passing of one dictionary and name rather than the name of the dictionary

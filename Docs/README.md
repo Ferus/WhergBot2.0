@@ -30,8 +30,7 @@ Listed below are other modules that are not required to run the core bot.
 4. Enjoy.
 
 ## Documentation
-> 2012
-> documenting code
+Working on that...
 
 [blackbox_IRC-macros]: https://github.com/Ferus/blackbox_IRC-macros
 [requests]: https://github.com/kennethreitz/requests
