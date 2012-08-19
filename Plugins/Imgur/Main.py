@@ -38,14 +38,18 @@ class Main(object):
 			except Exception as e:
 				self.IRC.say(data[2], repr(e))
 				return
-			x = "\x02[Imgur]\x02 {0}".format(stats['title'])
-			x += " - [\x02{0}\x02 views]".format(stats['views'])
-			x += " - [\x02{0}\x02]".format(stats['gallery_timestamp'])
-			#Tail end.
-			x += " - [\x02{0}\x02 Points]".format(stats['points'])
-			x += " - [\x02{0}\x02 Likes]".format(stats['ups'])
-			x += " - [\x02{0}\x02 Dislikes]".format(stats['downs'])
-			self.IRC.say(data[2], x)
+			if isinstance(stats, dict):
+				x = "\x02[Imgur]\x02 {0}".format(stats['title'])
+				x += " - [\x02{0}\x02 views]".format(stats['views'])
+				x += " - [\x02{0}\x02]".format(stats['gallery_timestamp'])
+				#Tail end.
+				x += " - [\x02{0}\x02 Points]".format(stats['points'])
+				x += " - [\x02{0}\x02 Likes]".format(stats['ups'])
+				x += " - [\x02{0}\x02 Dislikes]".format(stats['downs'])
+				self.IRC.say(data[2], x)
+			else: 
+				# Keep errors quiet for now, this probably wasnt a gallery image but was caught by the regex
+				pass
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?", self.ImgurStats)
