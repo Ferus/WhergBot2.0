@@ -51,7 +51,7 @@ class Main(object):
 		self.Parser.hookCommand("PRIVMSG", '^@oven(?: .*?)?$', self.Oven)
 		self.Parser.hookCommand("PRIVMSG", '^@next$', self.Next)
 		self.Parser.hookCommand("PRIVMSG", '^@bacon(?: .*?)?$', self.Bacon)
-		self.Parser.hookCommand("PRIVMSG", '(^|\s+);[_-~]{1};(\s|$)', self.Hug)
+		self.Parser.hookCommand("PRIVMSG", '(?:^|\s+);[_-~\.]{1};(?:\s|$)', self.Hug)
 		self.Parser.hookCommand("PRIVMSG", '^@isup(?: .*?)?$', self.isup)
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
