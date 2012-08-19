@@ -16,7 +16,7 @@ class Main(object):
 		r = requests.get("http://199.19.116.75/ermahgerd.php?text={0}".format(message.replace(" ", "%20")))
 		if r.status_code != 200:
 			r.raise_for_status()
-		return r.content
+		return r.text
 
 	def Send(self, data):
 		if Locker.Locked:
