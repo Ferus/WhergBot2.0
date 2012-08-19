@@ -113,6 +113,7 @@ class Main():
 			return None
 		if self.Omegle.disconnect() == True:
 			self.cleanup()
+		self.IRC.say(data[2], "\x02[Omegle]\x02 Disconnected!")
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@omegle$", self.initOmegle)
