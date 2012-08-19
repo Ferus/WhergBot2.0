@@ -23,30 +23,6 @@ from .Settings import Settings
 from Parser import Locker
 Locker = Locker(5)
 
-def convert(text):
-	"""Decode HTML entities in the given text."""
-	try:
-		if type(text) is str:
-			uchr = chr
-		else:
-			uchr = lambda value: value > 255 and chr(value) or chr(value)
-		def entitydecode(match, uchr=uchr):
-			entity = match.group(1)
-			if entity.startswith('#x'):
-				return uchr(int(entity[2:], 16))
-			elif entity.startswith('#'):
-				return uchr(int(entity[1:]))
-			elif entity in htmlentitydefs.name2codepoint:
-				return uchr(htmlentitydefs.name2codepoint[entity])
-			else:
-				return match.group(0)
-		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
-		text = charrefpat.sub(entitydecode, text)
-		return text
-	except Exception as e:
-		print("* [UrbanDict] Error: {0}".format(repr(e)))
-		return text
-
 def truncate(content, length=300, suffix='...'):
 	if len(content) <= length:
 		return content
@@ -56,17 +32,17 @@ def truncate(content, length=300, suffix='...'):
 
 def getArticleByName(articleName):
 	Url = "http://en.wikipedia.org/wiki/Special:Search?search={0}".format(articleName.strip().replace(" ","%20"))
-	return "{0}".format(getArticleByUrl(Url, returnUrl=True))
+	return getArticleByUrl(Url, returnUrl=True)
 
 def getArticleByUrl(articleUrl, returnUrl=False):
 	if not articleUrl.startswith("http://") and not articleUrl.startswith("https://"):
-		articleUrl = "http://{0}".format(articleUrl)
+		articleUrl = "http://" + articleUrl
+
 	try:
 		articleReq = requests.get(articleUrl)
-		if articleReq.status_code != 200:
-			raise requests.HTTPError
+		articleReq.raise_for_status()
 		articleHtml = articleReq.text
-	except requests.HTTPError as e:
+	except (requests.HTTPError, requests.ConnectionError) as e:
 		print("* [Wikipedia] Error => {0}".format(repr(e)))
 		return repr(e)
 	except Exception as e:
@@ -86,7 +62,7 @@ def getArticleByUrl(articleUrl, returnUrl=False):
 		text = re.sub('<[^<]+?>', '', firstParaRegex.search(articleHtml).group())
 		text = footnoteRegex.sub('', text)
 
-		text = truncate(text).encode("utf-8")
+		text = truncate(text)
 
 		if disambRegex.search(text):
 			text = "Disambiguations are not yet supported."
@@ -97,7 +73,7 @@ def getArticleByUrl(articleUrl, returnUrl=False):
 
 		if returnUrl:
 			result += " - {0}".format(articleReq.url)
-	except:
+	except Exception as e:
 		result = "Failed to retrieve the Wikipedia article."
 
 	return result
