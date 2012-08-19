@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import requests
+import re
 import json
 
 from .Settings import Settings
