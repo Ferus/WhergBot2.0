@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3.2
 import sys
 import traceback
 from threading import Thread
@@ -45,7 +45,7 @@ class Connection(object):
 	def quitConnection(self):
 		self.shuttingDown = True
 		for Plugin, Values in list(self.Parser.loadedPlugins.items()):
-			Values[5]()
+			Values[4]()
 			print("* Running Unload on plugin '{0}'".format(Plugin))
 		self.IRC.quit(self.Config.get('quitmessage', 'KeyboardInterrupt raised; Quitting!'))
 		print("{0} {1}: Quitting Server!".format(formattime(), self.__name__))
