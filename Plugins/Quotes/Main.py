@@ -57,12 +57,9 @@ class QuotesDatabase(object):
 		try:
 			x = self.Cursor.execute("select quote from quotes where id=?", (QuoteNum,))
 			print(">>> [Quotes => Number] Sending Quote.")
-			return x.next()[0]
-
-		except StopIteration as e:
-			return "No quotes in database or quote does not exist."
-		except Exception as e:
-			return repr(e)
+			return x.fetchone()[0]
+		except TypeError:
+			return "That quote does not exist."
 
 	def Random(self):
 		print(">>> [Quotes => Random] Sending random Quote.")
@@ -135,11 +132,9 @@ class RulesDatabase(object):
 		try:
 			x = self.Cursor.execute("select rule from rules where id=?", (RuleNum,))
 			print(">>> [Rules => Number] Sending Rule.")
-			return x.next()[0]
-		except StopIteration as e:
+			return x.fetchone()[0]
+		except TypeError:
 			return "No rules in database or rule does not exist."
-		except Exception as e:
-			return repr(e)
 
 class Main(object):
 	def __init__(self, Name, Parser):
@@ -221,7 +216,6 @@ class Main(object):
 
 	def Unload(self):
 		self.Quotes.Save()
-		self.Rules.Save()
 		del self.Quotes
 		del self.Rules
 		del self
