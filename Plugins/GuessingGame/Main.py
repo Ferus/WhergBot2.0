@@ -224,7 +224,7 @@ class Main(GuessingGame):
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
-		self.Stats.Save()
+		pass
 	def Reload(self):
 		pass
 
