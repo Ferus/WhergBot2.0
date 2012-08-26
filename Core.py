@@ -24,7 +24,7 @@ class Connection(object):
 		self.Connections = Connections
 		self.Processes = Processes
 		self.Config = conf
-		self.IRC = blackbox.IRC(ssl=self.Config.get('ssl', False))
+		self.IRC = blackbox.Oper(ssl=self.Config.get('ssl', False))
 		self.Parser = Parser.Parser(self)
 		self.shuttingDown = False
 
