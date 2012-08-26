@@ -71,7 +71,7 @@ class Main(object):
 				self.chambers[0] = False
 				self.IRC.say(data[2], "You sigh once you realize the shot was a dud!")
 			else:
-				if windex([(True, .5), (False, .95)]):
+				if windex([(True, .05), (False, .95)]):
 					# 5% chance it backfires
 					self.bullets -= 1
 					self.chambers[0] = False
