@@ -26,7 +26,7 @@ class QuotesDatabase(object):
 		try:
 			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM quotes").fetchone()[0]
 		except StopIteration as e:
-			self.LastID = "0"
+			self.LastID = 0
 		print(">>> [Quotes => __init__] {0} rows have been loaded.".format(self.LastID))
 
 	def Save(self):
@@ -35,8 +35,8 @@ class QuotesDatabase(object):
 
 	def Add(self, String):
 		try:
-			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (String.decode('utf8'),))
-			self.LastID = str(x.lastrowid)
+			x = self.Cursor.execute("insert into quotes values (NULL, ?)", (String,))
+			self.LastID = x.lastrowid
 			self.Save()
 			return "Added new quote number {0} successfully!".format(self.LastID)
 		except Exception as e:
@@ -121,7 +121,7 @@ class RulesDatabase(object):
 		try:
 			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM rules").fetchone()[0]
 		except StopIteration as e:
-			self.LastID = "0"
+			self.LastID = 0
 		print(">>> [Rules => __init__] {0} rows have been loaded.".format(self.LastID))
 
 	def Number(self, RuleNum):
