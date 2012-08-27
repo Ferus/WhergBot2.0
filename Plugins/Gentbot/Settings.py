@@ -9,5 +9,14 @@ Settings = {
 		,"learning": True # Allow the bot to learn?
 		,"ignore_list": ['!.', '?.', "'", ',', ';', 'asl', 'h'] # Words to ignore
 		,"no_save": False # If true, dont save to disk
-			}
+	}
+	,'twitter': {
+		'use': True,
+		'oauth-keys': {
+			"consumer_key": 'h',
+			"consumer_secret": 'h',
+			"access_token_key": 'h',
+			"access_token_secret": 'h'
+		}
+	}
 }

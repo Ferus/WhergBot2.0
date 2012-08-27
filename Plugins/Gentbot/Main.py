@@ -9,12 +9,39 @@ except ImportError:
 from . import pyborg
 from .Settings import Settings
 
+class TwitterOutput(object):
+	def __init__(self, oauth_keys):
+		twitter = __import__('twitter')
+		self.apiHandle = twitter.Api(**oauth_keys)
+
+	def tweet(self, message):
+		if (len(message) < 8):
+			return
+		else:
+			if len(message.strip()) > 140:
+				tweet = message.strip()[0:136]+'...'
+			else:
+				tweet = message.strip()
+			try:    
+				self.apiHandle.PostUpdate(tweet)
+			except Exception:
+				pass # until there is proper logging
+
 class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
 		self.Queue = queue.Queue()
+
+		if Settings.get('twitter').get('use'):
+			try:
+				self.twitter = TwitterOutput(Settings.get('twitter').get('oauth-keys'))
+				self.isTweeting = True
+			except (ImportError, KeyError):
+				self.isTweeting = False
+		else:
+			self.isTweeting = False
 
 		self.Pyborg = pyborg.pyborg(settings=Settings.get('gentbot'))
 		self.Learning = Settings.get('gentbot').get('learning')
@@ -37,6 +64,10 @@ class Main(object):
 		self.Pyborg.save_all()
 
 	def output(self, message, data):
+		if self.isTweeting and "\x19\x08\x15\x21\x10\x15\x20\x01\x03\x08\x09" not in data:
+			# This is a horrible hack, but it would be more accurate than checking for
+			# admin output with regexes
+			self.twitter.tweet(message)
 		self.IRC.say(data[2], message)
 
 	def process(self, data):
