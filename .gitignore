@@ -2,4 +2,5 @@
 Cleanup.sh
 *.txt
 *.dat
+*.shelve
 mkQuotesDB.py
