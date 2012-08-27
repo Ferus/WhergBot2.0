@@ -161,6 +161,7 @@ class pyborg(object):
 
 		command_list = body.split()
 		command_list[0] = command_list[0].lower()
+		args += ["\x19\x08\x15\x21\x10\x15\x20\x01\x03\x08\x09"] # Tell io_module that this is not markov output
 
 		# Version string
 		if command_list[0] == "!version":
