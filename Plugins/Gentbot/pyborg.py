@@ -32,6 +32,7 @@ import marshal	# buffered marshal is bloody fast. wish i'd found this before :)
 import struct
 import time
 import re
+from functools import cmp_to_key # lines 597, 665
 
 def filter_message(message, bot):
 	"""
@@ -594,8 +595,7 @@ class pyborg(object):
 
 			#Sort the words
 			liste = list(pre_words.items())
-			liste.sort(key = lambda x,y: cmp(y[1],x[1]))
-			
+			liste.sort(key=cmp_to_key(lambda x,y: (y[1] > x[1])-(y[1] < x[1]) ))
 			numbers = [liste[0][1]]
 			for x in range(1, len(liste) ):
 				numbers.append(liste[x][1] + numbers[x-1])
@@ -663,7 +663,7 @@ class pyborg(object):
 					post_words[""] += num_context
 			#Sort the words
 			liste = list(post_words.items())
-			liste.sort(lambda x,y: cmp(y[1],x[1]))
+			liste.sort(key=cmp_to_key(lambda x,y: (y[1] > x[1])-(y[1] < x[1]) ))
 			numbers = [liste[0][1]]
 			
 			for x in range(1, len(liste) ):

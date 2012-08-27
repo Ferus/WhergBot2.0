@@ -73,10 +73,11 @@ class Main(object):
 	def process(self, data):
 		body = " ".join(data[3:])[1:]
 		owner = 1 if data[0] in Settings.get("allowed") else 0
+		replyrate = 100 if self.IRC.getnick() in body else self.Replyrate
 		if body.startswith("@"):
 			pass
 		else:
-			args = (self, body, self.Replyrate, self.Learning, data, owner)
+			args = (self, body, replyrate, self.Learning, data, owner)
 			self.addToQueue(args)
 	
 	def addToQueue(self, args):
