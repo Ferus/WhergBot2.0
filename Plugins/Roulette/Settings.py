@@ -13,7 +13,7 @@ Settings = {
 		,['92FS', 17]
 		,['P99', 16]
 		,['PPK', 7]
-		,['M1911', 8]
+		,['Single Action Army', 6]
 		,['M9 Rafica', 20]
 		,['S&W .500', 5]
 		,['Tokarev', 8]
