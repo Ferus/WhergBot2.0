@@ -31,6 +31,7 @@ class Main(object):
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@roulette$", self.shoot)
+		self.Parser.hookCommand('PRIVMSG', "^@gun$", self.say)
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 	def Unload(self):
 		pass
@@ -44,6 +45,13 @@ class Main(object):
 		self.bullets = 0
 		self.IRC.say(data[2], "Loaded a {0} with {1} 'chambers'".format(self.gun, len(self.chambers)))
 		self.load()
+		
+	def say(self, data):
+		# I couldnt think of a better name
+		if not hasattr(self, "gun"):
+			self.IRC.say(data[2], "No gun. :(") # Shouldn't happen
+			return None
+		self.IRC.say(data[2], "A {0} with {1} 'chambers' is loaded with {2} bullets.".format(self.gun, len(self.chambers), self.bullets))
 		
 	def load(self):
 		# increment bullet count by one
