@@ -13,7 +13,8 @@ class Main(object):
 
 	def Fapget(self, data):
 		if not Lock.Locked:
-			self.IRC.say(data[2], "\x02{0}\x02 has to fap to \x02{1}\x02!".format(data[0].split("!")[0], choice(Settings['faps'])))
+			nick = data[0].split("!")[0]
+			self.IRC.say(data[2], "\x02{0}\x02 has to fap to \x02{1}\x02!".format(nick, choice(Settings['faps'].format(nick=nick))))
 			Lock.Lock()
 		else:
 			self.IRC.notice(data[0].split("!")[0], "Please wait a little longer before using this command again.")
@@ -26,4 +27,4 @@ class Main(object):
 		pass
 	def Reload(self):
 		pass
-	
+
