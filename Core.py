@@ -18,7 +18,7 @@ def formattime():
 class Connection(object):
 	"""A connection instance for a server
 	"""
-	def __init__(self, name, conf, Connections, Processes):
+	def __init__(self, name, conf):
 		self.__time__ = time()
 		self.__name__ = name
 		self.Connections = Connections
@@ -73,13 +73,13 @@ class Connection(object):
 							print("{0} > {1}".format(formattime(), line))
 			return None
 
-def run(Name, Server): #change to allow passing of one dictionary and name rather than the name of the dictionary
-	if not Server['enabled']:
-		print("{0} Skipping disabled server {1}".format(formattime(), Name))
+def run(name, serv): #change to allow passing of one dictionary and name rather than the name of the dictionary
+	if not serv['enabled']:
+		print("{0} Skipping disabled server {1}".format(formattime(), name))
 		return
-	print("{0} Loading Config for server '{1}'".format(formattime(), Name))
+	print("{0} Loading Config for server '{1}'".format(formattime(), name))
 
-	C = Connection(name=Name, conf=Server, Connections=Connections, Processes=Processes)
+	C = Connection(name=name, conf=serv)
 	C.makeConnection()
 	Connections.append(C)
 	try:
@@ -94,7 +94,7 @@ def run(Name, Server): #change to allow passing of one dictionary and name rathe
 			except Exception as e:
 				print("{0} Error with function in _onConnect: {1}".format(formattime(), repr(e)))
 		sleep(1)
-		C.IRC.join(Server.get('channels'))
+		C.IRC.join(serv.get('channels'))
 	except blackbox.IRCError as e:
 		print("{0} Removing Conn {1}: {2}".format(formattime(), C.__name__, repr(e)))
 		Connections.remove(C)

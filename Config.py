@@ -8,44 +8,48 @@ Servers = {
 	"DatNode":
 		{"host": "opsimathia.datnode.net"
 		,"port": 6697
-		,"nick": "WhergBot|Test"
+		,"nick": "WhergBot|T"
 		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "Wherg"
 		,"channels": "#hacking"
 		,"ssl": True
 		,"enabled": True
 		,"quitmessage": "h"
-		,"plugins": ['Services'
-			,'Oper'
-			,'Plinko'
-			,'Omegle'
-			,'Misc'
-			,'Quit'
-			,'Matix'
-			,'Fapget'
-			,'GuessingGame'
-			,'PyFileServ'
-			,'Quotes'
-			,'EightBall'
-			,'Wikipedia'
-			,'Told'
-			,'Uptime'
-			,'SloganMaker'
-			,'Exec'
-			,'Asl'
-			,'Meme'
-			,'Etymology'
-			,'Slap'
-			,'YouTube'
-			,'Tinyboard'
-			,'Ermahgerd'
+		,"plugins": [
+#			'Services'
+#			,'Oper'
+#			,'Plinko'
+#			,'Omegle'
+#			,'Misc'
+#			,'Quit'
+#			,'Matix'
+#			,'Fapget'
+#			,'GuessingGame'
+#			,'PyFileServ'
+#			,'Quotes'
+#			,'EightBall'
+#			,'Wikipedia'
+#			,'Told'
+#			,'Uptime'
+#			,'SloganMaker'
+#			,'Exec'
+#			,'Asl'
+#			,'Meme'
+#			,'Etymology'
+#			,'Slap'
+#			,'YouTube'
+#			,'Tinyboard'
+#			,'Ermahgerd'
 #			,'Wordnik'
-			,'UrbanDictionary'
-			,'InsultGenerator'
-			,'FuckMyLife'
-			,'Imgur'
-			,'General'
-			,'PyMpd']
+#			,'UrbanDictionary'
+#			,'InsultGenerator'
+#			,'FuckMyLife'
+#			,'Imgur'
+#			,'General'
+#			,'PyMpd'
+#			,'Weather'
+#			,'Roulette'
+			]
 		,"owner": {"nicks": ["Ferus", "Ferrous", "^"]
 			,"hosts": ["the.interwebs", "ur.messages"]
 			,"idents": ["anonymous", "carroting"]
@@ -62,44 +66,48 @@ Servers = {
 		,"ssl": True
 		,"enabled": False
 		,"quitmessage": "h"
-		,"plugins": ['Services'
-			,'Oper'
-			,'Plinko'
-			,'Omegle'
-			,'Misc'
-			,'Quit'
-			,'Matix'
-			,'Fapget'
-			,'GuessingGame'
-			,'PyFileServ'
-			,'Quotes'
-			,'EightBall'
-			,'Wikipedia'
-			,'Told'
-			,'Uptime'
-			,'SloganMaker'
-			,'Exec'
-			,'Asl'
-			,'Meme'
-			,'Etymology'
-			,'Slap'
-			,'YouTube'
-			,'Tinyboard'
-			,'Ermahgerd'
+		,"plugins": [
+#			'Services'
+#			,'Oper'
+#			,'Plinko'
+#			,'Omegle'
+#			,'Misc'
+#			,'Quit'
+#			,'Matix'
+#			,'Fapget'
+#			,'GuessingGame'
+#			,'PyFileServ'
+#			,'Quotes'
+#			,'EightBall'
+#			,'Wikipedia'
+#			,'Told'
+#			,'Uptime'
+#			,'SloganMaker'
+#			,'Exec'
+#			,'Asl'
+#			,'Meme'
+#			,'Etymology'
+#			,'Slap'
+#			,'YouTube'
+#			,'Tinyboard'
+#			,'Ermahgerd'
 #			,'Wordnik'
-			,'UrbanDictionary'
-			,'InsultGenerator'
-			,'FuckMyLife'
-			,'Imgur'
-			,'General'
-			,'PyMpd']
+#			,'UrbanDictionary'
+#			,'InsultGenerator'
+#			,'FuckMyLife'
+#			,'Imgur'
+#			,'General'
+#			,'PyMpd'
+#			,'Weather'
+#			,"Gentbot"
+			]
 		,"owner": {"nicks": ["Ferus", "Ferrous"]
 			,"hosts": ["the.interwebs"]
 			,"idents": ["anonymous"]
 		}
 	}
 
-	,"DatNodeGentBot":
+	,"GentBot":
 		{"host": "mempsimoiria.datnode.net"
 		,"port": 6697
 		,"nick": "gentbot|h"
@@ -109,7 +117,10 @@ Servers = {
 		,"ssl": True
 		,"enabled": False
 		,"quitmessage": 'h'
-		,"plugins": ['General', 'Gentbot']
+		,"plugins": [
+#			'General'
+#			,'Gentbot'
+			]
 		,"owner": {"nicks": ["Ferus"]
 			,"hosts": ["the.interwebs"]
 			,"idents": ["anonymous"]
