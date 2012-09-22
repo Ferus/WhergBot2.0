@@ -11,12 +11,15 @@ WhergBot depends on the development branch of the [blackbox_IRC-macros][].
 Listed below are other modules that are not required to run the core bot.
 
 1. [requests][] Is used for many HTTP based plugins.
+
 	pip install requests
 
 2. [wordnik][] Is used for the Wordnik plugin.
+
 	pip install wordnik
 
 3. [python-mpd][] Is used for the PyMpd plugin.
+
 	pip install python-mpd
 
 ## Installation / Usage
