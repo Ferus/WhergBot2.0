@@ -24,12 +24,12 @@ class Main(object):
 		if Lock.Locked:
 			self.IRC.notice(data[0].split('!')[0], "Please wait a little longer before using this command again.")
 			return None
-		
+
 		word = " ".join(data[4:])
 		defs = self.wordApi.getDefinitions(word, limit=3)
 
-		if len(defs) == 0:
-			self.IRC.say(data[2],"\x02[WordNik]\x02 I didn't find any definitions for '{0}'.".format(word))
+		if defs == None:
+			self.IRC.say(data[2], "\x02[WordNik]\x02 I didn't find any definitions for '{0}'.".format(word))
 		elif len(defs) == 1:
 			self.IRC.say(data[2], "\x02[WordNik]\x02 I found one definition for '{0}'.".format(word))
 			self.IRC.say(data[2], "\x02[WordNik]\x02 {0}: {1}".format(word, defs[0].text))
@@ -38,7 +38,7 @@ class Main(object):
 			for x in defs:
 				self.IRC.say(data[2], "\x02[WordNik]\x02 {0}: {1}".format(word, x.text))
 		Lock.Lock()
-	
+
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', "^@def( .*?)?$", self.getDefinitions)
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
