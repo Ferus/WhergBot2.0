@@ -28,7 +28,7 @@ class NickServ(Service):
 		pass
 
 	def Identify(self):
-		self.Send("Identify {0}".format(Settings.get("password")))
+		self.Send("Identify {0}".format(Settings.get(self.Parser.Connection.__name__)))
 		print("{0} {1}: Authenticating to NickServ".format(strftime(Config.Global['timeformat']), self.Parser.Connection.__name__))
 
 	def Access(self):

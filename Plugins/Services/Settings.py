@@ -1,4 +1,5 @@
 Settings = {
-	"password": open('Plugins/Services/nspassword.txt', 'r').read().strip()
+	"DatNode": open('Plugins/Services/DatNode.txt', 'r').read().strip()
+	,"GentBot": open('Plugins/Services/GentBot.txt', 'r').read().strip()
 	,"modes": "+ksBp"
 }

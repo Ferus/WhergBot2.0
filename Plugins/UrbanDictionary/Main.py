@@ -34,7 +34,7 @@ def convert(text):
 		return text
 
 # http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
-
+# http://api.urbandictionary.com/v0/define?term= <-- Even better,
 class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
@@ -66,7 +66,7 @@ class Main(object):
 
 	def Main(self, data):
 		if Locker.Locked:
-			self.IRC.notice(data[0], "Please wait a little bit longer before using this command.")
+			self.IRC.notice(data[0].split("!")[0], "Please wait a little bit longer before using this command.")
 			return None
 		word = ' '.join(data[4:])
 		checkCache = self.checkCacheForDef(word)
