@@ -8,6 +8,7 @@
 
 # This is a very simple initial version.
 
+# Oct 04 - Attempt at changing over to Wikipedia's API/Cacheing articles.
 # Jun 15 - Ported to new Wherg
 # Feb 29 - Use requests.url when returning text from getArticleByUrl
 # Feb 06 - Added a Command Locker
@@ -17,11 +18,21 @@
 # Jan 09 - Added truncate function
 
 import requests
-import os, re
+import os
+import re
+import sqlite3
 
 from .Settings import Settings
 from Parser import Locker
 Locker = Locker(5)
+
+class WikipediaAPIWrapper(object):
+	def __init__(self):
+		self._db = Settings.get("database", "Wiki.db")
+		self.DBConnection = sqlite3.connect(self_.db, check_same_thread = False)
+		self.DBCursor = self.DBConnection.cursor()
+		self.DBCursor.execute("create table if not exists Wikipedia (timestamp INTEGER, article TEXT)")
+
 
 def truncate(content, length=300, suffix='...'):
 	if len(content) <= length:
