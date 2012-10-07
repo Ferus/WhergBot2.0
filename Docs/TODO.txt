@@ -1,4 +1,3 @@
-Cleverbot
 Logging
 
 Web Interface?
@@ -9,6 +8,3 @@ Web Interface?
 
 Sending Buffer/Queue
 	allow hooks to be called when send()ing data as well as recv()ing
-
-Wikipedia.py:
-	check for subheader if # is present in URL

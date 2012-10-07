@@ -15,14 +15,12 @@ class Main():
 		self.activeChannel = ''
 
 	def initCleverbot(self, data):
+		"""Called on @cleverbot
+		Checks if we're in an allowed channel and if we're already running."""
 		if data[2] not in Settings.get('allowedChans'):
 			return None
 		if self.Running:
 			return None
-		self.createConnection(data)
-
-	def createConnection(self, data):
-		"""Called on @cleverbot"""
 		self.activeChannel = data[2]
 		self.Cleverbot = cleverbot.Session()
 		self.Running = True
@@ -32,6 +30,7 @@ class Main():
 			data[0].split("!")[0], reply))
 
 	def sendMessage(self, data):
+		"""Sends a message to cleverbot"""
 		if data[2] not in Settings.get('allowedChans'):
 			return None
 		if not self.Running:
@@ -42,6 +41,7 @@ class Main():
 		self.IRC.say(data[2], "\x02[CleverBot]\x02 {0} -> CleverBot: {1}".format(
 			data[0].split("!")[0], msg))
 		def helper(msg):
+			# Threads replys, prevents 'lag'
 			reply = self.Cleverbot.Ask(msg)
 			self.IRC.say(data[2], "\x02[CleverBot]\x02 CleverBot -> {0}: {1}".format(
 				data[0].split("!")[0], reply))
@@ -49,19 +49,18 @@ class Main():
 		t.daemon = True
 		t.start()
 
-	def cleanup(self):
-		self.Cleverbot = None
-		self.Running = False
-		self.activeChannel = ''
-
 	def disconnect(self, data):
+		"""Sends a nice goodbye message and cleans up"""
 		if data[2] not in Settings.get('allowedChans'):
 			return None
 		if not self.Running:
 			return None
 		reply = self.Cleverbot.Ask("Goodbye! :<")
 		self.IRC.say(data[2], "\x02[CleverBot]\x02 {0}".format(reply))
-		self.cleanup()
+		# cleanup
+		self.Cleverbot = None
+		self.Running = False
+		self.activeChannel = ''
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@cleverbot .+$", self.initCleverbot)

@@ -8,6 +8,7 @@
 
 # This is a very simple initial version.
 
+# Oct 06 - Finished™ porting to Wikipedia's API.
 # Oct 04 - Attempt at changing over to Wikipedia's API/Cacheing articles.
 # Jun 15 - Ported to new Wherg
 # Feb 29 - Use requests.url when returning text from getArticleByUrl
@@ -17,102 +18,51 @@
 # Jan 11 - Removed Unicode bug
 # Jan 09 - Added truncate function
 
-import requests
-import os
 import re
-import sqlite3
-
+from . import Wikipedia
 from .Settings import Settings
 from Parser import Locker
 Locker = Locker(5)
-
-class WikipediaAPIWrapper(object):
-	def __init__(self):
-		self._db = Settings.get("database", "Wiki.db")
-		self.DBConnection = sqlite3.connect(self_.db, check_same_thread = False)
-		self.DBCursor = self.DBConnection.cursor()
-		self.DBCursor.execute("create table if not exists Wikipedia (timestamp INTEGER, article TEXT)")
-
-
-def truncate(content, length=300, suffix='...'):
-	if len(content) <= length:
-		return content
-	else:
-		x = ' '.join(content[:length+1].split(' ')[0:-1]) + "{0}".format(suffix)
-		return x
-
-def getArticleByName(articleName):
-	Url = "http://en.wikipedia.org/wiki/Special:Search?search={0}".format(articleName.strip().replace(" ","%20"))
-	return getArticleByUrl(Url, returnUrl=True)
-
-def getArticleByUrl(articleUrl, returnUrl=False):
-	if not articleUrl.startswith("http://") and not articleUrl.startswith("https://"):
-		articleUrl = "http://" + articleUrl
-
-	try:
-		articleReq = requests.get(articleUrl)
-		articleReq.raise_for_status()
-		articleHtml = articleReq.text
-	except (requests.HTTPError, requests.ConnectionError) as e:
-		print("* [Wikipedia] Error => {0}".format(repr(e)))
-		return repr(e)
-	except Exception as e:
-		print("* [Wikipedia] Error => {0}".format(repr(e)))
-		return repr(e)
-
-	titleRegex = re.compile("<title>(.*?) -")
-	firstParaRegex = re.compile("<p>(.*?)[\r\n]?<\/p>")
-	footnoteRegex = re.compile("\[[0-9]{1,3}\]")
-
-	# Special cases
-	disambRegex = re.compile('may refer to:$')
-	notfoundRegex = re.compile('Other reasons this message may be displayed:')
-
-	try:
-		title = re.sub('<[^<]+?>', '', titleRegex.search(articleHtml).group())
-		text = re.sub('<[^<]+?>', '', firstParaRegex.search(articleHtml).group())
-		text = footnoteRegex.sub('', text)
-
-		text = truncate(text)
-
-		if disambRegex.search(text):
-			text = "Disambiguations are not yet supported."
-		elif notfoundRegex.search(text):
-			text = "Article not found."
-
-		result = "{0} {1}".format(title, text)
-
-		if returnUrl:
-			result += " - {0}".format(articleReq.url)
-	except Exception as e:
-		result = "Failed to retrieve the Wikipedia article."
-
-	return result
 
 class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
+		self.Wiki = Wikipedia.WikipediaAPIWrapper(Database = "Plugins/Wikipedia/Wiki.db")
 
 	def wikiUrl(self, data):
 		urls = re.findall("(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?(?:\s|$)", ' '.join(data[3:]))
 		for url in urls:
+			article = url.split('/')[-1]
+			section = ''
+			if "#" in article:
+				article, section = article.split("#")
+			article = self.Wiki.searchWikipediaForArticles(article)
 			try:
-				self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(getArticleByUrl(url)))
-			except Exception as e:
-				print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
+				article = self.Wiki.getArticleFromDatabase(article)
+			except Wikipedia.ArticleNotInDatabase:
+				article = self.Wiki.getArticleFromWikipedia(article)
+			article = article[0]
+			if section != '':
+				article = Wikipedia.truncate(article[section])
+			else:
+				article = Wikipedia.truncate(article['description'])
+			self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(article))
 
 	def wikiName(self, data):
+		if Locker.Locked:
+			self.IRC.notice(data[0].split("!")[0], "Please wait a little longer before using this command again.")
+			return None
+		article = self.Wiki.searchWikipediaForArticles(" ".join(data[4:]))
 		try:
-			if not Locker.Locked:
-				article = " ".join(data[4:])
-				self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(getArticleByName(article)))
-				Locker.Lock()
-			else:
-				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer before using this command again.")
-		except Exception as e:
-			print("* [Wikipedia] Error:\n* [Wikipedia] {0}".format(str(e)))
+			article = self.Wiki.getArticleFromDatabase(article)
+		except Wikipedia.ArticleNotInDatabase:
+			article = self.Wiki.getArticleFromWikipedia(article)
+		article = article[0]
+		article = Wikipedia.truncate(article['description'])
+		self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(article))
+		Locker.Lock()
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@wiki .*?$", self.wikiName)
