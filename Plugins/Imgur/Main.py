@@ -10,18 +10,20 @@ class Imgur(object):
 
 	An instance of this class represents the json output from the Imgur API
 	"""
-	def __init__(self, hash):
-		self.hash = hash
+	def __init__(self, picid):
+		self.picid = picid
 		self.url = 'http://imgur.com/gallery/{0}.json'
 	def gallery(self):
 		'''Returns Imgur gallery stats for given hash.'''
-		r = requests.get(self.url.format(self.hash))
+		r = requests.get(self.url.format(self.picid))
 		try:
 			r.raise_for_status()
 		except (requests.HTTPError, requests.ConnectionError):
 			return "Error connecting to API."
-		r = json.loads(r.text)['gallery']['image']
-		return r
+		r = json.loads(r.text)
+		if r['status'] != 200 or r['success'] != True:
+			return None
+		return r['data']['image']
 
 class Main(object):
 	def __init__(self, Name, Parser):
@@ -32,9 +34,9 @@ class Main(object):
 	def ImgurStats(self, data):
 		hashs = re.findall('imgur\.com/(?:gallery/)?(\w{5})', " ".join(data[3:]))
 		hashs = list(set(hashs)) # Remove Duplicates.
-		for hash in hashs[:3]: # Limit it to 3 per line.
+		for picid in hashs[:3]: # Limit it to 3 per line.
 			try:
-				stats = Imgur(hash).gallery()
+				stats = Imgur(picid).gallery()
 			except Exception as e:
 				self.IRC.say(data[2], repr(e))
 				return
@@ -47,7 +49,7 @@ class Main(object):
 				x += " - [\x02{0}\x02 Likes]".format(stats['ups'])
 				x += " - [\x02{0}\x02 Dislikes]".format(stats['downs'])
 				self.IRC.say(data[2], x)
-			else: 
+			else:
 				# Keep errors quiet for now, this probably wasnt a gallery image but was caught by the regex
 				pass
 
