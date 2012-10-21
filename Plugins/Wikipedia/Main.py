@@ -66,7 +66,7 @@ class Main(object):
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", "^@wiki .*?$", self.wikiName)
-		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?en.wikipedia\.org\/wiki\/.*?", self.wikiUrl)
+		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?en.wikipedia\.org\/wiki\/(?!File:)[\w%]+", self.wikiUrl)
 		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 
 	def Unload(self):
