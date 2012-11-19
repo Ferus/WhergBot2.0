@@ -47,16 +47,22 @@ class Main(object):
 		h = re.sub("\s{2,}", " ", h).strip(" ")
 		self.IRC.say(data[2], "\x02[ISUP]\x02 {0}".format(h))
 
+	def HelloWorld(self, data):
+		self.IRC.say(data[2], "Hello World!")
+
+
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", self.__name__
 			,{'^@oven(?: .*?)?$': self.Oven
 			,'^@next$': self.Next
 			,'^@bacon(?: .*?)?$': self.Bacon
 			,'(?:^|\s+);[_-~\.]{1};(?:\s|$)': self.Hug
-			,'^@isup(?: .*?)?$': self.isup}
+			,'^@isup(?: .*?)?$': self.isup
+			,'^@h': self.HelloWorld
+			}
 		)
 
 	def Unload(self):
-		pass
+		del self.Parser.Commands["PRIVMSG"][1][self.__name__]
 	def Reload(self):
 		pass

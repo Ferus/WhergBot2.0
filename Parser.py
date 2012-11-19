@@ -3,7 +3,7 @@ import os
 import glob
 import re
 import logging
-import importlib
+import importlib, imp
 import threading
 
 from blackbox.blackbox import IRCError
@@ -208,29 +208,25 @@ class Parser(object):
 				modules.append(path)
 		return modules
 
-	def loadPlugins(self, data=None, m=None):
-		if data != None and self.userHasAccess(data[0]) == False:
-			return None
+	def loadPlugins(self, m=None):
 		modules = self.getPluginList()
 		loaded = {}
 		for path in modules:
-			module = path.split('.')[0]
-			if m != None and m != module:
+			plugin = path.split('.')[0]
+			if m != None and m != plugin:
 				continue
 			try:
-				logger.info("{0}: Trying to import {1}.".format(self.Connection.__name__, module))
-				loaded[module] = importlib.import_module("Plugins.{0}.Main".format(module))
+				logger.info("{0}: Trying to import {1}.".format(self.Connection.__name__, plugin))
+				loaded[plugin] = importlib.import_module("Plugins.{0}.Main".format(plugin))
+				if m != None:
+					loaded[plugin] = imp.reload(loaded[plugin])
 			except ImportError as e:
-				if data:
-					self.IRC.say(data[2], repr(e))
-				logger.exception("{0}: Error importing '{1}'; Is there a Main.py?".format(self.Connection.__name__, module))
+				logger.exception("{0}: Error importing '{1}'; Is there a Main.py?".format(self.Connection.__name__, plugin))
 			except Exception as e:
-				if data:
-					self.IRC.say(data[2], repr(e))
-				logger.exception("{0}: An Error occured trying to import {1}:".format(self.Connection.__name__, module))
-		self.initPlugins(loaded, data=data)
+				logger.exception("{0}: An Error occured trying to import {1}:".format(self.Connection.__name__, plugin))
+		self.initPlugins(loaded)
 
-	def initPlugins(self, loaded, data=None):
+	def initPlugins(self, loaded):
 		for plugin, instance in loaded.items():
 			try:
 				self.loadedPlugins[plugin] = instance.Main(plugin, self)
@@ -240,10 +236,7 @@ class Parser(object):
 				if self.loadedPlugins[plugin]:
 					del self.loadedPlugins[plugin]
 				continue
-		if data:
-			self.IRC.say(data[2], "Loaded Plugin!")
-		else:
-			logger.info("{0}: Loaded Plugins!".format(self.Connection.__name__))
+		logger.info("{0}: Loaded Plugins!".format(self.Connection.__name__))
 
 	def unLoadPlugins(self, module):
 		if self.loadedPlugins.get(module):
@@ -260,7 +253,8 @@ class Parser(object):
 			return None
 		module = data[4]
 		self.unLoadPlugins(module)
-		self.loadPlugins(data=data, m=module)
+		self.loadPlugins(m=module)
+		self.IRC.say(data[2], "Reloaded {0}!".format(module))
 
 	def hookCommand(self, command, plugin, callbacks):
 		# Commands['privmsg'][1]['PluginName'] = {regex: callback}
@@ -277,7 +271,6 @@ class Parser(object):
 
 	def Parse(self, data):
 		data = str(re.sub(Config.Global['unwantedchars'], '', data))
-		#logger.info("{0}: {1}".format(self.Connection.__name__, data))
 		if data.startswith("PING"):
 			return None # blackbox handles PONG replies for us
 		elif data.startswith("ERROR"):
@@ -293,14 +286,20 @@ class Parser(object):
 		except ValueError:
 			Server = data[0][1:]
 
-		if data[2] == Config.Servers[self.Connection.__name__]['nick']: # This is a PM
+		if data[2] == self.IRC.getnick():
 			data[2] = Nick
+
+		commands = []
 		# "PRIVMSG" [self.PRIVMSG, {Plugin: {Regex: Callback} } ]
 		for Plugin, Commands in self.Commands['PRIVMSG'][1].items():
 			for Regex, Callback in Commands.items():
 				if re.search(Regex, " ".join(data[3:])[1:]):
-					logger.info("Calling {0}".format(repr(Callback)))
-					Callback(data)
+					logger.info("Creating thread for function {0}".format(repr(Callback)))
+					t = threading.Thread(target=Callback, args=(data,))
+					t.daemon = True
+					commands.append(t)
+		for com in commands:
+			com.start()
 
 	def NOTICE(self, data):
 		try:

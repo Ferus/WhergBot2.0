@@ -48,7 +48,7 @@ class Connection(object):
 			Instance.Unload()
 			logger.info("* Running Unload on plugin '{0}'".format(Plugin))
 		self.IRC.quit(self.Config.get('quitmessage', 'KeyboardInterrupt raised; Quitting!'))
-		logger.log("{1}: Quitting Server!".format(self.__name__))
+		logger.info("{0}: Quitting Server!".format(self.__name__))
 		return True
 
 	def parseData(self, data=None):
