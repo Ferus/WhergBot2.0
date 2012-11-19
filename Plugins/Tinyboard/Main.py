@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 import re
 import requests
+import logging
+logger = logging.getLogger("Tinyboard")
 
 from .Settings import Settings
 
@@ -23,7 +25,11 @@ class Tinyboard(object):
 				return None
 
 	def Parse(self, link):
-		link = link.replace("mod.php?/", "")
+		if link.find("mod.php?/") != -1:
+			appendlink = True
+			link = link.replace("mod.php?/", "")
+		else:
+			appendlink = False
 		html = self.GetHtml(link)
 		if html == None:
 			return "Error'd: {0}".format(link)
@@ -50,32 +56,29 @@ class Tinyboard(object):
 			link = link.replace("#q","#")
 			threadnum, postnum = link.split("/")[-1].split(".html#")
 			if not threadnum == postnum:
-				string = "<div class=\"post reply\" id=\"reply_{0}\">".format(postnum)
+				string = "<div class=\"post reply\" id=\"reply_{0}\">(.+?)</div><br/>".format(postnum)
 				Post_html = re.findall(string, html)[0]
-				Post_html = html.split(Post_html)[1].split("</div>")[0]
 			else:
-				Post_html = re.findall("<div class=\"post op\">", html)[0]
-				Post_html = html.split(Post_html)[1].split("</div>")[0]
+				Post_html = re.findall("<div class=\"post op\">(.+?</div>)</div>", html)[0]
 		else:
-			Post_html = re.findall("<div class=\"post op\">", html)[0]
-			Post_html = html.split(Post_html)[1].split("</div>")[0]
+			Post_html = re.findall("<div class=\"post op\">(.+?</div>)</div>", html)[0]
 
 		try:
 			Post_Name = Post_html.split("<span class=\"name\">")[1].split("</span>")[0].strip(" ")
-		except:
+		except Exception:
 			Post_Name = "Anonymous"
 
 		try:
 			Post_Trip = Post_html.split("<span class=\"trip\">")[1].split("</span>")[0].strip(" ")
-		except:
+		except Exception:
 			Post_Trip = None
 
 		try:
 			Post_CapCode = Post_html.split("<a class=\"capcode\">")[1].split("</a>")[0].strip(" ")
-		except:
+		except Exception:
 			Post_CapCode = None
 
-		Post_Text = re.findall("<p class=\"body\">(.*?)</p>", Post_html)[0]
+		Post_Text = re.findall("<div class=\"body\">(.*?)</div>", Post_html)[0]
 
 		#Replace heading html with irc bold and red color.
 		Headings = re.findall("<span class=\"heading\">(.*?)<\/span>", Post_Text)
@@ -120,13 +123,13 @@ class Tinyboard(object):
 
 		Post_Text = self.smart_truncate(Post_Text)
 
-		return "{0}{1}{2}({3}, {4}) posted: {5}\x0f - {6}".format(Post_Name
+		return "{0}{1}{2}({3}, {4}) posted: {5}\x0f{6}".format(Post_Name
 			,Post_Trip if Post_Trip else ""
 			," {0} ".format(Post_CapCode) if Post_CapCode else " "
 			,postText
 			,imageText
 			,Post_Text
-			,link)
+			," - {0}".format(link) if appendlink else '')
 
 	def smart_truncate(self, content, length=300, suffix='...'):
 		'''Borrowed from stackoverflow, Credits to 'Adam'. :) '''
@@ -136,15 +139,9 @@ class Tinyboard(object):
 			x = ' '.join(content[:length+1].split(' ')[0:-1]) + suffix
 			return x
 
-	def Main(self, link=None):
-		try:
-			return self.Parse(link)
-		except Exception as e:
-			return repr(e)
-
-
 class Main(Tinyboard):
 	def __init__(self, Name, Parser):
+		Tinyboard.__init__(self)
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
@@ -154,10 +151,14 @@ class Main(Tinyboard):
 		for x in Settings.get('links'):
 			[links.append(y) for y in re.findall(x, ' '.join(data[3:])) if y not in links]
 		for link in links:
-			self.IRC.say(data[2], self.Main(link))
+			try:
+				parsed = self.Parse(link)
+			except Exception as e:
+				logger.exception("What?")
+			self.IRC.say(data[2], parsed)
 
 	def Load(self):
-		regex = "[" + "|".join(x for x in Settings.get('links')) + "]"
+		regex = "(" + "|".join(x for x in Settings.get('links')) + ")"
 		self.Parser.hookCommand("PRIVMSG", self.__name__, {regex: self.TinyboardLink})
 
 	def Unload(self):
