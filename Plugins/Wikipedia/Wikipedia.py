@@ -50,7 +50,6 @@ class WikipediaAPIWrapper(object):
 		"""
 		request = requests.get("https://en.wikipedia.org/w/api.php?action=opensearch&limit=3&namespace=0&format=json&search={0}".format(article))
 		request.raise_for_status()
-		print(request.text)
 		request = json.loads(request.text)
 		return request[1][0]
 
@@ -59,10 +58,10 @@ class WikipediaAPIWrapper(object):
 		"""
 		if self.checkIfArticleInDatabase(article) == False:
 			raise ArticleNotInDatabase("The requested article wasn't found in the database.")
-		query = self.DBCursor.execute("SELECT article_extract, timestamp FROM Wikipedia WHERE article_name=?", (article,))
-		article_extract, timestamp = query.fetchone()
+		query = self.DBCursor.execute("SELECT article_extract, article_name, timestamp FROM Wikipedia WHERE article_name=?", (article,))
+		article_extract, title, timestamp = query.fetchone()
 		article_extract = json.loads(article_extract)
-		return (article_extract, timestamp)
+		return (article_extract, title, timestamp)
 
 	def getArticleFromWikipedia(self, article):
 		"""Poll the Wikipedia API for an article and cache it.
@@ -104,7 +103,7 @@ class WikipediaAPIWrapper(object):
 				self.DBConnection.commit()
 			except Exception as e:
 				print(repr(e))
-		return (article_extract, timestamp)
+		return (article_extract, title, timestamp)
 
 def replacetags(text):
 	text = re.sub("</?i>", "\x1F", text)

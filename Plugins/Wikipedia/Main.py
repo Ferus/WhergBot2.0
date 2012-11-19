@@ -55,12 +55,11 @@ class Main(object):
 			return None
 		article = self.Wiki.searchWikipediaForArticles(" ".join(data[4:]))
 		try:
-			article = self.Wiki.getArticleFromDatabase(article)
+			article, title, timestamp = self.Wiki.getArticleFromDatabase(article)
 		except Wikipedia.ArticleNotInDatabase:
-			article = self.Wiki.getArticleFromWikipedia(article)
-		article = article[0]
+			article, title, timestamp = self.Wiki.getArticleFromWikipedia(article)
 		article = Wikipedia.truncate(article['description'])
-		self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0}".format(article))
+		self.IRC.say(data[2], "\x02[Wikipedia]\x02 {0} - https://en.wikipedia.org/wiki/{1}".format(article, title.replace(" ", "_")))
 		Locker.Lock()
 
 	def Load(self):
