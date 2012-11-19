@@ -48,12 +48,13 @@ class Main(object):
 		self.IRC.say(data[2], "\x02[ISUP]\x02 {0}".format(h))
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", '^@oven(?: .*?)?$', self.Oven)
-		self.Parser.hookCommand("PRIVMSG", '^@next$', self.Next)
-		self.Parser.hookCommand("PRIVMSG", '^@bacon(?: .*?)?$', self.Bacon)
-		self.Parser.hookCommand("PRIVMSG", '(?:^|\s+);[_-~\.]{1};(?:\s|$)', self.Hug)
-		self.Parser.hookCommand("PRIVMSG", '^@isup(?: .*?)?$', self.isup)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__
+			,{'^@oven(?: .*?)?$': self.Oven
+			,'^@next$': self.Next
+			,'^@bacon(?: .*?)?$': self.Bacon
+			,'(?:^|\s+);[_-~\.]{1};(?:\s|$)': self.Hug
+			,'^@isup(?: .*?)?$': self.isup}
+		)
 
 	def Unload(self):
 		pass

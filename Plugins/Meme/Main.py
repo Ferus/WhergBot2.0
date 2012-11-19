@@ -1,11 +1,10 @@
 #!/usr/bin/env python
-from time import strftime
 import requests
-
-import Config
+import logging
 from .Settings import Settings
 from Parser import Locker
 Locker = Locker(3)
+logger = logging.getLogger("Meme")
 
 def get_meme(url):
 	'''
@@ -16,7 +15,7 @@ def get_meme(url):
 	try:
 		memes = requests.get(url).text.replace('_','\x02').split("\n")
 	except Exception as e:
-		print("{0} [AutoMeme] Error requesting new memes.".format(strftime(Config.Global['timeformat'])))
+		logging.exception("Error requesting new memes.")
 		return
 	for meme in memes:
 		meme_db.append(meme)
@@ -28,7 +27,7 @@ def meme(url):
 	meme_db = []
 	while True:
 		if not meme_db:
-			print("{0} [AutoMeme] Getting moar memes!".format(strftime(Config.Global['timeformat'])))
+			logger.info("Getting moar memes!")
 			meme_db = get_meme(url)
 		memestr = meme_db[0]
 		del meme_db[0]
@@ -44,36 +43,28 @@ class Main(object):
 		self.HipsterMeme = meme("http://api.automeme.net/text?lines={0}&vocab=hipster".format(Settings.get('lines')))
 
 	def RegMeme(self, data):
-		try:
-			if not Locker.Locked:
-				self.IRC.say(data[2], next(self.RegularMeme))
-				Locker.Lock()
-				return
-			else:
-				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
-		except Exception as e:
-			print("{0} [AutoMeme] Error:\n{0} [AutoMeme] {1}".format(strftime(Config.Global['timeformat']), str(e)))
+		if not Locker.Locked:
+			self.IRC.say(data[2], next(self.RegularMeme))
+			Locker.Lock()
+			return
+		else:
+			self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
 
 	def HipMeme(self, data):
-		try:
-			if not Locker.Locked:
-				self.IRC.say(data[2], next(self.HipsterMeme))
-				Locker.Lock()
-				return
-			else:
-				self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
-		except Exception as e:
-			print("{0} [AutoMeme] Error:\n{0} [AutoMeme] {1}".format(strftime(Config.Global['timeformat']), str(e)))
+		if not Locker.Locked:
+			self.IRC.say(data[2], next(self.HipsterMeme))
+			Locker.Lock()
+			return
+		else:
+			self.IRC.notice(data[0].split('!')[0], "Please wait a little longer and try again.")
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@meme$", self.RegMeme)
-		self.Parser.hookCommand('PRIVMSG', "^@hipmeme$", self.HipMeme)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@meme$": self.RegMeme
+			,"^@hipmeme$": self.HipMeme}
+			)
 
 	def Unload(self):
 		del self.Parser.loadedPlugins[self.__name__]
-		del self.Parser.Commands['PRIVMSG'][1]["^@meme$"]
-		del self.Parser.Commands['PRIVMSG'][1]["^@hipmeme$"]
-		del self
+		del self.Parser.Commands['PRIVMSG'][1]["Meme"]
 	def Reload(self):
 		pass

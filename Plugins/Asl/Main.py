@@ -16,8 +16,7 @@ class Main(object):
 		self.IRC.say(data[2], "{0}/{1}/{2}".format(choice(self.agelist), choice(self.genders), choice(self.locations)))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "(?:\s+?|^)asl(?:\s+?|$)", self.Asl)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"(?:\s+?|^)asl(?:\s+?|$)": self.Asl})
 
 	def Unload(self):
 		pass

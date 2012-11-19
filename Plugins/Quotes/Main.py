@@ -2,15 +2,16 @@
 import os
 import re
 import sqlite3
-from random import choice
+import logging
 
 from .Settings import Settings
+logger = logging.getLogger("Quotes")
 
 class QuotesDatabase(object):
 	def __init__(self, Database=None):
 		#quotes, quote
 		if not Database:
-			raise NoDatabaseError("Failed to pass a database name.")
+			raise Exception("Failed to pass a database name.")
 
 		def regexp(expr, item):
 			reg = re.compile(expr)
@@ -27,11 +28,11 @@ class QuotesDatabase(object):
 			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM quotes").fetchone()[0]
 		except StopIteration as e:
 			self.LastID = 0
-		print(">>> [Quotes => __init__] {0} rows have been loaded.".format(self.LastID))
+		logger.info("{0} rows have been loaded.".format(self.LastID))
 
 	def Save(self):
 		self.Conn.commit()
-		print(">>> [Quotes => Save] Saving Database!")
+		logger.info("Saving Database!")
 
 	def Add(self, String):
 		try:
@@ -40,29 +41,29 @@ class QuotesDatabase(object):
 			self.Save()
 			return "Added new quote number {0} successfully!".format(self.LastID)
 		except Exception as e:
-			print(">>> [Quotes => Add] Error: {0}\n>>> [Quotes => Add] {1}".format(repr(e), String))
+			logger.exception("Error adding '{0}'".format(String))
 
 	def Delete(self, QuoteNum):
 		try:
 			self.Cursor.execute("update quotes set quote='This quote has been deleted.' where id=?", (QuoteNum,))
-			print(">>> [Quotes => Delete] Deleted quote number {0}".format(QuoteNum))
+			logger.info("Deleted quote number {0}".format(QuoteNum))
 			self.Save()
 			return "Deleted quote number {0} successfully".format(QuoteNum)
 		except Exception as e:
-			print(">>> [Quotes => Delete] Error: {0}".format(repr(e)))
+			logger.exception("Error deleting quote number '{0}'".format(QuoteNum))
 
 	def Number(self, QuoteNum):
 		if type(QuoteNum) != int:
 			return self.Random()
 		try:
 			x = self.Cursor.execute("select quote from quotes where id=?", (QuoteNum,))
-			print(">>> [Quotes => Number] Sending Quote.")
+			logger.info("Sending Quote.")
 			return x.fetchone()[0]
 		except TypeError:
 			return "That quote does not exist."
 
 	def Random(self):
-		print(">>> [Quotes => Random] Sending random Quote.")
+		logger.info("Sending random Quote.")
 		x = self.Cursor.execute("SELECT * FROM quotes ORDER BY RANDOM () LIMIT 1").fetchone()
 		return "Quote {0}: {1}".format(x[0], x[1])
 
@@ -92,11 +93,11 @@ class QuotesDatabase(object):
 			BackupFile = "./Plugins/Quotes/IRCQuotes.txt"
 		try:
 			os.unlink(BackupFile) #Remove the old one
-			print(">>> [Quotes => Backup] Removing old quotes file.")
+			logger.info("Removing old quotes file.")
 			with open(BackupFile, "wb") as BFile:
 				for q in self.Cursor.execute("select quote from quotes").fetchall():
 					BFile.write(q[0]+"\n")
-			print(">>> [Quotes => Backup] Created backup quotes file at {0}".format(str(BackupFile)))
+			logger.info("Created backup quotes file at {0}".format(str(BackupFile)))
 			return "Created backup file {0}".format(BackupFile)
 		except Exception as e:
 			return "Error: {0}".format(repr(e))
@@ -105,7 +106,7 @@ class RulesDatabase(object):
 	def __init__(self, Database=None):
 		#rules, rule
 		if not Database:
-			raise NoDatabaseError("Failed to pass a database name.")
+			raise Exception("Failed to pass a database name.")
 
 		def regexp(expr, item):
 			reg = re.compile(expr)
@@ -122,16 +123,16 @@ class RulesDatabase(object):
 			self.LastID = self.Cursor.execute("SELECT COUNT(*) FROM rules").fetchone()[0]
 		except StopIteration as e:
 			self.LastID = 0
-		print(">>> [Rules => __init__] {0} rows have been loaded.".format(self.LastID))
+		logger.info("{0} rows have been loaded.".format(self.LastID))
 
 	def Number(self, RuleNum):
 		try:
 			RuleNum = int(RuleNum)
-		except:
+		except Exception:
 			return "That's not a number!"
 		try:
 			x = self.Cursor.execute("select rule from rules where id=?", (RuleNum,))
-			print(">>> [Rules => Number] Sending Rule.")
+			logger.info(">>> [Rules => Number] Sending Rule.")
 			return x.fetchone()[0]
 		except TypeError:
 			return "No rules in database or rule does not exist."
@@ -152,7 +153,7 @@ class Main(object):
 		'''
 		try:
 			Text = int(data[4])
-		except:
+		except Exception:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Number(QuoteNum=Text))
 
@@ -170,28 +171,31 @@ class Main(object):
 
 	def QuoteAdd(self, data):
 		'''Calls the add function to add a quote'''
-		if not data[0] in Settings.get('allowed'): return None
+		if not data[0] in Settings.get('allowed'):
+			return None
 		try:
 			Text = " ".join(data[4:])
 			self.IRC.say(data[2], self.Quotes.Add(String=Text))
-		except:
+		except Exception:
 			self.IRC.notice(data[0], "I cannot add a null string.")
 
 	def QuoteDel(self, data):
 		'''Calls the del function to remove a quote'''
-		if not data[0] in Settings.get('allowed'): return None
+		if not data[0] in Settings.get('allowed'):
+			return None
 		try:
 			Text = int(data[4])
-		except:
+		except Exception:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Delete(QuoteNum=Text))
 
 	def QuoteBackup(self, data):
 		'''Calls the backup function to backup the pickled quotes file in plaintext'''
-		if not data[0] in Settings.get('allowed'): return None
+		if not data[0] in Settings.get('allowed'):
+			return None
 		try:
 			Text = data[4]
-		except:
+		except Exception:
 			Text = None
 		self.IRC.say(data[2], self.Quotes.Backup(BackupFile=Text))
 
@@ -199,26 +203,26 @@ class Main(object):
 		try:
 			Text = int(data[4])
 			self.IRC.say(data[2], self.Rules.Number(Text))
-		except:
+		except Exception:
 			self.IRC.notice(data[0].split('!')[0], "Supply a rule number!")
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@quote(?: \d{1,})?$", self.Quote)
-		self.Parser.hookCommand("PRIVMSG", "^@qsearch .*?$", self.QuoteSearch)
-		self.Parser.hookCommand("PRIVMSG", "^@qfind .*?$", self.QuoteSearch)
-		self.Parser.hookCommand("PRIVMSG", "^@qcount$", self.QuoteCount)
-		self.Parser.hookCommand("PRIVMSG", "^@qadd .*?$", self.QuoteAdd)
-		self.Parser.hookCommand("PRIVMSG", "^@qdel \d{1,}$", self.QuoteDel)
-		self.Parser.hookCommand("PRIVMSG", "^@qbackup(?: \W)?$", self.QuoteBackup)
-		self.Parser.hookCommand("PRIVMSG", "^@rule \d{1,}$", self.Rule)
-
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__
+			,{"^@quote(?: \d{1,})?$": self.Quote
+			,"^@qsearch .*?$": self.QuoteSearch
+			,"^@qfind .*?$": self.QuoteSearch
+			,"^@qcount$": self.QuoteCount
+			,"^@qadd .*?$": self.QuoteAdd
+			,"^@qdel \d{1,}$": self.QuoteDel
+			,"^@qbackup(?: \W)?$": self.QuoteBackup
+			,"^@rule \d{1,}$": self.Rule}
+		)
 
 	def Unload(self):
 		self.Quotes.Save()
 		del self.Quotes
 		del self.Rules
-		del self
+		del self.Parser.Commands['PRIVMSG'][1][self.__name__]
 
 	def Reload(self):
 		pass

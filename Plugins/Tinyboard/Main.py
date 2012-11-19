@@ -157,9 +157,8 @@ class Main(Tinyboard):
 			self.IRC.say(data[2], self.Main(link))
 
 	def Load(self):
-		for regex in Settings.get('links'):
-			self.Parser.hookCommand("PRIVMSG", regex, self.TinyboardLink)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		regex = "[" + "|".join(x for x in Settings.get('links')) + "]"
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {regex: self.TinyboardLink})
 
 	def Unload(self):
 		pass

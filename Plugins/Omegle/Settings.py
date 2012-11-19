@@ -1,3 +1,3 @@
 Settings = {
-	'allowedChans': ['#omegle']
+	'allowedChans': ['#bots']
 }

@@ -5,10 +5,10 @@ import re
 
 from .Settings import Settings
 
-'''
-https://github.com/KevinLi/PyFileServ
-Uses API link to get data
-'''
+#https://github.com/KevinLi/PyFileServ
+#Uses API link to get data
+
+
 def Get(url, id):
 	try:
 		req = requests.get("{0}/api?file={1}".format(url, id))
@@ -48,10 +48,9 @@ class Main(object):
 				self.IRC.say(data[2], Format(info))
 
 	def Load(self):
-		for regex in Settings.get('links'):
-			self.Parser.hookCommand('PRIVMSG', regex, self.Parse)
-
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		regex = "[" + "|".join(x for x in Settings.get("links")) + "]"
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {regex: self.Parse})
+		# Testing
 
 	def Unload(self):
 		pass

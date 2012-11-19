@@ -2,8 +2,10 @@
 from random import randint
 import shelve
 import os
+import logging
 
 from .Settings import Settings
+logger = logging.getLogger("GuessingGame")
 
 class GuessingStats(object):
 	'''
@@ -30,11 +32,11 @@ class GuessingStats(object):
 	'Players': {
 		'Ferus': {
 			'notValid':0,
-			'overMax':0, 
+			'overMax':0,
 		}
 		,'ExamplePerson': {
 			'notValid':0,
-			'overMax':0, 
+			'overMax':0,
 		}
 	}
 	#Globals
@@ -71,7 +73,7 @@ class GuessingStats(object):
 		for k in ('GlobalWins', 'totalWins', 'totalPlayers'):
 			if k not in x:
 				x[k] = 0
-		print(">>> [GuessingGame => Load] Loaded stats database.")
+		logger.info("Loaded stats database.")
 		return x
 
 	def Save(self):
@@ -80,9 +82,9 @@ class GuessingStats(object):
 			for key in list(self.StatsDB.keys()):
 				_db[key] = self.StatsDB[key]
 			_db.close()
-			print(">>> [GuessingGame => Save] Saving stats database")
+			logger.info("Saving stats database")
 		except Exception as e:
-			print(repr(e))
+			logger.exception("Error saving.")
 
 	def AddStats(self, Player=None, Stat=None, Value=None):
 		'''
@@ -143,10 +145,9 @@ class GuessingGame(object):
 		if self._stats:
 			try:
 				self.Stats = GuessingStats()
-				print(">>> [GuessingGame => __init__] Enabling stats.")
+				logger.info("Enabling stats.")
 			except Exception as e:
-				print(">>> [GuessingGame => __init__] Stats enable error.")
-				print(">>> [GuessingGame => __init__] {0}".format(repr(e)))
+				logger.exception("Stats enable error.")
 
 	def GenNumber(self, location=None):
 		self.CurrentNumber = randint(1, self.MaxNum)
@@ -157,7 +158,7 @@ class GuessingGame(object):
 		try:
 			self.MaxNum = int(data[4])
 			self.GenNumber(data[2])
-		except:
+		except Exception:
 			self.IRC.say(data[2], "I'm sorry {0}, but {1} doesn't seem to be a valid number.".format(data[0].split('!')[0], data[4]))
 
 	def CheckGuess(self, data):
@@ -197,7 +198,7 @@ class GuessingGame(object):
 				x = data[4]
 			try:
 				self.IRC.say(data[2], self.Stats.GetStatsPlayer(x if x else data[0].split('!')[0]))
-			except:
+			except Exception:
 				self.IRC.say(data[2], "I'm sorry {0}, but I couldn't find anything for '{1}'".format(data[0].split('!')[0], x if x else data[0].split('!')[0]))
 		else:
 			self.IRC.say(data[2], "Stats are not enabled.")
@@ -214,14 +215,14 @@ class Main(GuessingGame):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-		
-		
+
+
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@guess \d{1,}$", self.CheckGuess)
-		self.Parser.hookCommand("PRIVMSG", "^@setguess \d{1,}$", self.SetMaxNum)
-		self.Parser.hookCommand("PRIVMSG", "^@checkstats", self.GetStat)
-		self.Parser.hookCommand("PRIVMSG", "^@globalstats", self.GetGlobalStat)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@guess \d{1,}$": self.CheckGuess
+			,"^@setguess \d{1,}$": self.SetMaxNum
+			,"^@checkstats": self.GetStat
+			,"^@globalstats": self.GetGlobalStat}
+		)
 
 	def Unload(self):
 		pass

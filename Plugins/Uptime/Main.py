@@ -15,8 +15,7 @@ class Main(object):
 		self.IRC.say(data[2], "Current uptime is: {0}.".format(str(uptime).split('.')[0].zfill(8)))
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@uptime$", self.Uptime)
-		self.Parser.hookPlugin(self.__name__, None, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@uptime$": self.Uptime})
 
 	def Unload(self):
 		pass

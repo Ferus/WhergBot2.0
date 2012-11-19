@@ -1,8 +1,5 @@
 #!/usr/bin/env python
-
 import requests
-from .Settings import Settings
-
 from Parser import Locker
 Locker = Locker(3)
 
@@ -30,8 +27,7 @@ class Main(object):
 			self.IRC.say(data[2], e.args)
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@ermahgerd \w+", self.Send)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@ermahgerd \w+": self.Send})
 
 	def Unload(self):
 		del self.Parser.loadedPlugins[self.__name__]

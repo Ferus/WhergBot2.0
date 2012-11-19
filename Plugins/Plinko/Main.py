@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import random
-import re
 from threading import Timer
 from os import urandom
 from Parser import Locker
@@ -92,10 +91,10 @@ class Plinko(object):
 			if y == "_":
 				if x == Location:
 					s += "o"
-					x+=1
+					x += 1
 				else:
 					s += "_"
-					x+=1
+					x += 1
 			elif y == ".":
 				s += "."
 			else:
@@ -152,7 +151,7 @@ class Main(object):
 				x = 5
 			else:
 				pass
-		except:
+		except Exception:
 			self.IRC.say(data[2], '\x02[Plinko]\x02 Error: Defaulting to 5.')
 			x = 5
 		for line in self.Plinko.Start(x):
@@ -165,8 +164,7 @@ class Main(object):
 			self.IRC.say(data[2], "\x02[Plinko]\x02 Error: {0}".format(str(repr(e))))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', '^@plinko(?: \d{1})?$', self.Parse)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {'^@plinko(?: \d{1})?$': self.Parse})
 
 	def Unload(self):
 		pass

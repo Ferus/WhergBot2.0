@@ -100,8 +100,7 @@ class Main(object):
 			mpdprev_cb()
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', '^@mpd(?: \W)?$', self.Music)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {'^@mpd(?: \W)?$': self.Music})
 
 	def Unload(self):
 		pass

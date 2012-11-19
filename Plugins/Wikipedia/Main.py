@@ -20,7 +20,6 @@
 
 import re
 from . import Wikipedia
-from .Settings import Settings
 from Parser import Locker
 Locker = Locker(5)
 
@@ -65,9 +64,10 @@ class Main(object):
 		Locker.Lock()
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@wiki .*?$", self.wikiName)
-		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?en.wikipedia\.org\/wiki\/(?!File:)[\w%]+", self.wikiUrl)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__
+			,{"^@wiki .*?$": self.wikiName
+			,"(?:https?:\/\/)?en.wikipedia\.org\/wiki\/(?!File:)[\w%]+": self.wikiUrl}
+			)
 
 	def Unload(self):
 		pass

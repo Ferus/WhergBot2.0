@@ -6,7 +6,7 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
-	
+
 	def Exec(self, data):
 		if data[0] not in Settings['Allowed']:
 			self.IRC.notice(data[0].split('!')[0], "You lack the required authority to use this command.")
@@ -17,8 +17,7 @@ class Main(object):
 			self.IRC.say(data[2], repr(e))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', Settings.get("Regex"), self.Exec)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@exec .+": self.Exec})
 
 	def Unload(self):
 		del self.Parser.loadedPlugins[self.__name__]

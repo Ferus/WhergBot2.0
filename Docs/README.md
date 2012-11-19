@@ -1,13 +1,21 @@
 # WhergBot - A Python 3.2.3 IRC bot.
 ## About
 
+A Python 3.x IRC Bot with plugin support.
+
 ## License
 
 See: Docs/LICENSE
 
 ## Dependencies
 
-WhergBot depends on the development branch of the [blackbox_IRC-macros][].
+WhergBot depends on the development branch of the [blackbox_IRC-macros][] and [PyYAML][].
+Both of which can be installed via pip.
+
+	pip install blackbox
+
+	pip install pyyaml
+
 Listed below are other modules that are not required to run the core bot.
 
 1. [requests][] Is used for many HTTP based plugins.
@@ -36,6 +44,7 @@ Listed below are other modules that are not required to run the core bot.
 Working on that...
 
 [blackbox_IRC-macros]: https://github.com/Ferus/blackbox_IRC-macros
+[PyYAML]: http://pyyaml.org/
 [requests]: https://github.com/kennethreitz/requests
 [wordnik]: https://github.com/wordnik/wordnik-python
 [python-mpd]: http://pypi.python.org/pypi/python-mpd/

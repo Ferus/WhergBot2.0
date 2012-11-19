@@ -63,10 +63,9 @@ class Main():
 		self.activeChannel = ''
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@cleverbot .+$", self.initCleverbot)
-		self.Parser.hookCommand("PRIVMSG", "^!.+$", self.sendMessage)
-		self.Parser.hookCommand("PRIVMSG", "^@cleverdc$", self.disconnect)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@cleverbot .+$": self.initCleverbot
+			,"^!.+$": self.sendMessage
+			,"^@cleverdc$": self.disconnect})
 
 	def Unload(self):
 		pass

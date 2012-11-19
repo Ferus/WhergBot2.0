@@ -5,7 +5,6 @@ import requests
 import json
 import re
 
-from .Settings import Settings
 from Parser import Locker
 Lock = Locker(5)
 
@@ -82,6 +81,7 @@ class Main(YT):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
+		YT.__init__(self)
 
 	def YouTubeStats(self, data):
 		vidIds = list(set(re.findall("v=([a-zA-Z0-9_\-]{11})", ' '.join(data[3:]) )))
@@ -105,16 +105,17 @@ class Main(YT):
 			return None
 		try:
 			terms = "+".join(data[4:]).replace("|","%7C")
-		except:
+		except Exception:
 			self.IRC.say(data[2], "Supply some searchterms you derp!")
 		for vid in self.Search(terms, results=3):
 			self.IRC.say(data[2], vid)
 		Lock.Lock()
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*?", self.YouTubeStats)
-		self.Parser.hookCommand("PRIVMSG", "^@yt .*?$", self.YouTubeGetVids)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__
+			,{"(?:https?:\/\/)?(?:www\.)?youtube\.com\/.*?": self.YouTubeStats
+			,"^@yt .*?$": self.YouTubeGetVids}
+		)
 
 	def Unload(self):
 		pass

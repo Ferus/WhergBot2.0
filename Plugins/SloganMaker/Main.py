@@ -31,8 +31,7 @@ class Main(object):
 			print("* [SloganMaker] Error:\n* [SloganMaker] {0}".format(str(e)))
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@slogan .*?$", self.Slogan)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@slogan .*?$": self.Slogan})
 
 	def Unload(self):
 		pass

@@ -22,7 +22,7 @@ class TwitterOutput(object):
 				tweet = message.strip()[0:136]+'...'
 			else:
 				tweet = message.strip()
-			try:    
+			try:
 				self.apiHandle.PostUpdate(tweet)
 			except Exception:
 				pass # until there is proper logging
@@ -52,8 +52,7 @@ class Main(object):
 		self.Main.start()
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", ".*", self.process)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {".*": self.process})
 	def Unload(self):
 		self.save()
 		del self.Parser.loadedPlugins[self.__name__]
@@ -79,12 +78,12 @@ class Main(object):
 		else:
 			args = (self, body, replyrate, self.Learning, data, owner)
 			self.addToQueue(args)
-	
+
 	def addToQueue(self, args):
 		self.Queue.put_nowait(args)
 	def getFromQueue(self):
 		return self.Queue.get()
-	
+
 	def processForever(self):
 		while True:
 			t = Thread(target=self.Pyborg.process_msg, args=self.getFromQueue())

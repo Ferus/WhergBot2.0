@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+import logging
+
 try:
 	from .wordnik.swagger import ApiClient
 	from .wordnik.WordApi import WordApi
@@ -9,6 +11,8 @@ from .Settings import Settings
 from Parser import Locker
 Lock = Locker(5)
 
+logger = logging.getLogger("Wordnik")
+
 class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
@@ -16,7 +20,7 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 		self.APIkey = Settings.get("APIkey")
-		print(">>> [Wordnik => __init__] Using API Key '{0}'".format(self.APIkey))
+		logger.info("Using API Key '{0}'".format(self.APIkey))
 		self.Client = ApiClient(self.APIkey, 'http://api.wordnik.com/v4')
 		self.wordApi = WordApi(self.Client)
 
@@ -40,8 +44,7 @@ class Main(object):
 		Lock.Lock()
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@def( .*?)?$", self.getDefinitions)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@def( .*?)?$": self.getDefinitions})
 	def Unload(self):
 		pass
 	def Reload(self):

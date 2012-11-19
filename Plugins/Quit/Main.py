@@ -21,7 +21,7 @@ class Main(object):
 		#self.Parser.Commands['QUIT'][1].append((Settings.get("Killed"), self.Killed))
 		#self.Parser.Commands['QUIT'][1].append((Settings.get("Pingout"), self.Pingout))
 		#self.Parser.Commands['QUIT'][1].append((Settings.get("ioError"), self.ioError))
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		pass
 
 	def Unload(self):
 		del self.Parser.loadedPlugins[self.__name__]

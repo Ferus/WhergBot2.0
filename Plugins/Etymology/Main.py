@@ -39,7 +39,7 @@ class Main(object):
 		Spans = re.findall("<span .*?>(.*?)<\/span>", info)
 		for Span in Spans:
 			info = re.sub("<span .*?>{0}<\/span>".format(Span), "\x02{0}\x02".format(Span), info)
-	
+
 		Links = re.findall("<a href=\".*?\" class=\".*?\">(.*?)</a>", info)
 		for Link in Links:
 			info = re.sub("<a href=\".*?\" class=\".*?\">{0}</a>".format(Link), Link, info)
@@ -52,9 +52,8 @@ class Main(object):
 
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@etym", self.Etymology)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
-	
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@etym": self.Etymology})
+
 	def Unload(self):
 		pass
 	def Reload(self):

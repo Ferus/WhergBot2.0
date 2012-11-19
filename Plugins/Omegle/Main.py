@@ -116,11 +116,11 @@ class Main():
 		self.IRC.say(data[2], "\x02[Omegle]\x02 Disconnected!")
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@omegle$", self.initOmegle)
-		self.Parser.hookCommand("PRIVMSG", "^~.*?$", self.sendMessage)
-		self.Parser.hookCommand("PRIVMSG", "^`.*?$", self.sendMessage)
-		self.Parser.hookCommand("PRIVMSG", "^@disconnect$", self.makeDisconnect)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__
+			,{"^@omegle$": self.initOmegle
+			,"^[~`].*?$": self.sendMessage
+			,"^@disconnect$": self.makeDisconnect}
+		)
 
 
 	def Unload(self):

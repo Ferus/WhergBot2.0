@@ -16,94 +16,44 @@ Servers = {
 		,"enabled": True
 		,"quitmessage": "h"
 		,"plugins": [
-#			'Services'
-#			,'Oper'
-#			,'Plinko'
-#			,'Omegle'
-#			,'Misc'
-#			,'Quit'
-#			,'Matix'
-#			,'Fapget'
-#			,'GuessingGame'
-#			,'PyFileServ'
-#			,'Quotes'
-#			,'EightBall'
-#			,'Wikipedia'
-#			,'Told'
-#			,'Uptime'
-#			,'SloganMaker'
-#			,'Exec'
-#			,'Asl'
-#			,'Meme'
-#			,'Etymology'
-#			,'Slap'
-#			,'YouTube'
-#			,'Tinyboard'
-#			,'Ermahgerd'
-#			,'Wordnik'
-#			,'UrbanDictionary'
-#			,'InsultGenerator'
-#			,'FuckMyLife'
-#			,'Imgur'
-#			,'General'
-#			,'PyMpd'
-#			,'Weather'
-#			,'Roulette'
+			"CleverBot"
+			,'Services'
+			,'Oper'
+			,'Plinko'
+			,'Omegle'
+			,'Misc'
+			,'Quit'
+			,'Matix'
+			,'Fapget'
+			,'GuessingGame'
+			,'PyFileServ'
+			,'Quotes'
+			,'EightBall'
+			,'Wikipedia'
+			,'Told'
+			,'Uptime'
+			,'SloganMaker'
+			,'Exec'
+			,'Asl'
+			,'Meme'
+			,'Etymology'
+			,'Slap'
+			,'YouTube'
+			,'Tinyboard'
+			,'Ermahgerd'
+			,'Wordnik'
+			,'UrbanDictionary'
+			,'InsultGenerator'
+			,'FuckMyLife'
+			,'Imgur'
+			,'General'
+			,'PyMpd'
+			,'Weather'
+			,'Roulette'
 			]
 		,"owner": {"nicks": ["Ferus", "Ferrous", "^"]
 			,"hosts": ["the.interwebs", "ur.messages"]
 			,"idents": ["anonymous", "carroting"]
-		}
-	}
-
-	,"n0v4":
-		{"host": "irc.n0v4.com"
-		,"port": 6697
-		,"nick": "WhergBot|T"
-		,"realname": "WhergBot 2.0 [Ferus]"
-		,"ident": "Wherg"
-		,"channels": "#bots"
-		,"ssl": True
-		,"enabled": False
-		,"quitmessage": "h"
-		,"plugins": [
-#			'Services'
-#			,'Oper'
-#			,'Plinko'
-#			,'Omegle'
-#			,'Misc'
-#			,'Quit'
-#			,'Matix'
-#			,'Fapget'
-#			,'GuessingGame'
-#			,'PyFileServ'
-#			,'Quotes'
-#			,'EightBall'
-#			,'Wikipedia'
-#			,'Told'
-#			,'Uptime'
-#			,'SloganMaker'
-#			,'Exec'
-#			,'Asl'
-#			,'Meme'
-#			,'Etymology'
-#			,'Slap'
-#			,'YouTube'
-#			,'Tinyboard'
-#			,'Ermahgerd'
-#			,'Wordnik'
-#			,'UrbanDictionary'
-#			,'InsultGenerator'
-#			,'FuckMyLife'
-#			,'Imgur'
-#			,'General'
-#			,'PyMpd'
-#			,'Weather'
-#			,"Gentbot"
-			]
-		,"owner": {"nicks": ["Ferus", "Ferrous"]
-			,"hosts": ["the.interwebs"]
-			,"idents": ["anonymous"]
 		}
 	}
 

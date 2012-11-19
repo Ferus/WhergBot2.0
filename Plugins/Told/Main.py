@@ -14,11 +14,10 @@ class Main(object):
 			self.ToldList = Tolds.read().splitlines()
 
 	def ReturnTold(self, data):
-		 self.IRC.say(data[2], choice(self.ToldList))
+		self.IRC.say(data[2], choice(self.ToldList))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', '^@told$', self.ReturnTold)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {'^@told$': self.ReturnTold})
 
 	def Unload(self):
 		pass

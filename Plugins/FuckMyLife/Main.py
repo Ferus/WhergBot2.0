@@ -49,8 +49,7 @@ class Main(object):
 			print("* [FML] Error:\n* [FML] {0}".format(str(e)))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@fml", self.return_fml)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@fml": self.return_fml})
 
 	def Unload(self):
 		pass

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # Russian Roulette plugin.
 
-# Credits to Buggles, MaoZedongs, and xqks of 
+# Credits to Buggles, MaoZedongs, and xqks of
 # irc.datnode.net for helping me create a list
 # of guns and their chamber size. <3
 # <&Eutectic> Ferus: make a random event where the person misses himself and randomly shoots somebody in the channel, preferably someone who was playing roulette
@@ -30,9 +30,7 @@ class Main(object):
 		self.reasons = Settings.get('reasons')
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@roulette$", self.shoot)
-		self.Parser.hookCommand('PRIVMSG', "^@gun$", self.say)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@roulette$": self.shoot, "^@gun$": self.say})
 	def Unload(self):
 		pass
 	def Reload(self):
@@ -45,14 +43,14 @@ class Main(object):
 		self.bullets = 0
 		self.IRC.say(data[2], "Loaded a {0} with {1} 'chambers'".format(self.gun, len(self.chambers)))
 		self.load()
-		
+
 	def say(self, data):
 		# I couldnt think of a better name
 		if not hasattr(self, "gun"):
 			self.IRC.say(data[2], "No gun. :(") # Shouldn't happen
 			return None
 		self.IRC.say(data[2], "A {0} with {1} 'chambers' is loaded with {2} bullets.".format(self.gun, len(self.chambers), self.bullets))
-		
+
 	def load(self):
 		# increment bullet count by one
 		for x in range(0, len(self.chambers)):
@@ -68,7 +66,7 @@ class Main(object):
 				self.bullets += 1
 				break
 		random.shuffle(self.chambers)
-	
+
 	def shoot(self, data):
 		if not hasattr(self, "gun"):
 			self.init_gun(data)

@@ -13,8 +13,7 @@ class Main(object):
 		self.IRC.say(choice(data))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@random", self.Random)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@random", self.Random})
 
 	def Unload(self):
 		pass

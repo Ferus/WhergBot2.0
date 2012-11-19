@@ -15,9 +15,8 @@ class Main(object):
 			self.IRC.say(data[2], "{0}: {1}".format(data[0].split('!')[0], choice(self.replies)))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@8ball", self.Ball)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
-	
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@8ball": self.Ball})
+
 	def Unload(self):
 		pass
 	def Reload(self):

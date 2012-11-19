@@ -1,18 +1,15 @@
 #!/usr/bin/env python
 import os
-import sys
-import imp
 import glob
 import re
-
-from threading import Timer
-from time import strftime
+import logging
+import importlib
+import threading
 
 from blackbox.blackbox import IRCError
 import Config
 
-def formattime():
-	return strftime(Config.Global['timeformat'])
+logger = logging.getLogger("Parser")
 
 class Parser(object):
 	def __init__(self, Connection):
@@ -21,174 +18,178 @@ class Parser(object):
 		self._onConnect = []
 
 		self.Commands = {
+				# "PRIVMSG" [self.PRIVMSG, {Plugin: {Regex: Callback}, Plugin2: {Regex: Callback} } ]
 			# NON-NUMERICAL responses
-			"PRIVMSG": [self.PRIVMSG, {'^@quit( .*?)?$': self.Shutdown
-				,'^@reload \w+$': self.reLoadPlugins
-				,'^@load \w+$': self.reLoadPlugins # loadPlugins() handles all
-				,'^@unload \w+$': self.unLoadPlugins
-				}
-			] # [Regex, Callback]
-			,"NOTICE": [self.NOTICE, {}]
-			,"JOIN": [self.JOIN, {}]
-			,"PART": [self.PART, {}]
-			,"QUIT": [self.QUIT, {}]
-			,"KILL": [self.KILL, {}]
-			,"MODE": [self.MODE, {}]
-			,"NICK": [self.NICK, {}]
-			,"KICK": [self.KICK, {}]
-			,"WALLOPS": [self.WALLOPS, {}]
+			"PRIVMSG": [
+				self.PRIVMSG, {
+					"Core":
+						{'^@quit( .*?)?$': self.Shutdown
+						,'^@reload \w+$': self.reLoadPlugins
+						,'^@unload \w+$': self.unLoadPlugins
+						}
+					}
+				]
+
+			,"NOTICE": [self.NOTICE, {"Core": {}}]
+			,"JOIN": [self.JOIN, {"Core": {}}]
+			,"PART": [self.PART, {"Core": {}}]
+			,"QUIT": [self.QUIT, {"Core": {}}]
+			,"KILL": [self.KILL, {"Core": {}}]
+			,"MODE": [self.MODE, {"Core": {}}]
+			,"NICK": [self.NICK, {"Core": {}}]
+			,"KICK": [self.KICK, {"Core": {}}]
+			,"WALLOPS": [self.WALLOPS, {"Core": {}}]
 
 			# COMMAND responses
-			,'200': [self.RPL_TRACELINK, {}]
-			,'201': [self.RPL_TRACECONNECTING, {}]
-			,'202': [self.RPL_TRACEHANDSHAKE, {}]
-			,'203': [self.RPL_TRACEUNKNOWN, {}]
-			,'204': [self.RPL_TRACEOPERATOR, {}]
-			,'205': [self.RPL_TRACEUSER, {}]
-			,'206': [self.RPL_TRACESERVER, {}]
-			,'208': [self.RPL_TRACENEWTYPE, {}]
-			,'211': [self.RPL_STATSLINKINFO, {}]
-			,'212': [self.RPL_STATSCOMMANDS, {}]
-			,'213': [self.RPL_STATSCLINE, {}]
-			,'214': [self.RPL_STATSNLINE, {}]
-			,'215': [self.RPL_STATSILINE, {}]
-			,'216': [self.RPL_STATSKLINE, {}]
-			,'218': [self.RPL_STATSYLINE, {}]
-			,'219': [self.RPL_ENDOFSTATS, {}]
-			,'221': [self.RPL_UMODEIS, {}]
-			,'241': [self.RPL_STATSLLINE, {}]
-			,'242': [self.RPL_STATSUPTIME, {}]
-			,'243': [self.RPL_STATSOLINE, {}]
-			,'244': [self.RPL_STATSHLINE, {}]
-			,'251': [self.RPL_LUSERCLIENT, {}]
-			,'252': [self.RPL_LUSEROP, {}]
-			,'253': [self.RPL_LUSERUNKNOWN, {}]
-			,'254': [self.RPL_LUSERCHANNELS, {}]
-			,'255': [self.RPL_LUSERME, {}]
-			,'256': [self.RPL_ADMINME, {}]
-			,'257': [self.RPL_ADMINLOC1, {}]
-			,'258': [self.RPL_ADMINLOC2, {}]
-			,'259': [self.RPL_ADMINEMAIL, {}]
-			,'261': [self.RPL_TRACELOG, {}]
-			,'300': [self.RPL_NONE, {}]
-			,'301': [self.RPL_AWAY, {}]
-			,'302': [self.RPL_USERHOST, {}]
-			,'303': [self.RPL_ISON, {}]
-			,'305': [self.RPL_UNAWAY, {}]
-			,'306': [self.RPL_NOWAWAY, {}]
-			,'311': [self.RPL_WHOISUSER, {}]
-			,'312': [self.RPL_WHOISSERVER, {}]
-			,'313': [self.RPL_WHOISOPERATOR, {}]
-			,'314': [self.RPL_WHOWASUSER, {}]
-			,'315': [self.RPL_ENDOFWHO, {}]
-			,'317': [self.RPL_WHOISIDLE, {}]
-			,'318': [self.RPL_ENDOFWHOIS, {}]
-			,'319': [self.RPL_WHOISCHANNELS, {}]
-			,'321': [self.RPL_LISTSTART, {}]
-			,'322': [self.RPL_LIST, {}]
-			,'323': [self.RPL_LISTEND, {}]
-			,'324': [self.RPL_CHANNELMODEIS, {}]
-			,'331': [self.RPL_NOTOPIC, {}]
-			,'332': [self.RPL_TOPIC, {}]
-			,'341': [self.RPL_INVITING, {}]
-			,'342': [self.RPL_SUMMONING, {}]
-			,'351': [self.RPL_VERSION, {}]
-			,'352': [self.RPL_WHOREPLY, {}]
-			,'353': [self.RPL_NAMREPLY, {}]
-			,'364': [self.RPL_LINKS, {}]
-			,'365': [self.RPL_ENDOFLINKS, {}]
-			,'366': [self.RPL_ENDOFNAMES, {}]
-			,'367': [self.RPL_BANLIST, {}]
-			,'368': [self.RPL_ENDOFBANLIST, {}]
-			,'369': [self.RPL_ENDOFWHOWAS, {}]
-			,'371': [self.RPL_INFO, {}]
-			,'372': [self.RPL_MOTD, {}]
-			,'374': [self.RPL_ENDOFINFO, {}]
-			,'375': [self.RPL_MOTDSTART, {}]
-			,'376': [self.RPL_ENDOFMOTD, {}]
-			,'381': [self.RPL_YOUREOPER, {}]
-			,'382': [self.RPL_REHASHING, {}]
-			,'391': [self.RPL_TIME, {}]
-			,'392': [self.RPL_USERSSTART, {}]
-			,'393': [self.RPL_USERS, {}]
-			,'394': [self.RPL_ENDOFUSERS, {}]
-			,'395': [self.RPL_NOUSERS, {}]
+			,'200': [self.RPL_TRACELINK, {"Core": {}}]
+			,'201': [self.RPL_TRACECONNECTING, {"Core": {}}]
+			,'202': [self.RPL_TRACEHANDSHAKE, {"Core": {}}]
+			,'203': [self.RPL_TRACEUNKNOWN, {"Core": {}}]
+			,'204': [self.RPL_TRACEOPERATOR, {"Core": {}}]
+			,'205': [self.RPL_TRACEUSER, {"Core": {}}]
+			,'206': [self.RPL_TRACESERVER, {"Core": {}}]
+			,'208': [self.RPL_TRACENEWTYPE, {"Core": {}}]
+			,'211': [self.RPL_STATSLINKINFO, {"Core": {}}]
+			,'212': [self.RPL_STATSCOMMANDS, {"Core": {}}]
+			,'213': [self.RPL_STATSCLINE, {"Core": {}}]
+			,'214': [self.RPL_STATSNLINE, {"Core": {}}]
+			,'215': [self.RPL_STATSILINE, {"Core": {}}]
+			,'216': [self.RPL_STATSKLINE, {"Core": {}}]
+			,'218': [self.RPL_STATSYLINE, {"Core": {}}]
+			,'219': [self.RPL_ENDOFSTATS, {"Core": {}}]
+			,'221': [self.RPL_UMODEIS, {"Core": {}}]
+			,'241': [self.RPL_STATSLLINE, {"Core": {}}]
+			,'242': [self.RPL_STATSUPTIME, {"Core": {}}]
+			,'243': [self.RPL_STATSOLINE, {"Core": {}}]
+			,'244': [self.RPL_STATSHLINE, {"Core": {}}]
+			,'251': [self.RPL_LUSERCLIENT, {"Core": {}}]
+			,'252': [self.RPL_LUSEROP, {"Core": {}}]
+			,'253': [self.RPL_LUSERUNKNOWN, {"Core": {}}]
+			,'254': [self.RPL_LUSERCHANNELS, {"Core": {}}]
+			,'255': [self.RPL_LUSERME, {"Core": {}}]
+			,'256': [self.RPL_ADMINME, {"Core": {}}]
+			,'257': [self.RPL_ADMINLOC1, {"Core": {}}]
+			,'258': [self.RPL_ADMINLOC2, {"Core": {}}]
+			,'259': [self.RPL_ADMINEMAIL, {"Core": {}}]
+			,'261': [self.RPL_TRACELOG, {"Core": {}}]
+			,'300': [self.RPL_NONE, {"Core": {}}]
+			,'301': [self.RPL_AWAY, {"Core": {}}]
+			,'302': [self.RPL_USERHOST, {"Core": {}}]
+			,'303': [self.RPL_ISON, {"Core": {}}]
+			,'305': [self.RPL_UNAWAY, {"Core": {}}]
+			,'306': [self.RPL_NOWAWAY, {"Core": {}}]
+			,'311': [self.RPL_WHOISUSER, {"Core": {}}]
+			,'312': [self.RPL_WHOISSERVER, {"Core": {}}]
+			,'313': [self.RPL_WHOISOPERATOR, {"Core": {}}]
+			,'314': [self.RPL_WHOWASUSER, {"Core": {}}]
+			,'315': [self.RPL_ENDOFWHO, {"Core": {}}]
+			,'317': [self.RPL_WHOISIDLE, {"Core": {}}]
+			,'318': [self.RPL_ENDOFWHOIS, {"Core": {}}]
+			,'319': [self.RPL_WHOISCHANNELS, {"Core": {}}]
+			,'321': [self.RPL_LISTSTART, {"Core": {}}]
+			,'322': [self.RPL_LIST, {"Core": {}}]
+			,'323': [self.RPL_LISTEND, {"Core": {}}]
+			,'324': [self.RPL_CHANNELMODEIS, {"Core": {}}]
+			,'331': [self.RPL_NOTOPIC, {"Core": {}}]
+			,'332': [self.RPL_TOPIC, {"Core": {}}]
+			,'341': [self.RPL_INVITING, {"Core": {}}]
+			,'342': [self.RPL_SUMMONING, {"Core": {}}]
+			,'351': [self.RPL_VERSION, {"Core": {}}]
+			,'352': [self.RPL_WHOREPLY, {"Core": {}}]
+			,'353': [self.RPL_NAMREPLY, {"Core": {}}]
+			,'364': [self.RPL_LINKS, {"Core": {}}]
+			,'365': [self.RPL_ENDOFLINKS, {"Core": {}}]
+			,'366': [self.RPL_ENDOFNAMES, {"Core": {}}]
+			,'367': [self.RPL_BANLIST, {"Core": {}}]
+			,'368': [self.RPL_ENDOFBANLIST, {"Core": {}}]
+			,'369': [self.RPL_ENDOFWHOWAS, {"Core": {}}]
+			,'371': [self.RPL_INFO, {"Core": {}}]
+			,'372': [self.RPL_MOTD, {"Core": {}}]
+			,'374': [self.RPL_ENDOFINFO, {"Core": {}}]
+			,'375': [self.RPL_MOTDSTART, {"Core": {}}]
+			,'376': [self.RPL_ENDOFMOTD, {"Core": {}}]
+			,'381': [self.RPL_YOUREOPER, {"Core": {}}]
+			,'382': [self.RPL_REHASHING, {"Core": {}}]
+			,'391': [self.RPL_TIME, {"Core": {}}]
+			,'392': [self.RPL_USERSSTART, {"Core": {}}]
+			,'393': [self.RPL_USERS, {"Core": {}}]
+			,'394': [self.RPL_ENDOFUSERS, {"Core": {}}]
+			,'395': [self.RPL_NOUSERS, {"Core": {}}]
 
 			# ERROR replies.
-			,'401': [self.ERR_NOSUCHNICK, {}]
-			,'402': [self.ERR_NOSUCHSERVER, {}]
-			,'403': [self.ERR_NOSUCHCHANNEL, {}]
-			,'404': [self.ERR_CANNOTSENDTOCHAN, {}]
-			,'405': [self.ERR_TOOMANYCHANNELS, {}]
-			,'406': [self.ERR_WASNOSUCHNICK, {}]
-			,'407': [self.ERR_TOOMANYTARGETS, {}]
-			,'409': [self.ERR_NOORIGIN, {}]
-			,'411': [self.ERR_NORECIPIENT, {}]
-			,'412': [self.ERR_NOTEXTTOSEND, {}]
-			,'413': [self.ERR_NOTTOPLEVEL, {}]
-			,'414': [self.ERR_WILDTOPLEVEL, {}]
-			,'421': [self.ERR_UNKNOWNCOMMAND, {}]
-			,'422': [self.ERR_NOMOTD, {}]
-			,'423': [self.ERR_NOADMININFO, {}]
-			,'424': [self.ERR_FILEERROR, {}]
-			,'431': [self.ERR_NONICKNAMEGIVEN, {}]
-			,'432': [self.ERR_ERRONEUSNICKNAME, {}]
-			,'433': [self.ERR_NICKNAMEINUSE, {}]
-			,'436': [self.ERR_NICKCOLLISION, {}]
-			,'441': [self.ERR_USERNOTINCHANNEL, {}]
-			,'442': [self.ERR_NOTONCHANNEL, {}]
-			,'443': [self.ERR_USERONCHANNEL, {}]
-			,'444': [self.ERR_NOLOGIN, {}]
-			,'445': [self.ERR_SOMMUNDISABLED, {}]
-			,'446': [self.ERR_USERSDISABLED, {}]
-			,'451': [self.ERR_NOTREGISTERED, {}]
-			,'461': [self.ERR_NEEDMOREPARAMS, {}]
-			,'462': [self.ERR_ALREADYREGISTERED, {}]
-			,'463': [self.ERR_NOPERMFORHOST, {}]
-			,'464': [self.ERR_PASSWDMISMATCH, {}]
-			,'465': [self.ERR_YOUREBANNEDCREEP, {}]
-			,'467': [self.ERR_KEYSET, {}]
-			,'471': [self.ERR_CHANNELISFULL, {}]
-			,'472': [self.ERR_UNKNOWNMODE, {}]
-			,'473': [self.ERR_INVITEONLYCHAN, {}]
-			,'474': [self.ERR_BANNEDFROMCHAN, {}]
-			,'475': [self.ERR_BADCHANNELKEY, {}]
-			,'481': [self.ERR_NOPRIVILEGES, {}]
-			,'482': [self.ERR_CHANOPRIVSNEEDED, {}]
-			,'483': [self.ERR_CANTKILLSERVER, {}]
-			,'491': [self.ERR_NOOPERHOST, {}]
-			,'501': [self.ERR_UMODEUNKNOWNFLAG, {}]
-			,'502': [self.ERR_USERSDONTMATCH, {}]
+			,'401': [self.ERR_NOSUCHNICK, {"Core": {}}]
+			,'402': [self.ERR_NOSUCHSERVER, {"Core": {}}]
+			,'403': [self.ERR_NOSUCHCHANNEL, {"Core": {}}]
+			,'404': [self.ERR_CANNOTSENDTOCHAN, {"Core": {}}]
+			,'405': [self.ERR_TOOMANYCHANNELS, {"Core": {}}]
+			,'406': [self.ERR_WASNOSUCHNICK, {"Core": {}}]
+			,'407': [self.ERR_TOOMANYTARGETS, {"Core": {}}]
+			,'409': [self.ERR_NOORIGIN, {"Core": {}}]
+			,'411': [self.ERR_NORECIPIENT, {"Core": {}}]
+			,'412': [self.ERR_NOTEXTTOSEND, {"Core": {}}]
+			,'413': [self.ERR_NOTTOPLEVEL, {"Core": {}}]
+			,'414': [self.ERR_WILDTOPLEVEL, {"Core": {}}]
+			,'421': [self.ERR_UNKNOWNCOMMAND, {"Core": {}}]
+			,'422': [self.ERR_NOMOTD, {"Core": {}}]
+			,'423': [self.ERR_NOADMININFO, {"Core": {}}]
+			,'424': [self.ERR_FILEERROR, {"Core": {}}]
+			,'431': [self.ERR_NONICKNAMEGIVEN, {"Core": {}}]
+			,'432': [self.ERR_ERRONEUSNICKNAME, {"Core": {}}]
+			,'433': [self.ERR_NICKNAMEINUSE, {"Core": {}}]
+			,'436': [self.ERR_NICKCOLLISION, {"Core": {}}]
+			,'441': [self.ERR_USERNOTINCHANNEL, {"Core": {}}]
+			,'442': [self.ERR_NOTONCHANNEL, {"Core": {}}]
+			,'443': [self.ERR_USERONCHANNEL, {"Core": {}}]
+			,'444': [self.ERR_NOLOGIN, {"Core": {}}]
+			,'445': [self.ERR_SOMMUNDISABLED, {"Core": {}}]
+			,'446': [self.ERR_USERSDISABLED, {"Core": {}}]
+			,'451': [self.ERR_NOTREGISTERED, {"Core": {}}]
+			,'461': [self.ERR_NEEDMOREPARAMS, {"Core": {}}]
+			,'462': [self.ERR_ALREADYREGISTERED, {"Core": {}}]
+			,'463': [self.ERR_NOPERMFORHOST, {"Core": {}}]
+			,'464': [self.ERR_PASSWDMISMATCH, {"Core": {}}]
+			,'465': [self.ERR_YOUREBANNEDCREEP, {"Core": {}}]
+			,'467': [self.ERR_KEYSET, {"Core": {}}]
+			,'471': [self.ERR_CHANNELISFULL, {"Core": {}}]
+			,'472': [self.ERR_UNKNOWNMODE, {"Core": {}}]
+			,'473': [self.ERR_INVITEONLYCHAN, {"Core": {}}]
+			,'474': [self.ERR_BANNEDFROMCHAN, {"Core": {}}]
+			,'475': [self.ERR_BADCHANNELKEY, {"Core": {}}]
+			,'481': [self.ERR_NOPRIVILEGES, {"Core": {}}]
+			,'482': [self.ERR_CHANOPRIVSNEEDED, {"Core": {}}]
+			,'483': [self.ERR_CANTKILLSERVER, {"Core": {}}]
+			,'491': [self.ERR_NOOPERHOST, {"Core": {}}]
+			,'501': [self.ERR_UMODEUNKNOWNFLAG, {"Core": {}}]
+			,'502': [self.ERR_USERSDONTMATCH, {"Core": {}}]
 
 			# RESERVED Numerals
-			,'384': [self.RPL_MYPORTIS, {}]
-			,'235': [self.RPL_SERVLISTEND, {}]
-			,'209': [self.RPL_TRACECLASS, {}]
-			,'466': [self.ERR_YOUWILLBEBANNED, {}]
-			,'217': [self.RPL_STATSQLINE, {}]
-			,'476': [self.ERR_BADCHANMASK, {}]
-			,'231': [self.RPL_SERVICEINFO, {}]
-			,'232': [self.RPL_ENDOFSERVICES, {}]
-			,'233': [self.RPL_SERVICE, {}]
-			,'234': [self.RPL_SERVLIST, {}]
-			,'363': [self.RPL_CLOSEEND, {}]
-			,'492': [self.ERR_NOSERVICEHOST, {}]
-			,'373': [self.RPL_INFOSTART, {}]
-			,'361': [self.RPL_KILLDONE, {}]
-			,'316': [self.RPL_WHOISCHANOP, {}]
-			,'362': [self.RPL_CLOSING, {}]
+			,'384': [self.RPL_MYPORTIS, {"Core": {}}]
+			,'235': [self.RPL_SERVLISTEND, {"Core": {}}]
+			,'209': [self.RPL_TRACECLASS, {"Core": {}}]
+			,'466': [self.ERR_YOUWILLBEBANNED, {"Core": {}}]
+			,'217': [self.RPL_STATSQLINE, {"Core": {}}]
+			,'476': [self.ERR_BADCHANMASK, {"Core": {}}]
+			,'231': [self.RPL_SERVICEINFO, {"Core": {}}]
+			,'232': [self.RPL_ENDOFSERVICES, {"Core": {}}]
+			,'233': [self.RPL_SERVICE, {"Core": {}}]
+			,'234': [self.RPL_SERVLIST, {"Core": {}}]
+			,'363': [self.RPL_CLOSEEND, {"Core": {}}]
+			,'492': [self.ERR_NOSERVICEHOST, {"Core": {}}]
+			,'373': [self.RPL_INFOSTART, {"Core": {}}]
+			,'361': [self.RPL_KILLDONE, {"Core": {}}]
+			,'316': [self.RPL_WHOISCHANOP, {"Core": {}}]
+			,'362': [self.RPL_CLOSING, {"Core": {}}]
 		}
 
-		self.loadedPlugins = {
-			#PluginName: [PluginInstance, MainInstance, ConfigInstance, LoadFunction, UnloadFunction, ReloadFunction]
-		}
+		self.loadedPlugins = { #PluginName: MainInstance
+			}
 		self.loadPlugins()
 
 	def onConnect(self, function):
 		"""Hook a function to run when connecting."""
 		self._onConnect.append(function)
 
-	def hasAccess(self, hostmask):
+	def userHasAccess(self, hostmask):
 		Nick, Ident, Host = re.split("!|@", hostmask)
 		if (Nick not in Config.Servers[self.Connection.__name__]['owner']['nicks'] or
 			Ident not in Config.Servers[self.Connection.__name__]['owner']['idents'] or
@@ -205,108 +206,78 @@ class Parser(object):
 			path = f[8:-3].replace(os.sep, '.')
 			if path.split(".")[0] in self.Connection.Config['plugins']:
 				modules.append(path)
-			else:
-				pass
 		return modules
 
-	def loadPlugins(self, data=None):
-		if data != None and self.hasAccess(data[0]) == False:
+	def loadPlugins(self, data=None, m=None):
+		if data != None and self.userHasAccess(data[0]) == False:
 			return None
 		modules = self.getPluginList()
 		loaded = {}
 		for path in modules:
 			module = path.split('.')[0]
-			try:
-				print("{0} {1}: Trying to import {2}.".format(formattime(), self.Connection.__name__, module))
-				loaded[module] = __import__("Plugins.{0}.Main".format(module), {}, {}, [module])
-			except ImportError as e:
-				print("{0} {1}: Error importing '{2}'; Is there a Main.py?".format(formattime(), self.Connection.__name__, module))
-				print(repr(e))
-			except Exception as e:
-				print("{0} {1}: An Error occured trying to import {2}:".format(formattime(), self.Connection.__name__, module))
-				print("{0} {1}: {2}".format(formattime(), self.Connection.__name__, repr(e)))
-		try:
-			for plugin, instance in list(loaded.items()):
-				try:
-					_i = instance.Main(plugin, self)
-					self.loadedPlugins[plugin] = [instance, _i]
-					self.loadedPlugins[plugin][1].Load()
-				except Exception as e:
-					print("Error: {0}".format(repr(e)))
-					continue
-			if data:
-				self.IRC.say(data[2], "Loaded Plugin!")
-			else:
-				print("{0} {1}: Loaded Plugins!".format(formattime(), self.Connection.__name__))
-		except Exception as e:
-			if self.loadedPlugins.get(plugin):
-				del self.loadedPlugins[plugin]
-			if data:
-				self.IRC.say(data[2], "Error: {0}".format(repr(e)))
-			else:
-				print("{0} {1}: Error: {2}".format(formattime(), self.Connection.__name__, repr(e)))
-
-	def unLoadPlugins(self, data):
-		if self.hasAccess(data[0]) == False:
-			return None
-		module = data[4]
-		try:
-			self.loadedPlugins[module][1].Unload()
-			self.IRC.say(data[2], "Unloaded {0}".format(module))
-		except KeyError:
-			pass
-		except Exception as e:
-			self.IRC.say(data[2], repr(e))
-
-	def reLoadPlugins(self, data):
-		if self.hasAccess(data[0]) == False:
-			return None
-		module = data[4]
-		self.unLoadPlugins(data)
-		modules = self.getPluginList()
-		loaded = {}
-		for path in modules:
-			_module = path.split('.')[0]
-			if module != _module:
+			if m != None and m != module:
 				continue
 			try:
-				print("{0} {1}: Trying to import {2}.".format(formattime(), self.Connection.__name__, module))
-				imp.reload(sys.modules["Plugins.{0}.Settings".format(module)])
-				loaded[module] = imp.reload(sys.modules["Plugins.{0}.Main".format(module)])
-			except KeyError:
-				try:
-					loaded[module] = __import__("Plugins.{0}.Main".format(module), {}, {}, [module])
-				except ImportError as e:
+				logger.info("{0}: Trying to import {1}.".format(self.Connection.__name__, module))
+				loaded[module] = importlib.import_module("Plugins.{0}.Main".format(module))
+			except ImportError as e:
+				if data:
 					self.IRC.say(data[2], repr(e))
-				except Exception as e:
+				logger.exception("{0}: Error importing '{1}'; Is there a Main.py?".format(self.Connection.__name__, module))
+			except Exception as e:
+				if data:
 					self.IRC.say(data[2], repr(e))
-		try:
-			for plugin, instance in list(loaded.items()):
-				self.loadedPlugins[plugin] = [instance, instance.Main(plugin, self)]
-				self.loadedPlugins[plugin][1].Load()
-			self.IRC.say(data[2], "Reloaded {0}".format(plugin))
-		except Exception as e:
-			del self.loadedPlugins[plugin]
-			print("{0} {1}: Error: {2}".format(formattime(), self.Connection.__name__, repr(e)))
-			self.IRC.say(data[2], "Error: {0}".format(repr(e)))
+				logger.exception("{0}: An Error occured trying to import {1}:".format(self.Connection.__name__, module))
+		self.initPlugins(loaded, data=data)
 
+	def initPlugins(self, loaded, data=None):
+		for plugin, instance in loaded.items():
+			try:
+				self.loadedPlugins[plugin] = instance.Main(plugin, self)
+				self.loadedPlugins[plugin].Load()
+			except Exception as e:
+				logger.exception("{0}: Error creating instance of {1}.Main()".format(self.Connection.__name__, plugin))
+				if self.loadedPlugins[plugin]:
+					del self.loadedPlugins[plugin]
+				continue
+		if data:
+			self.IRC.say(data[2], "Loaded Plugin!")
+		else:
+			logger.info("{0}: Loaded Plugins!".format(self.Connection.__name__))
 
-	def hookCommand(self, command, regex, callback):
-		self.Commands[command][1][regex] = callback
+	def unLoadPlugins(self, module):
+		if self.loadedPlugins.get(module):
+			try:
+				self.loadedPlugins[module].Unload()
+			except Exception as e:
+				logger.exception("Error unloading {0}".format(module))
+			del self.loadedPlugins[module]
+		else:
+			logger.warn("Trying to unload a nonexistant module")
 
-	def hookPlugin(self, Name, Settings, Load, Unload, Reload):
-		for x in (Settings, Load, Unload, Reload):
-			self.loadedPlugins[Name].append(x)
+	def reLoadPlugins(self, data):
+		if self.userHasAccess(data[0]) == False:
+			return None
+		module = data[4]
+		self.unLoadPlugins(module)
+		self.loadPlugins(data=data, m=module)
+
+	def hookCommand(self, command, plugin, callbacks):
+		# Commands['privmsg'][1]['PluginName'] = {regex: callback}
+		if self.Commands[command][1].get(plugin):
+			# Prevent multiple instances horribly.
+			del self.Commands[command][1][plugin]
+		self.Commands[command][1][plugin] = callbacks
 
 	def Shutdown(self, data):
-		if self.hasAccess(data[0]) == False:
+		if self.userHasAccess(data[0]) == False:
 			return None
 		for Conn in self.Connection.Connections:
 			Conn.quitConnection()
 
 	def Parse(self, data):
 		data = str(re.sub(Config.Global['unwantedchars'], '', data))
-		print("{0} {1}: {2}".format(formattime(), self.Connection.__name__, data))
+		#logger.info("{0}: {1}".format(self.Connection.__name__, data))
 		if data.startswith("PING"):
 			return None # blackbox handles PONG replies for us
 		elif data.startswith("ERROR"):
@@ -324,31 +295,40 @@ class Parser(object):
 
 		if data[2] == Config.Servers[self.Connection.__name__]['nick']: # This is a PM
 			data[2] = Nick
-
-		for k, v in list(self.Commands['PRIVMSG'][1].items()):
-			if re.search(k, " ".join(data[3:])[1:]):
-				v(data)
+		# "PRIVMSG" [self.PRIVMSG, {Plugin: {Regex: Callback} } ]
+		for Plugin, Commands in self.Commands['PRIVMSG'][1].items():
+			for Regex, Callback in Commands.items():
+				if re.search(Regex, " ".join(data[3:])[1:]):
+					logger.info("Calling {0}".format(repr(Callback)))
+					Callback(data)
 
 	def NOTICE(self, data):
 		try:
 			Nick, Ident, Host = re.split("!|@", data[0])
 		except ValueError:
 			Server = data[0][1:]
-
-		for k, v in list(self.Commands['NOTICE'][1].items()):
-			if re.search(k, " ".join(data[3:])[1:]):
-				v(data)
+		for Plugin, Commands in self.Commands['NOTICE'][1].items():
+			for Regex, Callback in Commands.items():
+				if re.search(Regex, " ".join(data[3:])[1:]):
+					logger.info("Calling {0}".format(repr(Callback)))
+					Callback(data)
 
 	def JOIN(self, data):
-		for k, v in list(self.Commands['JOIN'][1].items()):
-			v(data)
+		for Plugin, Commands in self.Commands['JOIN'][1].items():
+			for Regex, Callback in Commands.items():
+				if re.search(Regex, " ".join(data[3:])[1:]):
+					logger.info("Calling {0}".format(repr(Callback)))
+					Callback(data)
+
 	def PART(self, data):
 		pass
 	def QUIT(self, data):
 		# :user!ident@host QUIT :Reason #Covers /kill too.
-		for k, v in list(self.Commands['QUIT'][1].items()):
-			if re.search(k, " ".join(data)):
-				v(data)
+		for Plugin, Commands in self.Commands['QUIT'][1].items():
+			for Regex, Callback in Commands.items():
+				if re.search(Regex, " ".join(data[3:])[1:]):
+					logger.info("Calling {0}".format(repr(Callback)))
+					Callback(data)
 
 	def KILL(self, data):
 		pass
@@ -358,10 +338,11 @@ class Parser(object):
 		pass
 
 	def KICK(self, data):
-		for k, v in list(self.Commands['KICK'][1].items()):
-			if re.search(k, " ".join(data)):
-				v(data)
-
+		for Plugin, Commands in self.Commands['KICK'][1].items():
+			for Regex, Callback in Commands.items():
+				if re.search(Regex, " ".join(data[3:])[1:]):
+					logger.info("Calling {0}".format(repr(Callback)))
+					Callback(data)
 
 	def WALLOPS(self, data):
 		pass
@@ -646,7 +627,7 @@ class Locker(object):
 		if not self.Locked:
 			if self.Time > 0:
 				self.Locked = True
-				t = Timer(self.Time, self.Unlock, ())
+				t = threading.Timer(self.Time, self.Unlock, ())
 				t.daemon = True
 				t.start()
 		return self.Locked
@@ -654,3 +635,4 @@ class Locker(object):
 	def Unlock(self):
 		self.Locked = False
 		return self.Locked
+

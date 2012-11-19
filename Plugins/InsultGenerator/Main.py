@@ -29,8 +29,7 @@ class Main(object):
 		Locker.Lock()
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@insult(?: \W+)?", self.generateInsult)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@insult(?: \W+)?": self.generateInsult})
 
 	def Unload(self):
 		pass

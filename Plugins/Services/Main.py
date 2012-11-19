@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-from time import strftime
-
-import Config
+import logging
 from .Settings import Settings
+
+logger = logging.getLogger("Services")
 
 class Service(object):
 	def __init__(self, Parser, IRC, name):
@@ -29,7 +29,7 @@ class NickServ(Service):
 
 	def Identify(self):
 		self.Send("Identify {0}".format(Settings.get(self.Parser.Connection.__name__)))
-		print("{0} {1}: Authenticating to NickServ".format(strftime(Config.Global['timeformat']), self.Parser.Connection.__name__))
+		logger.info("{0}: Authenticating to NickServ".format(self.Parser.Connection.__name__))
 
 	def Access(self):
 		pass
@@ -86,7 +86,6 @@ class Main(object):
 		self.Parser.onConnect(self.NickServ.Identify)
 		self.Parser.onConnect(self.Umode.setMode)
 
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
 	def Unload(self):
 		pass
 	def Reload(self):

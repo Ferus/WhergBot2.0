@@ -109,8 +109,7 @@ class Main(object):
 		self.addWordToCache(word.lower(), " ".join(results))
 
 	def Load(self):
-		self.Parser.hookCommand("PRIVMSG", "^@ud .*?$", self.Main)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@ud .*?$": self.Main})
 
 	def Unload(self):
 		pass

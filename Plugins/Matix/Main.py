@@ -30,8 +30,7 @@ class Main(object):
 				self.IRC.say(data[2], "Removed invalid unicode file: {0}".format(File))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', "^@matix", self.Matix)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@matix": self.Matix})
 
 	def Unload(self):
 		pass

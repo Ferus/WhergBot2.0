@@ -8,3 +8,8 @@ Web Interface?
 
 Sending Buffer/Queue
 	allow hooks to be called when send()ing data as well as recv()ing
+
+Youtube:
+	Support for Youtu.be links.
+
+Wheel Of Fortune

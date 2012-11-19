@@ -42,8 +42,7 @@ class Main(object):
 			self.IRC.notice(data[0].split('!')[0], "@slap takes two arguments. The person and the object. Either can be 'random'")
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', '^@slap( .*?)?$', self.Slap)
-		self.Parser.hookPlugin(self.__name__, Settings, self.Load, self.Unload, self.Reload)
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {'^@slap( .*?)?$': self.Slap})
 
 	def Unload(self):
 		pass
