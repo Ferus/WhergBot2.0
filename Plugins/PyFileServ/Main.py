@@ -2,14 +2,15 @@
 import requests
 import json
 import re
-
+import logging
 from .Settings import Settings
-
+logger = logging.getLogger("PyFileServ")
 #https://github.com/KevinLi/PyFileServ
 #Uses API link to get data
 
 
 def Get(url, id):
+	logger.info("URL: {0} ID: {1}".format(url, id))
 	try:
 		req = requests.get("{0}/api?file={1}".format(url, id))
 	except requests.ConnectionError:
@@ -37,18 +38,23 @@ class Main(object):
 	def Parse(self, data):
 		ids = []
 		for x in Settings.get('links'):
-			for y in re.findall(x, ' '.join(data[4:])):
-				ids.append((x, y))
+			logger.info(x)
+			for y in re.findall(x, ' '.join(data[3:])):
+				logger.info(y)
+				url, imgid = y.rsplit("/", 1)
+				ids.append((url, imgid))
 		ids = list(set(ids)) # Remove Dupes
+		logger.info(ids)
 		for x in ids:
 			info = Get(x[0], x[1])
+			logger.info(info)
 			if not info:
 				pass
 			else:
 				self.IRC.say(data[2], Format(info))
 
 	def Load(self):
-		regex = "[" + "|".join(x for x in Settings.get("links")) + "]"
+		regex = "(" + "|".join(x for x in Settings.get("links")) + ")"
 		self.Parser.hookCommand('PRIVMSG', self.__name__, {regex: self.Parse})
 		# Testing
 
