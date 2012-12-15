@@ -9,12 +9,9 @@ See: Docs/LICENSE
 
 ## Dependencies
 
-WhergBot depends on the development branch of the [blackbox_IRC-macros][] and [PyYAML][].
-Both of which can be installed via pip.
+WhergBot depends on the development branch of the [blackbox_IRC-macros][] which can be installed via pip.
 
 	pip install blackbox
-
-	pip install pyyaml
 
 Listed below are other modules that are not required to run the core bot.
 
@@ -44,7 +41,6 @@ Listed below are other modules that are not required to run the core bot.
 Working on that...
 
 [blackbox_IRC-macros]: https://github.com/Ferus/blackbox_IRC-macros
-[PyYAML]: http://pyyaml.org/
 [requests]: https://github.com/kennethreitz/requests
 [wordnik]: https://github.com/wordnik/wordnik-python
 [python-mpd]: http://pypi.python.org/pypi/python-mpd/
