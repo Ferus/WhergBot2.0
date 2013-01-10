@@ -1,5 +1,6 @@
 #!/usr/bin/env python
-
+import logging
+logger = logging.getLogger("Omegle")
 from . import omegle
 from .Settings import Settings
 
@@ -57,6 +58,7 @@ class Main():
 		pass
 
 	def gotMessage(self, msg):
+		logger.info("Received Message: '{0}'".format(msg))
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger:\x03 {0}".format(msg))
 
 	def typing(self, msg):
@@ -78,7 +80,7 @@ class Main():
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Error: technical reasons (Captcha) :(")
 
 	def win(self, msg):
-		pass
+		logger.info("Sent message! :)")
 	def fail(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Error: Failed to send message.")
 
@@ -103,7 +105,7 @@ class Main():
 			self.IRC.say(data[2], "\x02[Omegle]\x02 Not connected!")
 			return None
 		msg = ' '.join(data[3:])[2:]
-		print("* [Omegle] Sending Message: '{0}'".format(msg))
+		logger.info("Sending Message: '{0}'".format(msg))
 		self.Omegle.sendMessage(msg)
 
 	def makeDisconnect(self, data):
@@ -121,8 +123,6 @@ class Main():
 			,"^[~`].*?$": self.sendMessage
 			,"^@disconnect$": self.makeDisconnect}
 		)
-
-
 	def Unload(self):
 		pass
 	def Reload(self):

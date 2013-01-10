@@ -1,3 +1,3 @@
 Settings = {
-	'allowedChans': ['#bots']
+	'allowedChans': ['#bots', '#WhergBot']
 }
