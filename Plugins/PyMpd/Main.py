@@ -2,10 +2,15 @@
 import os
 import time
 
+import logging
+logger = logging.getLogger("PyMPD")
+
 try:
 	import mpd
+	IMPORT_OK = True
 except ImportError:
-	print("* [Mpd] Please install python-mpd to use this plugin or remove /Plugins/PyMpd")
+	logger.warning("* [Mpd] Please install python-mpd to use this plugin or remove /Plugins/PyMpd")
+	IMPORT_OK = False
 
 from .Settings import Settings
 
@@ -31,16 +36,18 @@ def mpd_connect():
 	try:
 		client.connect(host, port)
 		return True
-	except:
-		print("* [MPD] Failed to connect to server: {0}:{1}".format(host,port))
+	except Exception as e:
+		print(repr(e))
+		logger.exception("Failed to connect to server: {0}:{1}".format(host,port))
 		return False
 
 def mpd_disconnect():
 	try:
-		client.close()			# send the close command
-		client.disconnect()		# disconnect from the server
-	except:
-		print("* [MPD] Couldn't disconnect from MPD server.")
+		client.close()
+		client.disconnect()
+	except Exception as e:
+		print(repr(e))
+		logger.exception("Couldn't disconnect from MPD server.")
 
 def mpdshow_cb(t=True):
 	if mpd_connect():
@@ -61,7 +68,8 @@ def mpdshow_cb(t=True):
 		mpd_disconnect()
 		try:
 			return "Now Playing: {0} - {1} - {2} {3}".format(current_song["artist"], current_song["album"], current_song["title"], song_s)
-		except:
+		except Exception as e:
+			logger.warning("Exception caught, specify the type.")
 			return "Now Playing: {0} {1}".format(song_shortname,song_s)
 	else:
 		print("* [MPD] Couldn't connect to server.")
@@ -86,6 +94,8 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 	def Music(self, data):
+		if IMPORT_OK == False:
+			return None
 		if data[0] not in Settings.get('allowedusers'):
 			return None
 
