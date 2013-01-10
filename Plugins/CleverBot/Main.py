@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 from threading import Thread
+import logging
+logger = logging.getLogger("CleverBot")
 
 from . import cleverbot
 from .Settings import Settings
@@ -26,6 +28,7 @@ class Main():
 		self.Running = True
 		self.IRC.say(data[2], "\x02[CleverBot]\x02 Connecting to Cleverbot.")
 		reply = self.Cleverbot.Ask(' '.join(data[4:]))
+		logger.info("Received Message: '{0}'".format(reply))
 		self.IRC.say(data[2], "\x02[CleverBot]\x02 CleverBot -> {0}: {1}".format(
 			data[0].split("!")[0], reply))
 
@@ -37,12 +40,13 @@ class Main():
 			self.IRC.say(data[2], "\x02[CleverBot]\x02 Not connected!")
 			return None
 		msg = ' '.join(data[3:])[2:]
-		print("* [CleverBot] Sending Message: '{0}'".format(msg))
+		logger.info("Sending Message: '{0}'".format(msg))
 		self.IRC.say(data[2], "\x02[CleverBot]\x02 {0} -> CleverBot: {1}".format(
 			data[0].split("!")[0], msg))
 		def helper(msg):
 			# Threads replys, prevents 'lag'
 			reply = self.Cleverbot.Ask(msg)
+			logger.info("Received Message: '{0}'".format(reply))
 			self.IRC.say(data[2], "\x02[CleverBot]\x02 CleverBot -> {0}: {1}".format(
 				data[0].split("!")[0], reply))
 		t = Thread(target=helper, args=(msg,))
