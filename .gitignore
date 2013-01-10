@@ -4,3 +4,6 @@ Cleanup.sh
 *.dat
 *.shelve
 mkQuotesDB.py
+blackbox
+*.db
+*.log
