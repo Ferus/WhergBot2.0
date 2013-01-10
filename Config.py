@@ -8,19 +8,19 @@ Servers = {
 	"DatNode":
 		{"host": "opsimathia.datnode.net"
 		,"port": 6697
-		,"nick": "WhergBot|T"
+		,"nick": "hbot"
 		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "Wherg"
-		,"channels": "#hacking"
+		,"channels": "#WhergBot"
 		,"ssl": True
 		,"enabled": True
 		,"quitmessage": "h"
 		,"plugins": [
-			"CleverBot"
+			'CleverBot'
+			,'Omegle'
 			,'Services'
 			,'Oper'
 			,'Plinko'
-			,'Omegle'
 			,'Misc'
 			,'Quit'
 			,'Matix'
@@ -47,9 +47,9 @@ Servers = {
 			,'FuckMyLife'
 			,'Imgur'
 			,'General'
-			,'PyMpd'
 			,'Weather'
 			,'Roulette'
+#			,'PyMpd'
 			]
 		,"owner": {"nicks": ["Ferus", "Ferrous", "^"]
 			,"hosts": ["the.interwebs", "ur.messages"]
