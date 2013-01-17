@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 import random
+import os
+random.seed(os.urandom(50))
 import requests
 import json
 import threading
@@ -27,7 +29,7 @@ class Omegle(object):
 		self.url = random.choice(Servers)
 		self.sid = None
 		self.thread = None
-		
+
 		# recieving
 		self.callbacks = {'strangerDisconnected': []
 			,'waiting': []
@@ -40,7 +42,7 @@ class Omegle(object):
 			,'recaptchaRequired': []
 			,'technical reasons': []
 			}
-		
+
 		# sending
 		self.scallbacks = {'win': []
 			,'fail': []
@@ -57,7 +59,7 @@ class Omegle(object):
 			,"Host": self.url
 			,"Origin": "http://omegle.com"
 			,"Referer": "http://omegle.com/"
-			
+
 			,"Pragma": "no-cache"
 			,"DNT": "1"
 			}
@@ -66,7 +68,7 @@ class Omegle(object):
 		else:
 			h["Accept"] = "text/json"
 		return h
-	
+
 	def post(self, page, isSending=False, data={}):
 		try:
 			request = requests.post(self.url + page, data=data, headers=self.headers(isSending))
@@ -75,7 +77,7 @@ class Omegle(object):
 		except Exception as e:
 			print(repr(e))
 		return request.text
-	
+
 	def start(self):
 		request = self.post("start?rcs=1&firstevents=1&spid=", False, {})
 		res = json.loads(request)
@@ -86,24 +88,24 @@ class Omegle(object):
 					self.handleEvent(str(y[0]), y[1] if len(y) > 1 else '')
 			else:
 				self.handleEvent(str(x[0]), x[1] if len(x) > 1 else '')
-	
+
 	def disconnect(self):
 		request = self.post("disconnect", True, '')
 		self.sid = None
 		self.thread = None
 		return True
-	
+
 	def events(self):
 		while self.sid != None:
 			request = self.post("events", False, {'id': self.sid})
 			if request == 'null':
 				self.sid = None
 				return "Connection Lost."
-		
+
 			res = json.loads(request)
 			for x in res:
 				self.handleEvent(str(x[0]), x[1] if len(x) > 1 else '')
-	
+
 	def handleEvent(self, event, msg=''):
 		if event in list(self.callbacks.keys()):
 			for x in self.callbacks[event]:
@@ -111,7 +113,7 @@ class Omegle(object):
 		else:
 			print("Unhandled event!")
 			print(event, msg)
-	
+
 	def hookCallback(self, event, callback):
 		if event in list(self.callbacks.keys()):
 			#print("* [Omegle] Hooking function {0} into callback {1}".format(callback, event))
@@ -122,7 +124,7 @@ class Omegle(object):
 			#print("* [Omegle] Hooking function {0} into scallback {1}".format(callback, event))
 			self.scallbacks[event].append(callback)
 
-	
+
 	def sendMessage(self, msg):
 		self.post("typing", True, {'id': self.sid})
 		request = self.post("send", True, {'msg': msg, 'id': self.sid})
@@ -131,7 +133,7 @@ class Omegle(object):
 				x(msg)
 		else:
 			print("Unknown send confirmation {0}".format(request))
-	
+
 	def mainLoop(self):
 		self.start()
 		self.thread = threading.Thread(target=self.events, args=())

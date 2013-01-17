@@ -11,7 +11,7 @@ Settings = {
 		,"no_save": False # If true, dont save to disk
 	}
 	,'twitter': {
-		'use': True,
+		'use': False,
 		'oauth-keys': {
 			"consumer_key": 'h',
 			"consumer_secret": 'h',

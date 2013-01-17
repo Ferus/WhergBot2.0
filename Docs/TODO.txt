@@ -11,3 +11,28 @@ Youtube:
 	Support for Youtu.be links.
 
 Wheel Of Fortune
+
+Pyborg:
+	pyborg needs to replace channel nicks with $NICK for incoming messages
+	and replace all $NICK in outgoing messages with the name of the person
+	on IRC that triggered that message, if $NICK exists in the message
+
+	On that note, it requires that Wherg hold a channel list of names.
+	This should include channel modes and each users mod level (as a number)
+	
+channels = {
+	"Channel": [
+		[user, list, here], chanmodes
+		]
+	,"Channel2": etc
+}
+
+
+Next rewrite:
+
+All Settings use YAML
+Sane plugin system:
+	A default plugin class with predefined hooks/etc
+	A sane way of storing init'd plugins
+	Optional config file for plugin class
+

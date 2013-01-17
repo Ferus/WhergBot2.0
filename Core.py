@@ -90,7 +90,6 @@ def run(name, serv): #change to allow passing of one dictionary and name rather 
 				C.Parser._onConnect.pop(0)()
 			except Exception as e:
 				logger.exception("Error with function in Parser._onConnect")
-		time.sleep(1)
 		C.IRC.join(serv.get('channels'))
 	except blackbox.IRCError as e:
 		logger.exception("Removing Conn {0}".format(C.__name__))
@@ -100,8 +99,8 @@ def run(name, serv): #change to allow passing of one dictionary and name rather 
 		if e.errno == 104:
 			# Weird bug.
 			logger.exception("Socket Error 104")
-			run(name, serv)
-			logger.info("Attempting to reconnect")
+		run(name, serv)
+		logger.info("Attempting to reconnect")
 	except Exception as e:
 		logger.exception("Error in main function run()")
 

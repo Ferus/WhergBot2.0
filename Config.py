@@ -1,24 +1,23 @@
 #!/usr/bin/env python
 Global = {
 	"unwantedchars": "\x03(?:[0-9]{1,2})?(?:,[0-9]{1,2})?|\x02|\x07|\x1F"
-	,"timeformat": "[%H:%M:%S] >>"
 	}
 
 Servers = {
 	"DatNode":
-		{"host": "opsimathia.datnode.net"
+		{"host": "mempsimoiria.datnode.net"
 		,"port": 6697
-		,"nick": "hbot"
+		,"nick": "Wherg"
 		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "Wherg"
-		,"channels": "#WhergBot"
+		,"channels": "#boats"
 		,"ssl": True
 		,"enabled": True
 		,"quitmessage": "h"
 		,"plugins": [
-			'CleverBot'
+			'Services'
+			,'CleverBot'
 			,'Omegle'
-			,'Services'
 			,'Oper'
 			,'Plinko'
 			,'Misc'
@@ -61,20 +60,21 @@ Servers = {
 		{"host": "mempsimoiria.datnode.net"
 		,"port": 6697
 		,"nick": "gentbot|h"
-		,"realname": "gentbot 2.0 [Ferus]"
+		,"realname": "WhergBot 2.0 [Ferus]"
 		,"ident": "gentbot"
-		,"channels": "#hacking"
+		,"channels": "#boats"
 		,"ssl": True
-		,"enabled": False
+		,"enabled": True
 		,"quitmessage": 'h'
 		,"plugins": [
-#			'General'
-#			,'Gentbot'
+			'General'
+			,'GentBot'
+			,'Services'
 			]
 		,"owner": {"nicks": ["Ferus"]
 			,"hosts": ["the.interwebs"]
 			,"idents": ["anonymous"]
 			}
-	}
+		}
 }
 

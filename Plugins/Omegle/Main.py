@@ -58,7 +58,7 @@ class Main():
 		pass
 
 	def gotMessage(self, msg):
-		logger.info("Received Message: '{0}'".format(msg))
+		logger.info("Received Message: '{0}'".format([msg]))
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger:\x03 {0}".format(msg))
 
 	def typing(self, msg):

@@ -219,7 +219,6 @@ class Main(object):
 		)
 
 	def Unload(self):
-		self.Quotes.Save()
 		del self.Quotes
 		del self.Rules
 		del self.Parser.Commands['PRIVMSG'][1][self.__name__]
