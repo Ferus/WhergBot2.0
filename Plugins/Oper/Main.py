@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from time import sleep
-from threading import Thread
 import logging
 from .Settings import Settings
 
@@ -11,11 +9,13 @@ class Main(object):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
+		self.user = Settings.get(self.Parser.Connection.__name__)['user']
+		self.password = Settings.get(self.Parser.Connection.__name__)['password']
 
 	def Oper(self):
 		logger.info("Opering up!")
 		if hasattr(self.IRC, "oper"):
-			self.IRC.oper(Settings['user'], Settings['password'])
+			self.IRC.oper(self.user, self.password)
 
 	def Load(self):
 		self.Parser.onConnect(self.Oper)

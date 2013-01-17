@@ -1,4 +1,3 @@
 Settings = {
-	'user': 'wherg'
-	,'password': open('Plugins/Oper/password.txt', 'r').read().strip()
+	"DatNode": {'user': 'wherg', 'password': open('Plugins/Oper/DatNode.txt', 'r').read().strip()}
 }
