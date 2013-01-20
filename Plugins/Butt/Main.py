@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import random
+random.seed("".join(random.choice("qwertyuiopasdfghjklzxcvbnm") for x in range(random.randint(10, 100))))
 from .Settings import Settings
 
 class Main(object):
