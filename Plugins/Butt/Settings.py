@@ -1,5 +1,5 @@
 Settings = {
 	"allowedChans": ["#4chon", "#degeneracy", "#Feels"]
-	,"replyrate": 10
+	,"replyrate": 5
 	,"maxreplace": 2
 }

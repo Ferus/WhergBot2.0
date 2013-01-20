@@ -10,15 +10,20 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 	def Butt(self, data):
+		if data[2] not in Settings.get("allowedChans"):
+			return None
 		if random.randint(0, 100) > Settings.get("replyrate"):
 			return None
 		d = " ".join(data[3:])[1:].split()
-		for x in range(random.randint(1, Settings.get("maxreplace"))):
-			word = random.choice(list(set(d)))
-			for index, item in enumerate(d):
-				if item == word:
-					d[index] = "butt"
-					break
+		if len(d) > 3:
+			for x in range(random.randint(1, Settings.get("maxreplace"))):
+				word = random.choice(list(set(d)))
+				for index, item in enumerate(d):
+					if item == word:
+						d[index] = "butt"
+						break
+		else:
+			d.insert(random.randint(0, len(d)), "butt")
 		self.IRC.say(data[2], " ".join(d))
 
 	def Load(self):
