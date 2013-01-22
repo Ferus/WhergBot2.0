@@ -33,7 +33,7 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 	def ImgurStats(self, data):
-		hashes = re.findall('imgur\.com/(?:gallery/)?(\w{5})', " ".join(data[3:]))
+		hashes = re.findall('imgur\.com/(?:gallery/)?([\w\d]{5,7})', " ".join(data[3:]))
 		hashes = list(set(hashes)) # Remove Duplicates.
 		for picid in hashes[:3]: # Limit it to 3 per line.
 			try:
@@ -55,7 +55,7 @@ class Main(object):
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', self.__name__
-		,{"(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[a-zA-Z0-9]{5}(?:\.)?(?:jpg|jpeg|png|gif)?": self.ImgurStats})
+		,{"(?:https?:\/\/)?(?:www\.)?(?:i\.)?imgur\.com\/(?:gallery\/)?[\w\d]{5,7}(?:\.)?(?:jpg|jpeg|png|gif)?": self.ImgurStats})
 
 	def Unload(self):
 		pass
