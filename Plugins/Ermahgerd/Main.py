@@ -10,7 +10,7 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 	def Get(self, message):
-		r = requests.get("http://199.19.116.75/ermahgerd.php?text={0}".format(message.replace(" ", "%20")))
+		r = requests.get("http://74.63.212.11/~lee/ermahgerd.php?text={0}".format(message.replace(" ", "%20")))
 		if r.status_code != 200:
 			r.raise_for_status()
 		return r.text
