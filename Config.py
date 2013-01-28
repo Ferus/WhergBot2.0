@@ -49,6 +49,7 @@ Servers = {
 			,'Weather'
 			,'Roulette'
 #			,'PyMpd'
+			,'WhatStatus'
 			]
 		,"owner": {"nicks": ["Ferus", "Ferrous", "^"]
 			,"hosts": ["the.interwebs", "ur.messages"]
