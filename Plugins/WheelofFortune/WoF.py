@@ -111,16 +111,28 @@ class WoFGuessingGame(object):
 
 class WheelofFortune(object):
 	def __init__(self):
+		self.autoCategory = False
 		self.wheel = WoFWheel()
 		self.wheelValue = []
 		self.skipTurn = []
 
 	# Getters and setters because.
 	def setCategory(self, category):
+		self.autoCategory = False
 		self.solutionCategory = category
+
+	def setCategoryRandom(self):
+		self.autoCategory = True
+		self.solutionCategory = random.choice(list(Solutions.solutions.keys()))
+
+	def getCategory(self):
+		return self.solutionCategory
 
 	def setSolution(self, solution):
 		self.guessingGame = WoFGuessingGame(solution)
+
+	def setSolutionRandom(self):
+		self.guessingGame = WoFGuessingGame(random.choice(Solutions.solutions[self.getCategory()]))
 
 	def getSolution(self):
 		return self.guessingGame.solution
