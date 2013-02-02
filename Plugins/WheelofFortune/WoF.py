@@ -7,7 +7,7 @@ import sys
 import operator
 import random
 
-import Solutions
+from . import Solutions
 
 class WoFWheel(object):
 	def __init__(self):
