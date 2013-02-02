@@ -43,12 +43,12 @@ class Main(WhergWoFWrapper):
         self.IRC = self.Parser.IRC
 
     def Load(self):
-        self.Parser.hookCommand("PRIVMSG", "^@WoFroll$", self.spin)
-        self.Parser.hookCommand("PRIVMSG", "^@WoFsetC \d{1,}$", self.setCategory)
-        self.Parser.hookCommand("PRIVMSG", "^@WoFsetS \d{1,}$", self.setSolution)
-        #self.Parser.hookCommand("PRIVMSG", "^@WoFjoin", self.joinWoF)
-        self.Parser.hookCommand("PRIVMSG", "^@WoFguess \d{1,}$", self.guess)
-        self.Parser.hookCommand("PRIVMSG", "^@WoFplay", self.start)
+        self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@WoFroll$": self.spin,
+            "^@WoFsetC \d{1,}$": self.setCategory,
+            "^@WoFsetS \d{1,}$": self.setSolution,
+            "^@WoFjoin": self.joinWoF,
+            "^@WoFguess \d{1,}$": self.guess,
+            "^@WoFplay": self.start})
 
     def Unload(self):
         pass
