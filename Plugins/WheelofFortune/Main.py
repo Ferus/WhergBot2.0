@@ -30,7 +30,7 @@ class WhergWoFWrapper(object):
     def spin(self, data):
         self.WoFGame.wheelSpin()
         spindata = self.WoFGame.wheelValue
-        self.IRC.say(data[2], "\x03{0}{1}{2}\x03".format(spindata[1],spindata[2],spindata[0]))
+        self.IRC.say(data[2], "\x03{0},{1}{2}\x03".format(spindata[1],spindata[2],spindata[0]))
 
     def guess(self, data):
         pass
@@ -46,7 +46,7 @@ class Main(WhergWoFWrapper):
         self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@WoFroll$": self.spin,
             "^@WoFsetC \d{1,}$": self.setCategory,
             "^@WoFsetS \d{1,}$": self.setSolution,
-            "^@WoFjoin": self.joinWoF,
+            #"^@WoFjoin": self.joinWoF,
             "^@WoFguess \d{1,}$": self.guess,
             "^@WoFplay": self.start})
 
