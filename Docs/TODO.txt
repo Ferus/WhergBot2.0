@@ -12,6 +12,9 @@ Youtube:
 
 Wheel Of Fortune
 
+UrbanDictionary.py:
+	Change to API url, using json to get def instead of parsing with shitty regex.
+
 Pyborg:
 	pyborg needs to replace channel nicks with $NICK for incoming messages
 	and replace all $NICK in outgoing messages with the name of the person
@@ -35,4 +38,4 @@ Sane plugin system:
 	A default plugin class with predefined hooks/etc
 	A sane way of storing init'd plugins
 	Optional config file for plugin class
-
+	Plugin system should have locking/threading boolean settings when hooking commands
