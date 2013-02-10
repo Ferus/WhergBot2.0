@@ -10,8 +10,12 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 		self.ToldFile = Settings.get('ToldFile', 'Plugins/Told/Told.txt')
-		with open(self.ToldFile, 'r') as Tolds:
-			self.ToldList = Tolds.read().splitlines()
+		try:
+			with open(self.ToldFile, 'r') as Tolds:
+				self.ToldList = Tolds.read().splitlines()
+		except Exception as e:
+			print(repr(e))
+			self.ToldList = ["Told!"]
 
 	def ReturnTold(self, data):
 		self.IRC.say(data[2], choice(self.ToldList))

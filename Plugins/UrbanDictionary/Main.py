@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
 import requests
-import os, re
+import re
 import json
+from html import entities as htmlentitydefs
+import logging
+logger = logging.getLogger("UrbanDictionary")
 
 from Parser import Locker
 Locker = Locker(5)
@@ -21,16 +24,16 @@ def convert(text):
 			if entity.startswith('#x'):
 				return uchr(int(entity[2:], 16))
 			elif entity.startswith('#'):
-				return uchr(int(entity[1:]))
+				return chr(int(entity[1:]))
 			elif entity in htmlentitydefs.name2codepoint:
-				return uchr(htmlentitydefs.name2codepoint[entity])
+				return chr(htmlentitydefs.name2codepoint[entity])
 			else:
 				return match.group(0)
 		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
 		text = charrefpat.sub(entitydecode, text)
 		return text
 	except Exception as e:
-		print("* [UrbanDict] Error: {0}".format(repr(e)))
+		logger.exception("Error'd on convert()")
 		return text
 
 # http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
@@ -43,6 +46,14 @@ class Main(object):
 
 		self.CacheFile = Settings.get("CacheFile", "Plugins/UrbanDictionary/Cache.txt")
 
+		# create it if it doesnt exist.
+		try:
+			c = open(self.CacheFile, 'r')
+		except IOError:
+			c = open(self.CacheFile, 'w')
+		c.close()
+		del c
+
 
 	def checkCacheForDef(self, word):
 		with open(self.CacheFile, 'r') as c:
@@ -54,15 +65,9 @@ class Main(object):
 				return False
 
 	def addWordToCache(self, word, definition=''):
-		if os.access(self.CacheFile, 6):
-			with open(self.CacheFile, 'a') as c:
-				print('* [UrbanDict] Cache => Adding word {0}'.format(word))
-				c.write("{0} : {1}\n".format(word, definition))
-		else:
-			with open(self.CacheFile, 'w') as c:
-				print('* [UrbanDict] Cache => Creating Cache')
-				print('* [UrbanDict] Cache => Adding word {0}'.format(word))
-				c.write("{0} : {1}\n".format(word, definition))
+		with open(self.CacheFile, 'a') as c:
+			logger.info('Adding word {0}'.format(word))
+			c.write("{0} : {1}\n".format(word, definition))
 
 	def Main(self, data):
 		if Locker.Locked:
@@ -71,17 +76,17 @@ class Main(object):
 		word = ' '.join(data[4:])
 		checkCache = self.checkCacheForDef(word)
 		if checkCache:
-			print("* [UrbanDict] => Sending cached word.")
+			logger.info("Sending cached word.")
 			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1}".format(word, checkCache))
 			Locker.Lock()
 			return None
 
-		print("* [UrbanDict] => Polling UrbanDictionary.")
+		logger.info("Polling UrbanDictionary.")
 		url = "http://www.urbandictionary.com/tooltip.php?term={0}".format(word.replace(" ","%20"))
 		try:
 			html = requests.get(url).text
 		except requests.HTTPError:
-			print("* [UrbanDict] Error => Failed to connect.")
+			logger.exception("Failed to connect.")
 			self.IRC.say(data[2], "Failed to connect to Urban Dictionary.")
 			return None
 
@@ -92,7 +97,7 @@ class Main(object):
 			result = re.sub(r'[\r\n\t]', "", html)
 			result, other = re.search("<div>\s*<b>.*?</b></div><div>\s*(?:.*?<br/><br/>)?(.*?)</div>(?:<div class='others'>\s*(.*?)</div>)?", result).groups()
 		except Exception as e:
-			print("* [UrbanDict] Error: {0}".format(repr(e)))
+			logger.exception("Error parsing html")
 			result = None
 		if not result or result is None or result == '':
 			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0} has not yet been defined.".format(word))
@@ -112,6 +117,4 @@ class Main(object):
 		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@ud .*?$": self.Main})
 
 	def Unload(self):
-		pass
-	def Reload(self):
 		pass
