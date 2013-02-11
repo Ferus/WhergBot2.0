@@ -50,6 +50,8 @@ Servers = {
 			,'Roulette'
 #			,'PyMpd'
 			,'WhatStatus'
+			,'WheelofFortune'
+			,'UrlAnnounce'
 			]
 		,"owner": {"nicks": ["Ferus", "Ferrous", "^"]
 			,"hosts": ["the.interwebs", "ur.messages"]
@@ -65,7 +67,7 @@ Servers = {
 		,"ident": "gentbot"
 		,"channels": "#boats"
 		,"ssl": True
-		,"enabled": True
+		,"enabled": False
 		,"quitmessage": 'h'
 		,"plugins": [
 			'General'
