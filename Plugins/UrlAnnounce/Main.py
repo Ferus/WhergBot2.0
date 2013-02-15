@@ -33,12 +33,14 @@ class Main(object):
 						return None
 				try:
 					title = self.getTitle(x)
-					if self.ip:
-						if re.search(re.escape(self.ip), title):
-							title = "127.0.0.1"
 				except (requests.HTTPError, requests.ConnectionError) as e:
 					logger.exception("Failed to connect")
 					return None
+				if title == None:
+					return None
+				if self.ip:
+					if re.search(re.escape(self.ip), title):
+						title = "127.0.0.1"
 				self.IRC.say(data[2], "Title: '{0}' (at {1})".format(title, match.group(2)))
 
 	def getTitle(self, url):
@@ -49,7 +51,7 @@ class Main(object):
 		if title:
 			return title.group(1)
 		logger.info("No title found for {0}".format(r.url))
-		return Settings.get("no_title")
+		return Settings.get("no_title") if Settings.get("show_no_title") else None
 
 
 
