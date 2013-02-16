@@ -10,10 +10,10 @@ class Main(object):
 
 	def Random(self, data):
 		data = data[4].split(',')
-		self.IRC.say(choice(data))
+		self.IRC.say(data[2], choice(data))
 
 	def Load(self):
-		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@random", self.Random})
+		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@random": self.Random})
 
 	def Unload(self):
 		pass
