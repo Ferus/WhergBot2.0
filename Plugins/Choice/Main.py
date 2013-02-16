@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-from random import choice
-from .Settings import Settings
+import random
 
 class Main(object):
 	def __init__(self, Name, Parser):
@@ -9,8 +8,7 @@ class Main(object):
 		self.IRC = self.Parser.IRC
 
 	def Random(self, data):
-		data = data[4].split(',')
-		self.IRC.say(data[2], choice(data))
+		self.IRC.say(data[2], random.choice(data[4].split(",")))
 
 	def Load(self):
 		self.Parser.hookCommand('PRIVMSG', self.__name__, {"^@random": self.Random})
