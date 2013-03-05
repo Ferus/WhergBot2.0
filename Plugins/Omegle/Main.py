@@ -15,8 +15,10 @@ class Main():
 		self.activeChannel = ''
 
 	def createOmegleConnection(self, data):
-		"""Called on :omegle"""
-		self.Omegle = omegle.Omegle()
+		"""Called on :omegle or :omegleq. If omegleq, start question mode."""
+		
+		if data[3] == ":@omegleq": self.Omegle = omegle.OmegleQuestion()
+		else: self.Omegle = omegle.Omegle()
 
 		self.Running = True
 		self.activeChannel = data[2]
@@ -33,6 +35,7 @@ class Main():
 			,['stoppedTyping', self.stoppedTyping]
 			,['connected', self.connected]
 			,['count', self.count]
+			,['question', self.question]
 			,['recaptchaRequired', self.recaptchaRequired]
 			,['technical reasons', self.technicalReasons]
 			]
@@ -69,6 +72,7 @@ class Main():
 
 	def connected(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Connected to Omegle!")
+		logger.info([msg])
 
 	def count(self, msg):
 		pass
@@ -78,6 +82,9 @@ class Main():
 
 	def technicalReasons(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Error: technical reasons (Captcha) :(")
+
+	def question(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Q: \x0312{0}".format(msg))
 
 	def win(self, msg):
 		logger.info("Sent message! :)")
@@ -119,7 +126,7 @@ class Main():
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", self.__name__
-			,{"^@omegle$": self.initOmegle
+			,{"^@omegleq?$": self.initOmegle
 			,"^[~`].*?$": self.sendMessage
 			,"^@disconnect$": self.makeDisconnect}
 		)
@@ -127,10 +134,3 @@ class Main():
 		pass
 	def Reload(self):
 		pass
-
-
-
-
-
-
-
