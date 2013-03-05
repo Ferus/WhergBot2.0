@@ -149,7 +149,11 @@ class OmegleQuestion(Omegle):
 
 class OmegleInterest(Omegle):
 	def __init__(self, interests):
-		super(OmegleInterest, self).__init__()
+		self.Omegle = super(OmegleInterest, self)
+		self.Omegle.__init__()
 		if interests:
 			interests = "".join(interests).split(',')
 			self.start_url += "&topics=" + json.dumps(interests)
+	def disconnect(self):
+		self.Omegle.post("stoplookingforcommonlikes", True, '')
+		self.Omegle.disconnect()
