@@ -32,7 +32,7 @@ class Main(object):
 			self.IRC.say(data[2], "I don't know who \x02{0}\x02 is.".format(data[4]))
 			return
 		nick, chan, msg, timestamp = s
-		timestamp = time.strftime("%h %d, %Y around %I:%M:%S %p", time.localtime(timestamp))
+		timestamp = time.strftime(Settings.get("timestamp"), time.localtime(timestamp))
 		self.IRC.say(data[2], "\x02{0}\x02 was last seen in \x02{1}\x02 (\x02{2}\x02) on ".format(
 			nick, chan, msg, timestamp))
 
