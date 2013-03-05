@@ -33,7 +33,11 @@ class Main(object):
 			return
 		nick, chan, msg, timestamp = s
 		timestamp = time.strftime(Settings.get("timestamp"), time.localtime(timestamp))
+<<<<<<< HEAD
 		self.IRC.say(data[2], "\x02{0}\x02 was last seen in \x02{1}\x02 (\x02{2}\x02) on {3}".format(
+=======
+		self.IRC.say(data[2], "\x02{0}\x02 was last seen in \x02{1}\x02 (\x02{2}\x02) on ".format(
+>>>>>>> 871e7d31fa43ca409221726df76b6420aacaa22c
 			nick, chan, msg, timestamp))
 
 	def Load(self):

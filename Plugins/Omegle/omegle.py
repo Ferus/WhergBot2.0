@@ -6,7 +6,6 @@ import requests
 import json
 import threading
 
-
 Servers = ["http://promenade.omegle.com/"
 #	,"http://odo-bucket.omegle.com/"
 #	,"http://bajor.omegle.com/"
@@ -29,6 +28,7 @@ class Omegle(object):
 		self.url = random.choice(Servers)
 		self.sid = None
 		self.thread = None
+		self.start_url = "start?rcs=1&firstevents=1&spid="
 
 		# recieving
 		self.callbacks = {'strangerDisconnected': []
@@ -39,6 +39,8 @@ class Omegle(object):
 			,'stoppedTyping': []
 			,'connected': []
 			,'count': []
+			,'question': []
+			,'commonLikes': []
 			,'recaptchaRequired': []
 			,'technical reasons': []
 			}
@@ -79,7 +81,7 @@ class Omegle(object):
 		return request.text
 
 	def start(self):
-		request = self.post("start?rcs=1&firstevents=1&spid=", False, {})
+		request = self.post(self.start_url, False, {})
 		res = json.loads(request)
 		self.sid = res['clientID']
 		for x in list(res.items()):
@@ -139,3 +141,15 @@ class Omegle(object):
 		self.thread = threading.Thread(target=self.events, args=())
 		self.thread.start()
 		return True
+
+class OmegleQuestion(Omegle):
+	def __init__(self):
+		super(OmegleQuestion, self).__init__()
+		self.start_url += "&wantsspy=1"
+
+class OmegleInterest(Omegle):
+	def __init__(self, interests):
+		super(OmegleInterest, self).__init__()
+		if interests:
+			interests = "".join(interests).split(',')
+			self.start_url += "&topics=" + json.dumps(interests)
