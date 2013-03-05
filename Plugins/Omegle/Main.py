@@ -17,8 +17,12 @@ class Main():
 	def createOmegleConnection(self, data):
 		"""Called on :omegle or :omegleq. If omegleq, start question mode."""
 		
-		if data[3] == ":@omegleq": self.Omegle = omegle.OmegleQuestion()
-		else: self.Omegle = omegle.Omegle()
+		if data[3] == ":@omegleq": 
+			self.Omegle = omegle.OmegleQuestion()
+		elif data[3] == ":@omeglei":
+			self.Omegle = omegle.OmegleInterest(data[4:])
+		else: 
+			self.Omegle = omegle.Omegle()
 
 		self.Running = True
 		self.activeChannel = data[2]
@@ -36,6 +40,7 @@ class Main():
 			,['connected', self.connected]
 			,['count', self.count]
 			,['question', self.question]
+			,['commonLikes', self.commonLikes]
 			,['recaptchaRequired', self.recaptchaRequired]
 			,['technical reasons', self.technicalReasons]
 			]
@@ -85,6 +90,9 @@ class Main():
 	def question(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Q: \x0312{0}".format(msg))
 
+	def commonLikes(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 You both like: \x0312{0}".format(", ".join(msg)))
+
 	def win(self, msg):
 		logger.info("Sent message! :)")
 	def fail(self, msg):
@@ -125,7 +133,7 @@ class Main():
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", self.__name__
-			,{"^@omegleq?$": self.initOmegle
+			,{"^@omegle": self.initOmegle
 			,"^[~`].*?$": self.sendMessage
 			,"^@disconnect$": self.makeDisconnect}
 		)

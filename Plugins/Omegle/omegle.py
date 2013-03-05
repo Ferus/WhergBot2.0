@@ -6,7 +6,6 @@ import requests
 import json
 import threading
 
-
 Servers = ["http://promenade.omegle.com/"
 #	,"http://odo-bucket.omegle.com/"
 #	,"http://bajor.omegle.com/"
@@ -41,6 +40,7 @@ class Omegle(object):
 			,'connected': []
 			,'count': []
 			,'question': []
+			,'commonLikes': []
 			,'recaptchaRequired': []
 			,'technical reasons': []
 			}
@@ -146,3 +146,10 @@ class OmegleQuestion(Omegle):
 	def __init__(self):
 		super(OmegleQuestion, self).__init__()
 		self.start_url += "&wantsspy=1"
+
+class OmegleInterest(Omegle):
+	def __init__(self, interests):
+		super(OmegleInterest, self).__init__()
+		if interests:
+			interests = "".join(interests).split(',')
+			self.start_url += "&topics=" + json.dumps(interests)
