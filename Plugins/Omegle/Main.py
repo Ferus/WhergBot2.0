@@ -72,7 +72,6 @@ class Main():
 
 	def connected(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Connected to Omegle!")
-		logger.info([msg])
 
 	def count(self, msg):
 		pass
