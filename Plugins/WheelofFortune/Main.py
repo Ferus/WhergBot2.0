@@ -4,6 +4,7 @@ class WhergWoFWrapper(object):
     def __init__(self):
         self.WoFGame = WoF.WheelofFortune()
         self.categorySet = False
+        self.playerList = []
 
     def setCategory(self, data):
         category = " ".join(data[4:]).strip()
@@ -26,19 +27,38 @@ class WhergWoFWrapper(object):
             self.WoFGame.setSolution(" ".join(data[4:]).strip())
             self.IRC.say(data[2], "Solution: "+self.WoFGame.getSolution())
 
-    def addPlayers(self, data):
-        # make a list here, then give it to self.WoFGame.setPlayers() when starting
-        pass
+    def addPlayer(self, data):
+        nick = data[0].split("!")[0]
+        if nick not in self.playerList:
+            self.playerList += nick
 
     def start(self, data):
-        self.WoFGame.setPlayers(self.playerList)
+        if len(self.playerList) < 2:
+            self.IRC.say(data[2], "At least two players are required.")
+        else:
+            self.WoFGame.setPlayers(self.playerList)
 
     def spin(self, data):
-        # remember to change:
-        # 0: bankrupt. -1: lose a turn. -2. free play
+        self.IRC.say(data[2], "It is now {player}'s turn.".format(player=gameInstance.playerTurn))
         self.WoFGame.wheelSpin()
         spindata = self.WoFGame.wheelValue
-        self.IRC.say(data[2], "\x03{0},{1}{2}\x03".format(spindata[1],spindata[2],spindata[0]))
+        if spindata[0] <= 0:
+            if spindata[0] == 0:
+                spindata[0] = "Bankrupt"
+                self.WoFGame.setPlayerMoney(0)
+                self.WoFGame.skipPlayerTurn()
+                self.WoFGame.incTurn()
+                self.spin(data)
+            elif spindata[0] == -1:
+                spindata[0] = "Lose a turn"
+                self.WoFGame.skipPlayerTurn()
+                self.WoFGame.incTurn()
+                self.spin(data)
+            elif spindata[0] == -2:
+                spindata[0] = "Free play"
+        self.IRC.say(data[2], "Spin Amount: \x03{0},{1}{2}\x03".format(
+            spindata[1],spindata[2],spindata[0]
+        ))
 
     def guess(self, data):
         #self.WoFGame.guess(" ".join(text[4:]))
@@ -56,9 +76,9 @@ class Main(WhergWoFWrapper):
             "^@WoFspin$": self.spin,
             "^@WoFsetC(?: \S+)?$": self.setCategory,
             "^@WoFsetS(?: \S+)?$": self.setSolution,
-            #"^@WoFjoin": self.joinWoF,
+            "^@WoFjoin$": self.addPlayer,
             "^@WoFguess(?: \S+)?$": self.guess,
-            "^@WoFplay": self.start
+            "^@WoFstart$": self.start
         })
 
     def Unload(self):
