@@ -92,7 +92,7 @@ class Omegle(object):
 				self.handleEvent(str(x[0]), x[1] if len(x) > 1 else '')
 
 	def disconnect(self):
-		request = self.post("disconnect", True, '')
+		request = self.post("disconnect", True, {"id":self.sid})
 		self.sid = None
 		self.thread = None
 		return True
@@ -151,5 +151,8 @@ class OmegleInterest(Omegle):
 	def __init__(self, interests):
 		super(OmegleInterest, self).__init__()
 		if interests:
-			interests = "".join(interests).split(',')
+			interests = " ".join(interests).split(',')
 			self.start_url += "&topics=" + json.dumps(interests)
+	def disconnect(self):
+		self.post("stoplookingforcommonlikes", True, {'id':self.sid})
+		return super(OmegleInterest, self).disconnect()
