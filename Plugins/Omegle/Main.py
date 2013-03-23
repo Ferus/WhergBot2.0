@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import logging
 logger = logging.getLogger("Omegle")
+import time
 from . import omegle
 from .Settings import Settings
 
@@ -11,12 +12,15 @@ class Main():
 		self.IRC = self.Parser.IRC
 		self.Running = False
 		self.Omegle = None
-
+		self.initiator = None
+		self.connect_time = 0
 		self.activeChannel = ''
 
 	def createOmegleConnection(self, data):
 		"""Called on :omegle or :omegleq. If omegleq, start question mode."""
-		
+		self.initiator = data[0].split("!")[0]
+		self.connect_time = int(time.time())
+
 		if data[3] == ":@omegleq": 
 			self.Omegle = omegle.OmegleQuestion()
 		elif data[3] == ":@omeglei":
@@ -76,7 +80,12 @@ class Main():
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302Stranger\x03 stopped typing.")
 
 	def connected(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Connected to Omegle!")
+		if self.initiator is not None and (int(time.time()) - self.connect_time) > 5:
+			self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 {0}: I've connected to Omegle!".format(self.initiator))
+			self.initiator = None
+			self.connect_time = 0
+		else:
+			self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Connected to Omegle!")
 
 	def count(self, msg):
 		pass
