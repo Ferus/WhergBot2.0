@@ -5,6 +5,7 @@ random.seed(os.urandom(50))
 import requests
 import json
 import threading
+from urllib.parse import quote
 
 Servers = ["http://promenade.omegle.com/"
 #	,"http://odo-bucket.omegle.com/"
@@ -32,17 +33,22 @@ class Omegle(object):
 
 		# recieving
 		self.callbacks = {'strangerDisconnected': []
+			,'spyDisconnected': []
 			,'waiting': []
 			,'clientID': []
 			,'gotMessage': []
+			,'spyMessage': []
 			,'typing': []
+			,'spyTyping': []
 			,'stoppedTyping': []
+			,'spyStoppedTyping': []
 			,'connected': []
 			,'count': []
 			,'question': []
 			,'commonLikes': []
 			,'recaptchaRequired': []
 			,'technical reasons': []
+			,'error': []
 			}
 
 		# sending
@@ -106,9 +112,9 @@ class Omegle(object):
 
 			res = json.loads(request)
 			for x in res:
-				self.handleEvent(str(x[0]), x[1] if len(x) > 1 else '')
+				self.handleEvent(str(x[0]), x[1:] if len(x) > 1 else [''])
 
-	def handleEvent(self, event, msg=''):
+	def handleEvent(self, event, msg):
 		if event in list(self.callbacks.keys()):
 			for x in self.callbacks[event]:
 				x(msg)
@@ -146,6 +152,11 @@ class OmegleQuestion(Omegle):
 	def __init__(self):
 		super(OmegleQuestion, self).__init__()
 		self.start_url += "&wantsspy=1"
+
+class OmegleAsk(Omegle):
+	def __init__(self, question):
+		super(OmegleAsk, self).__init__()
+		self.start_url += "&ask=1" + quote(question)
 
 class OmegleInterest(Omegle):
 	def __init__(self, interests):

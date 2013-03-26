@@ -5,7 +5,7 @@ import time
 from . import omegle
 from .Settings import Settings
 
-class Main():
+class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
 		self.Parser = Parser
@@ -25,6 +25,8 @@ class Main():
 			self.Omegle = omegle.OmegleQuestion()
 		elif data[3] == ":@omeglei":
 			self.Omegle = omegle.OmegleInterest(data[4:])
+		elif data[3] == ":@omeglea":
+			self.Omegle = omegle.OmegleAsk(" ".join(data[4:]))
 		else: 
 			self.Omegle = omegle.Omegle()
 
@@ -36,17 +38,22 @@ class Main():
 
 	def addOmegleHooks(self):
 		cb = [['strangerDisconnected', self.strangerDisconnected]
+			,['spyDisconnected', self.strangerDisconnected]
 			,['waiting', self.waiting]
 			,['clientID', self.clientID]
 			,['gotMessage', self.gotMessage]
+			,['spyMessage', self.spyMessage]
 			,['typing', self.typing]
+			,['spyTyping', self.spyTyping]
 			,['stoppedTyping', self.stoppedTyping]
+			,['spyStoppedTyping', self.spyStoppedTyping]
 			,['connected', self.connected]
 			,['count', self.count]
 			,['question', self.question]
 			,['commonLikes', self.commonLikes]
 			,['recaptchaRequired', self.recaptchaRequired]
 			,['technical reasons', self.technicalReasons]
+			,['error', self.error]
 			]
 
 		scb = [['win', self.win]
@@ -71,7 +78,7 @@ class Main():
 
 	def gotMessage(self, msg):
 		logger.info("Received Message: '{0}'".format([msg]))
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger:\x03 {0}".format(msg))
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302Stranger:\x03 {0}".format(msg[0]))
 
 	def typing(self, msg):
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302Stranger\x03 is typing.")
@@ -97,10 +104,26 @@ class Main():
 		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Error: technical reasons (Captcha) :(")
 
 	def question(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Q: \x0312{0}".format(msg))
+		if not isinstance(self.Omegle, omegle.OmegleAsk):
+			self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Q: \x0312{0}".format(msg[0]))
+		else: pass
 
 	def commonLikes(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 You both like: \x0312{0}".format(", ".join(msg)))
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 You both like: \x0312{0}".format(", ".join(msg[0])))
+
+	def error(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 Your question was too short.")
+		if self.Omegle.disconnect() == True:
+			self.cleanup()
+
+	def spyTyping(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302{0}\x03 is typing.".format(msg[0]))
+		
+	def spyStoppedTyping(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302{0}\x03 stopped typing.".format(msg[0]))
+
+	def spyMessage(self, msg):
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302{0}:\x03 {1}".format(msg[0], msg[1]))
 
 	def win(self, msg):
 		logger.info("Sent message! :)")
