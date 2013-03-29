@@ -117,13 +117,16 @@ class Main(object):
 			self.cleanup()
 
 	def spyTyping(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302{0}\x03 is typing.".format(msg[0]))
+		cc = "04" if msg[0][-1] == "2" else "02"
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x03{1}{0}\x03 is typing.".format(msg[0], cc))
 		
 	def spyStoppedTyping(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x0302{0}\x03 stopped typing.".format(msg[0]))
+		cc = "04" if msg[0][-1] == "2" else "02"
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 * \x03{1}{0}\x03 stopped typing.".format(msg[0], cc))
 
 	def spyMessage(self, msg):
-		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x0302{0}:\x03 {1}".format(msg[0], msg[1]))
+		cc = "04" if msg[0][-1] == "2" else "02"
+		self.IRC.say(self.activeChannel, "\x02[Omegle]\x02 \x03{2}{0}:\x03 {1}".format(msg[0], msg[1], cc))
 
 	def win(self, msg):
 		logger.info("Sent message! :)")
