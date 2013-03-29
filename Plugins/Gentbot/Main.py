@@ -82,9 +82,14 @@ class Main(object):
 		# replace any URL's in the message
 		URL.sub("", body)
 
-		if body.startswith("@") or len(body.split()) < 2:
+		if len(body.split()) < 3 and not body.startswith("!"):
+			# ignore short lines
+			return
+
+		if body.startswith("@"):
 			# ignore [most] WhergBot commands
 			return
+
 		args = (self, body, replyrate, self.Learning, data, owner)
 		self.addToQueue(args)
 
