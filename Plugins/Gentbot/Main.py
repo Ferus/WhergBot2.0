@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 from time import sleep
 from threading import Thread
+import re
+
 try:
 	import queue
 except ImportError:
@@ -8,6 +10,8 @@ except ImportError:
 
 from . import pyborg
 from .Settings import Settings
+
+URL = re.compile("(https?|ftp):\/\/(([\w\-]+\.)+[a-zA-Z]{2,6}|\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})(:\d+)?(\/([\w\-~.#\/?=&;:+%!*\[\]@$\'()+,|\^]+)?)?")
 
 class TwitterOutput(object):
 	def __init__(self, oauth_keys):
@@ -67,17 +71,22 @@ class Main(object):
 			# This is a horrible hack, but it would be more accurate than checking for
 			# admin output with regexes
 			self.twitter.tweet(message)
+		message = re.sub("({0}|#nick)".format(self.IRC.getnick()), data[0].split("!")[0], message)
 		self.IRC.say(data[2], message)
 
 	def process(self, data):
 		body = " ".join(data[3:])[1:]
 		owner = 1 if data[0] in Settings.get("allowed") else 0
-		replyrate = 100 if self.IRC.getnick() in body else self.Replyrate
-		if body.startswith("@"):
-			pass
-		else:
-			args = (self, body, replyrate, self.Learning, data, owner)
-			self.addToQueue(args)
+		replyrate = 100 if self.IRC.getnick() in body else 100 #self.Replyrate
+
+		# replace any URL's in the message
+		URL.sub("", body)
+
+		if body.startswith("@") or len(body.split()) < 2:
+			# ignore [most] WhergBot commands
+			return
+		args = (self, body, replyrate, self.Learning, data, owner)
+		self.addToQueue(args)
 
 	def addToQueue(self, args):
 		self.Queue.put_nowait(args)
