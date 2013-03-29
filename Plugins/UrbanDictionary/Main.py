@@ -33,7 +33,6 @@ class Main(object):
 		logger.info("Checking cache for info")
 		row = self.Cursor.execute("SELECT definition, thumbs_up, thumbs_down, permalink FROM urbandictionary WHERE word=?", [word.lower()])
 		definition = row.fetchone()
-		print(definition)
 		return definition if definition else None
 
 	def addWordToCache(self, word, definition, thumbs_up, thumbs_down, permalink):
@@ -46,7 +45,6 @@ class Main(object):
 		self.Cache.commit()
 
 	def Main(self, data):
-		data[2] = 'Ferus' # lel debug
 		if Locker.Locked:
 			self.IRC.notice(data[0].split("!")[0], "Please wait a little bit longer before using this command.")
 			return None
