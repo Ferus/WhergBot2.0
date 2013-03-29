@@ -1,5 +1,5 @@
 Settings = {
-	'killchans': ['#hacking', '#feels']
+	'killchans': ['#hacking', '#feels', "#4chon"]
 	,'guns': [
 		['Smith & Wesson', 6]
 		,['Colt Anaconda', 6]

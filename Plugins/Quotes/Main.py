@@ -219,8 +219,6 @@ class Main(object):
 		)
 
 	def Unload(self):
-		del self.Quotes
-		del self.Rules
 		del self.Parser.Commands['PRIVMSG'][1][self.__name__]
 
 	def Reload(self):

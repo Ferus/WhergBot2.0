@@ -1,3 +1,3 @@
 Settings = {
-	'allowedChans': ['#bots', '#WhergBot', "#boats"]
+	'allowedChans': ['#bots', '#WhergBot', "#boats", "#omegle"]
 }

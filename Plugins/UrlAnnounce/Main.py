@@ -46,6 +46,9 @@ class Main(object):
 	def getTitle(self, url):
 		r = requests.get(url)
 		r.raise_for_status()
+		if "text" not in r.headers['content-type']:
+			logger.info("Content-Type is not text based, aborting!")
+			return None
 		html = r.text
 		title = RE_TITLE.search(html)
 		if title:

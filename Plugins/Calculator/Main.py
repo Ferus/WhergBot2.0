@@ -22,7 +22,7 @@ class Main(object):
 			h.raise_for_status()
 		h = re.sub("(\w+):", '"\\1" :', h.text)
 		try:
-			h = json.loads(h.encode('latin-1').decode('utf-8'))
+			h = json.loads(h)
 		except ValueError:
 			return
 		if h['error'] != '':

@@ -1,4 +1,4 @@
-#!/usr/bin/python3.2
+#!/usr/bin/env python
 import sys
 import threading
 import time
