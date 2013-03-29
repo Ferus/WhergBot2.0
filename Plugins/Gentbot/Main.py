@@ -77,7 +77,7 @@ class Main(object):
 	def process(self, data):
 		body = " ".join(data[3:])[1:]
 		owner = 1 if data[0] in Settings.get("allowed") else 0
-		replyrate = 100 if self.IRC.getnick() in body else 100 #self.Replyrate
+		replyrate = 100 if self.IRC.getnick() in body else self.Replyrate
 
 		# replace any URL's in the message
 		URL.sub("", body)
