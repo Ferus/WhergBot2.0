@@ -1,117 +1,93 @@
 #!/usr/bin/env python
 
 import requests
+from urllib.parse import quote
 import re
 import json
-from html import entities as htmlentitydefs
+import sqlite3
 import logging
 logger = logging.getLogger("UrbanDictionary")
 
 from Parser import Locker
 Locker = Locker(5)
-
 from .Settings import Settings
 
-def convert(text):
-	"""Decode HTML entities in the given text."""
-	try:
-		if type(text) is str:
-			uchr = chr
-		else:
-			uchr = lambda value: value > 255 and chr(value) or chr(value)
-		def entitydecode(match, uchr=uchr):
-			entity = match.group(1)
-			if entity.startswith('#x'):
-				return uchr(int(entity[2:], 16))
-			elif entity.startswith('#'):
-				return chr(int(entity[1:]))
-			elif entity in htmlentitydefs.name2codepoint:
-				return chr(htmlentitydefs.name2codepoint[entity])
-			else:
-				return match.group(0)
-		charrefpat = re.compile(r'&(#(\d+|x[\da-fA-F]+)|[\w.:-]+);?')
-		text = charrefpat.sub(entitydecode, text)
-		return text
-	except Exception as e:
-		logger.exception("Error'd on convert()")
-		return text
-
-# http://www.urbandictionary.com/tooltip.php?term= <-- Thank god for this url.
-# http://api.urbandictionary.com/v0/define?term= <-- Even better,
 class Main(object):
 	def __init__(self, Name, Parser):
 		self.__name__ = Name
 		self.Parser = Parser
 		self.IRC = self.Parser.IRC
 
-		self.CacheFile = Settings.get("CacheFile", "Plugins/UrbanDictionary/Cache.txt")
-
-		# create it if it doesnt exist.
-		try:
-			c = open(self.CacheFile, 'r')
-		except IOError:
-			c = open(self.CacheFile, 'w')
-		c.close()
-		del c
-
+		self.Cache = sqlite3.connect(Settings.get("CacheDB", "Plugins/UrbanDictionary/Cache.sql3"), check_same_thread = False)
+		self.Cursor = self.Cache.cursor()
+		self.Cursor.execute("""CREATE TABLE IF NOT EXISTS urbandictionary
+			(id INTEGER PRIMARY KEY AUTOINCREMENT
+			,word TEXT
+			,definition TEXT
+			,thumbs_up INTEGER
+			,thumbs_down INTEGER
+			,permalink TEXT
+			)""")
 
 	def checkCacheForDef(self, word):
-		with open(self.CacheFile, 'r') as c:
-			cache = c.read().split('\n')
-			for line in cache:
-				if line.startswith(word.lower()):
-					return line.split(" : ")[1]
-			else:
-				return False
+		logger.info("Checking cache for info")
+		row = self.Cursor.execute("SELECT definition, thumbs_up, thumbs_down, permalink FROM urbandictionary WHERE word=?", [word.lower()])
+		definition = row.fetchone()
+		print(definition)
+		return definition if definition else None
 
-	def addWordToCache(self, word, definition=''):
-		with open(self.CacheFile, 'a') as c:
-			logger.info('Adding word {0}'.format(word))
-			c.write("{0} : {1}\n".format(word, definition))
+	def addWordToCache(self, word, definition, thumbs_up, thumbs_down, permalink):
+		if self.Cursor.execute("SELECT COUNT(*) FROM urbandictionary WHERE word=?", [word.lower()]).fetchone()[0] != 0:
+			self.Cursor.execute("UPDATE urbandictionary SET definition=?, thumbs_up=?, thumbs_down=?, permalink=? WHERE word=?",
+				[definition, thumbs_up, thumbs_down, permalink, word.lower()])
+		else:
+			self.Cursor.execute("INSERT INTO urbandictionary (word, definition, thumbs_up, thumbs_down, permalink) VALUES (?, ?, ?, ?, ?)",
+				[word.lower(), definition, thumbs_up, thumbs_down, permalink])
+		self.Cache.commit()
 
 	def Main(self, data):
+		data[2] = 'Ferus' # lel debug
 		if Locker.Locked:
 			self.IRC.notice(data[0].split("!")[0], "Please wait a little bit longer before using this command.")
 			return None
 		word = ' '.join(data[4:])
-		checkCache = self.checkCacheForDef(word)
-		if checkCache:
+		definition = self.checkCacheForDef(word)
+		if definition is not None:
 			logger.info("Sending cached word.")
-			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1}".format(word, checkCache))
+			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1} [\x02{2} ↑\x02/\x02{3} ↓\x02] - {4}".format(
+				word, definition[0], definition[1], definition[2], definition[3]))
 			Locker.Lock()
 			return None
 
-		logger.info("Polling UrbanDictionary.")
-		url = "http://www.urbandictionary.com/tooltip.php?term={0}".format(word.replace(" ","%20"))
 		try:
-			html = requests.get(url).text
-		except requests.HTTPError:
+			logger.info("Polling UrbanDictionary.")
+			html = requests.get("http://api.urbandictionary.com/v0/define?term={0}".format(quote(word)))
+		except (requests.HTTPError, requests.ConnectionError) as e:
 			logger.exception("Failed to connect.")
-			self.IRC.say(data[2], "Failed to connect to Urban Dictionary.")
+			self.IRC.say(data[2], "\x02[UrbanDict]\x02 Failed to connect to Urban Dictionary.")
 			return None
-
-		html = html.replace("\\u003C", "<").replace("\\u003E",">")
-		html = json.loads(html)['string']
-
-		try:
-			result = re.sub(r'[\r\n\t]', "", html)
-			result, other = re.search("<div>\s*<b>.*?</b></div><div>\s*(?:.*?<br/><br/>)?(.*?)</div>(?:<div class='others'>\s*(.*?)</div>)?", result).groups()
-		except Exception as e:
-			logger.exception("Error parsing html")
-			result = None
-		if not result or result is None or result == '':
+		result = json.loads(html.text)
+		if result['result_type'] != "exact":
+			logger.info("Word not defined.")
 			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0} has not yet been defined.".format(word))
 			return None
 
-		results = []
-		for x in re.split("<br/>", result):
-			if x == " " or x == "":
-				continue
-			x = x.replace('&quot;', '"').replace('<b>', '\x02').replace('</b>', '\x02').replace('<br/>', '')
-			results.append(x)
-			self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1}".format(word, x))
+		def clean(definition):
+			definition = re.sub("[\r|\n]+", " ", definition)
+			definition = definition.replace("[", "\x02").replace("]", "\x02")
+			if len(definition) > 320:
+				definition = definition[:320]+"..."
+			return definition
+
+		result = result['list'][0]
+		definition = clean(result['definition'])
+		thumbs_up = int(result['thumbs_up'])
+		thumbs_down = int(result['thumbs_down'])
+		permalink = result['permalink']
+		self.IRC.say(data[2], "\x02[UrbanDict]\x02 {0}: {1} [\x02{2} ↑\x02/\x02{3} ↓\x02] - {4}".format(
+			word, definition, thumbs_up, thumbs_down, permalink))
 		Locker.Lock()
-		self.addWordToCache(word.lower(), " ".join(results))
+		self.addWordToCache(word, definition, thumbs_up, thumbs_down, permalink)
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", self.__name__, {"^@ud .*?$": self.Main})

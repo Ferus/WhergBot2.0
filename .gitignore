@@ -6,4 +6,5 @@ Cleanup.sh
 mkQuotesDB.py
 blackbox
 *.db
+*.sql3
 *.log
