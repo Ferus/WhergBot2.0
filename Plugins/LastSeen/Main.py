@@ -27,19 +27,20 @@ class Main(object):
 		self.Seen.addLastSeen(nick, chan, msg)
 
 	def seen(self, data):
-		s = self.Seen.getLastSeen(data[4])
+		person = data[4].lower()
+		s = self.Seen.getLastSeen(person)
 		if not s:
 			self.IRC.say(data[2], "I don't know who \x02{0}\x02 is.".format(data[4]))
 			return
 		nick, chan, msg, timestamp = s
 		timestamp = time.strftime(Settings.get("timestamp"), time.localtime(timestamp))
-		self.IRC.say(data[2], "\x02{0}\x02 was last seen in \x02{1}\x02 (\x02{2}\x02) on ".format(
-			nick, chan, msg, timestamp))
+		self.IRC.say(data[2], "\x02{0}\x02 was last seen in \x02{1}\x02 (\x02{2}\x02) on \x02{3} UTC -8\x02".format(
+			data[4], chan, msg, timestamp))
 
 	def Load(self):
 		self.Parser.hookCommand("PRIVMSG", self.__name__, {".*": self.add
 			,"^@seen \S+$": self.seen})
-		# QUITS too?
+		# QUITS/JOINS/PARTS too (soon)
 
 	def Unload(self):
 		pass
