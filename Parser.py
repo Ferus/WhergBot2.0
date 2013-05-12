@@ -233,7 +233,7 @@ class Parser(object):
 				self.loadedPlugins[plugin].Load()
 			except Exception as e:
 				logger.exception("{0}: Error creating instance of {1}.Main()".format(self.Connection.__name__, plugin))
-				if self.loadedPlugins[plugin]:
+				if self.loadedPlugins.get(plugin, None) is not None:
 					del self.loadedPlugins[plugin]
 				continue
 		logger.info("{0}: Loaded Plugins!".format(self.Connection.__name__))
@@ -244,7 +244,8 @@ class Parser(object):
 				self.loadedPlugins[module].Unload()
 			except Exception as e:
 				logger.exception("Error unloading {0}".format(module))
-			del self.loadedPlugins[module]
+			if self.loadedPlugins.get(module, None) is not None:
+				del self.loadedPlugins[module]
 		else:
 			logger.warn("Trying to unload a nonexistant module")
 
@@ -306,11 +307,16 @@ class Parser(object):
 			Nick, Ident, Host = re.split("!|@", data[0])
 		except ValueError:
 			Server = data[0][1:]
+		commands = []
 		for Plugin, Commands in self.Commands['NOTICE'][1].items():
 			for Regex, Callback in Commands.items():
 				if re.search(Regex, " ".join(data[3:])[1:]):
-					logger.info("Calling {0}".format(repr(Callback)))
-					Callback(data)
+					logger.info("Creating thread for function {0}".format(repr(Callback)))
+					t = threading.Thread(target=Callback, args=(data,))
+					t.daemon = True
+					commands.append(t)
+		for com in commands:
+			com.start()
 
 	def JOIN(self, data):
 		for Plugin, Commands in self.Commands['JOIN'][1].items():
