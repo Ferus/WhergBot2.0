@@ -1,7 +1,8 @@
 # WhergBot - A Python 3.2.3 IRC bot.
 ## About
 
-A Python 3.x IRC Bot with plugin support.
+A Python 3.x IRC Bot with plugin support. DEPRECIATED AND UNSUPPORTED
+A new version is in the works, please use https://github.com/Ferus/WhergBot3.0 when it's finished.
 
 ## License
 
